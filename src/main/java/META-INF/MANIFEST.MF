@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Class-Path: asm-util-5.0.3.jar ahome-tooling-nativetools-1.0.45-RELEAS
+ E.jar asm-tree-5.0.3.jar gwt-dev-2.7.0.jar gwt-codeserver-2.7.0.jar a
+ sm-commons-5.0.3.jar asm-5.0.3.jar lienzo-core-2.0.125-RC1.jar ahome-
+ tooling-common-1.0.45-RELEASE.jar gwt-servlet-2.7.0.jar
+

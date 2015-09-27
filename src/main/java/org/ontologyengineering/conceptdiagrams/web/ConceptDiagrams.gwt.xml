@@ -1,18 +1,21 @@
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.0//EN"
         "http://google-web-toolkit.googlecode.com/svn/releases/2.0/distro-source/core/src/gwt-module.dtd">
-<module>
-
-    <inherits name='com.google.gwt.user.User'/>
-
-    <entry-point class='org.ontologyengineering.conceptdiagrams.web.client.ConceptDiagrams'/>
-
-    <!-- The graphics library -->
-    <inherits name="com.ait.lienzo.Lienzo"/>
+<module>  <!-- rename-to="ConceptDiagrams"> -->
 
 
     <!-- Specify the paths for translatable code -->
     <source path='client'/>
     <source path='shared'/>
+    <source path='ConceptDiagrams'/>
 
+
+    <inherits name='com.google.gwt.user.User'/>
+
+
+    <!-- The graphics library -->
+    <inherits name="com.ait.lienzo.Lienzo"/>
+
+
+    <entry-point class='org.ontologyengineering.conceptdiagrams.web.client.ConceptDiagrams'/>
 
 </module>
