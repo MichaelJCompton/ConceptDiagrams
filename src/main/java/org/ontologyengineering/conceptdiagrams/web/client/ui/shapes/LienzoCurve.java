@@ -41,17 +41,23 @@ public class LienzoCurve extends LienzoDiagramShape<ConcreteCurve, OrthogonalPol
     @Override
     public BoundingBox getBoundingBox() {
         return getRepresentation().getBoundingBox();
-        // FIXME : need some more hooks here ... if the curve is selected we drag the bounds box.  Also
-        // ignore the drage select in the canvas if there is a selected entity under the mouse ... just move it.
-        // then we'll have the recieve pan and zoom events to redraw all the drag bounds ... hmmm
-        //
-        // boxes on curve/br layer, rubber band on the drag layer //
     }
 
     @Override
     public void dragBoundsMoved(BoundingBox newBoundingBox) {
+        double deltaX = newBoundingBox.getX() - getDiagramElement().getX();
+        double deltaY = newBoundingBox.getY() - getDiagramElement().getY();
+        //double changeRatioX = newBoundingBox.getWidth() / getDiagramElement().getWidth();
+        //double changeRatioY = newBoundingBox.getHeight() / getDiagramElement().getHeight();
+
         CommandManager.get().executeCommand(new ResizeCommand(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()),
                 new Point(newBoundingBox.getX() + newBoundingBox.getWidth(), newBoundingBox.getY() + newBoundingBox.getHeight())));
+
+        // FIXME ... does this mean label locations should be in the concrete elements???
+        if(hasLabel()) {
+            getLabel().getRepresentation().setX(getLabel().getRepresentation().getX() + (deltaX));// * changeRatioX));
+            getLabel().getRepresentation().setY(getLabel().getRepresentation().getY() + (deltaY));// * changeRatioY));
+        }
     }
 
 

@@ -18,9 +18,9 @@ import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Spider;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 /**
- * A concrete spider is a filled circle.
+ * A concrete spider
  */
-public class ConcreteSpider extends ConcreteDiagramElement {
+public class ConcreteSpider extends ConcreteDiagramElement <Spider> {
 
 
     // This is the centre point of the spider ... breaks the abstraction a bit cause everything else is top left
@@ -28,6 +28,7 @@ public class ConcreteSpider extends ConcreteDiagramElement {
         super(new Point(centre.getX() - spiderRadius, centre.getY() - spiderRadius), ConcreteDiagramElement_TYPES.CONCRETESPIDER);
         //setFillColour(spiderColour);
         //setBorderColour(spiderColour);
+        checkValidity();
     }
 
     public Point centre() {
@@ -41,11 +42,20 @@ public class ConcreteSpider extends ConcreteDiagramElement {
         rect.addSpider(this);
     }
 
+    @Override
+    public void checkValidity() {
+        // FIXME : this isn't good enough once there are multiple spider feet
+        setValid(true);
+    }
+
 
     public double getRadius() {
         return spiderRadius;
     }
 
+    public Point bottomRight() {
+        return new Point(topLeft().getX() + (2*getRadius()), topLeft().getY() + (2*getRadius()));
+    }
 
     @Override
     public void makeAbstractRepresentation() {

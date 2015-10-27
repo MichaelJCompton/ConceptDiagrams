@@ -7,10 +7,12 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
+import com.google.gwt.dev.util.collect.*;
 import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.BoundaryRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.*;
+import java.util.HashSet;
 
 /**
  * While in the abstract syntax all the bits of a diagram are 'owned' by the diagram itself (i.e. from the definitions a
@@ -19,7 +21,7 @@ import java.util.*;
  * it's all owned by the boundary rectangle, or concrete diagram, and underneath they sort out the correct abstract
  * representation.
  */
-public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
+public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <BoundaryRectangle> {
 
     // grid to keep intersection checking speedy
     private List<List<AbstractSet<ConcreteCurve>>> intersectionGrid;
@@ -40,6 +42,7 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
     private AbstractSet<ConcreteSpider> mySpiders;
     private AbstractSet<ConcreteCurve> myCurves;
     private AbstractSet<ConcreteArrow> myArrows;
+
 
     public ConcreteBoundaryRectangle(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight, ConcreteDiagramElement_TYPES.CONCRETEBOUNDARYRECTANGE);
@@ -66,6 +69,10 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
         createIntersectionGrid(initialSquares);
 
         makeMainZone();
+    }
+
+    public boolean isStarRectangle() {
+        return false;
     }
 
     protected void makeMainZone() {
@@ -119,6 +126,16 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
         for (AbstractSet<ConcreteZone> zones : getZoneHeights()) {
             for(ConcreteZone zone : zones) {
                 result.add(zone);
+            }
+        }
+        return result;
+    }
+
+    public AbstractSet<ConcreteZone> getShadedZones() {
+        AbstractSet<ConcreteZone> result = new HashSet<ConcreteZone>();
+        for(ConcreteZone z : getZones()) {
+            if(z.shaded()) {
+                result.add(z);
             }
         }
         return result;
@@ -238,11 +255,86 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
     }
 
     @Override
-    public void makeAbstractRepresentation() {
-        if (!isAbstractRepresentationSyntaxUpToDate()) {
-            BoundaryRectangle result = new BoundaryRectangle();
-            setAbstractSyntaxRepresentation(result);
+    public void checkValidity() {
+        inferType();
+    }
+
+    public void inferType() {
+        boolean isObject = true;
+        boolean typeknown = false;
+        setValid(true);  /// start with this and see if it changes
+
+        // firstly try to infer the type of this rectangle ... basically see if anything is data
+        for (ConcreteCurve c : getCurves()) {
+            if (c.typeIsKnown()) {
+                if(typeknown && (isObject != c.isObject())) {
+                    setValid(false);
+                }
+                isObject = c.isObject();
+                typeknown = true;
+            }
         }
+        for (ConcreteSpider s : getSpiders()) {
+            if (s.typeIsKnown()) {
+                if(typeknown && (isObject != s.isObject())) {
+                    setValid(false);
+                }
+                isObject = s.isObject();
+                typeknown = true;
+            }
+        }
+        for (ConcreteArrow a : getArrows()) {
+            if(a.isValid()) {
+                if (a.typeIsKnown()) {
+                    if (typeknown && (isObject != a.isObject())) {
+                        setValid(false);
+                    }
+                    isObject = a.isObject();
+                    typeknown = true;
+                }
+            } else {
+                setValid(false);
+            }
+        }
+
+        if(isValid()) {
+            if (isObject) {
+                setAsObject();
+            } else {
+                setAsData();
+            }
+
+            // no go through and set all those inferred types
+            for (ConcreteCurve c : getCurves()) {
+                if (isObject) {
+                    c.setAsObject();
+                } else {
+                    c.setAsData();
+                }
+            }
+            for (ConcreteSpider s : getSpiders()) {
+                if (isObject) {
+                    s.setAsObject();
+                } else {
+                    s.setAsData();
+                }
+            }
+            for (ConcreteArrow a : getArrows()) {
+                if (isObject) {
+                    a.setAsObject();
+                } else {
+                    a.setAsData();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void makeAbstractRepresentation() {
+//        if (!isAbstractRepresentationSyntaxUpToDate()) {
+//            BoundaryRectangle result = new BoundaryRectangle();
+//            setAbstractSyntaxRepresentation(result);
+//        }
     }
 
     // so it's been moved on the canvas, need to refresh the intersection grid.  All the curves are just where they
@@ -256,7 +348,7 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
 
         makeMainZone();
 
-        createIntersectionGrid((int) Math.ceil(maxDim/gridSquareSize));
+        createIntersectionGrid((int) Math.ceil(maxDim / gridSquareSize));
 
         for(ConcreteCurve c : getCurves()) {
             addCurveToIntersectionGrid(c);
@@ -278,6 +370,12 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
     public void deleteMe() {
         // not yet
     }
+
+
+    private void calculateRectangleType() {
+        // sets isObjectRectangle and isValidRectangle
+    }
+
 
 
     // ---------------------------------------------------------------------------------------
@@ -341,5 +439,59 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
         return gridSquareTopLeft(across + 1, down + 1);
     }
 
+
+    // hmmm this currently includes zones ... but often we might not want them.  For the moment
+    // clients will have to remove themselves
+    public AbstractSet<ConcreteDiagramElement> elementsInBoundingBox(Point topLeft, Point botRight) {
+        AbstractSet<ConcreteDiagramElement> result = new HashSet<ConcreteDiagramElement>();
+
+        if(completelyEnclosed(topLeft, botRight)) {
+            // we are completely inside the given bounds, so return everything, including this boundary rectangle
+            result.add(this);
+            result.addAll(getAllChildren());
+        } else if(completelyEncloses(topLeft, botRight)) {
+            // the bound is completely inside me
+            result.addAll(elementsInBoundingBoxHelper(topLeft, botRight));
+        } else {
+            if(ConcreteRectangularElement.rectanglesIntersect(topLeft(), bottomRight(), topLeft, botRight)) {
+                // must intersect the rectangle so add that too
+                result.add(this);
+                result.addAll(elementsInBoundingBoxHelper(topLeft, botRight));
+            }
+        }
+        return result;
+    }
+
+    private AbstractSet<ConcreteDiagramElement> elementsInBoundingBoxHelper(Point topLeft, Point botRight) {
+        AbstractSet<ConcreteDiagramElement> result = new HashSet<ConcreteDiagramElement>();
+
+        for(ConcreteSpider s : getSpiders()) {
+            if(ConcreteRectangularElement.rectangleContainment(s.centre(), topLeft, botRight)) {
+                result.add(s);
+            }
+        }
+
+        for(ConcreteArrow a : getArrows()) {
+            if (a.intersectsBox(topLeft, botRight)) {
+                result.add(a);
+            }
+        }
+
+        // NOT quite the right test.  But should do as the only error is if  the rounded corner doens't make it into
+        // the bounding box ... need to think about this for the things that call this function
+        for(ConcreteCurve c : getCurves()) {
+            if(ConcreteRectangularElement.rectanglesIntersect(c.topLeft(), c.bottomRight(), topLeft, botRight)) {
+                result.add(c);
+            }
+        }
+
+        for (ConcreteZone z : getZones()) {
+            if(ConcreteRectangularElement.rectanglesIntersect(z.topLeft(), z.bottomRight(), topLeft, botRight)) {
+                result.add(z);
+            }
+        }
+
+        return result;
+    }
 
 }

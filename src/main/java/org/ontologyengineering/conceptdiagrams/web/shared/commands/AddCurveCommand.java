@@ -11,10 +11,16 @@ import org.ontologyengineering.conceptdiagrams.web.client.events.AddCurveEvent;
 import org.ontologyengineering.conceptdiagrams.web.client.events.AddZoneEvent;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteBoundaryRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteCurve;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddUnlabelledCurve;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformAClassAndObjectPropertyDiagram;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformADatatypeDiagram;
 
 import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.HashSet;
 
 
@@ -78,6 +84,25 @@ public class AddCurveCommand extends Command {
 //        HashSet<Event> result = new HashSet<Event>();
 //        result.add(new RemoveCurveEvent(curve));
 //        return result;
+    }
+
+    @Override
+    public ConcreteDiagram getDiagram() {
+        return boundaryRectangle.getDiagram();
+    }
+
+    @Override
+    public boolean leadsToValid() {
+        return true;  // not sure what could be invalid here?
+    }
+
+    @Override
+    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+        if(boundaryRectangle.isObject()) {  // types should have been inferred by now
+            return new TransformAClassAndObjectPropertyDiagram(new AddUnlabelledCurve(getCurve()));
+        } else {
+            return new TransformADatatypeDiagram(new AddUnlabelledCurve(getCurve()));
+        }
     }
 
     protected ConcreteCurve getCurve () {

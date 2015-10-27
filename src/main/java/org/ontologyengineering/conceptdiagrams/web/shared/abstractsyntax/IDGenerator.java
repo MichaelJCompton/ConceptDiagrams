@@ -29,6 +29,10 @@ public class IDGenerator {
         return result;
     }
 
+    public Integer getIDasNum() {
+        return currentID++;
+    }
+
     public String getID(String prefix) {
         return prefix + getID();
     }

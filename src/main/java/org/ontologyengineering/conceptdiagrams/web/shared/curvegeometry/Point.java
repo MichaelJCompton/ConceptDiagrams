@@ -33,12 +33,24 @@ public class Point {
         return new Point2D(thePoint);
     }
 
+    public void setX(double x) {
+        thePoint.setX(x);
+    }
+
+    public void setY(double y) {
+        thePoint.setY(y);
+    }
+
     public double getX() {
         return thePoint.getX();
     }
 
     public double getY() {
         return thePoint.getY();
+    }
+
+    public boolean equals(Point other) {
+        return getX() == other.getX() && getY() == other.getY();
     }
 
 }

@@ -10,10 +10,13 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
 import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.DiagramElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
+import java.util.AbstractSet;
+import java.util.HashSet;
+
 /**
  *
  */
-public abstract class ConcreteDiagramElement {
+public abstract class ConcreteDiagramElement <T extends DiagramElement> {
 
 
     public enum ConcreteDiagramElement_TYPES {
@@ -44,22 +47,31 @@ public abstract class ConcreteDiagramElement {
 
 
     private Boolean abstractSyntaxUpToDate;
-    private DiagramElement abstractSyntaxRepresentation;  // generic type??
+    private T abstractSyntaxRepresentation;  // generic type??
 
     protected ConcreteBoundaryRectangle myBoundaryRectangle; // everything should have only one except arrows, which pick source
     // can always get from an arrow any way with destination's boundary rectangle.
 
 
+    private AbstractSet<ConcreteArrow> sourcedArrows;
+    private AbstractSet<ConcreteArrow> targettedArrows;
+
     private Point topLeft;
 
     private String label;
+
+    private boolean isObject = true;
+    private boolean typeKnown = true;
+    private boolean isValid = true;
 
 
     public ConcreteDiagramElement(Point topLeft, ConcreteDiagramElement_TYPES type) {
         setTopLeft(topLeft);
         setType(type);
         setAbstractSyntaxNOTUpToDate();
-        // maybe should make the abstract representation here
+
+        sourcedArrows = new HashSet<ConcreteArrow>();
+        targettedArrows = new HashSet<ConcreteArrow>();
     }
 
     protected ConcreteDiagramElement(ConcreteDiagramElement_TYPES type) {
@@ -97,12 +109,12 @@ public abstract class ConcreteDiagramElement {
         abstractSyntaxUpToDate = false;
     }
 
-    protected void setAbstractSyntaxRepresentation(DiagramElement representation) {
+    protected void setAbstractSyntaxRepresentation(T representation) {
         abstractSyntaxRepresentation = representation;
         setAbstractSyntaxUpToDate();
     }
 
-    public DiagramElement getAbstractSyntaxRepresentation() {
+    public T getAbstractSyntaxRepresentation() {
         return abstractSyntaxRepresentation;
     }
 
@@ -120,6 +132,41 @@ public abstract class ConcreteDiagramElement {
     }
 
 
+    public void setAsObject() {
+        isObject = true;
+        setTypeKnown();
+    }
+
+    public void setAsData() {
+        isObject = false;
+        setTypeKnown();
+    }
+
+    public void setTypeKnown() {
+        typeKnown = true;
+    }
+
+    public boolean typeIsKnown() {
+        return typeKnown;
+    }
+
+    public boolean isObject() {
+        return typeKnown && isObject;
+    }
+
+    public boolean isData() {
+        return typeKnown && ! isObject();
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    protected void setValid(boolean validity) {
+        isValid = validity;
+    }
+
+    public abstract void checkValidity();
 
 
     public double getX() {
@@ -132,6 +179,16 @@ public abstract class ConcreteDiagramElement {
 
     public Point topLeft() {
         return topLeft;
+    }
+
+    public abstract Point bottomRight();
+
+    public double getWidth() {
+        return bottomRight().getX() - topLeft().getX();
+    }
+
+    public double getHeight() {
+        return bottomRight().getY() - topLeft().getY();
     }
 
     protected void setTopLeft(Point newTopLeft) {
@@ -149,6 +206,29 @@ public abstract class ConcreteDiagramElement {
         setTopLeft(topLeft);
     }
 
+
+    protected void setAsArrowSource(ConcreteArrow arrow) {
+        sourcedArrows.add(arrow);
+    }
+
+    protected void setAsArrowTarget(ConcreteArrow arrow) {
+        targettedArrows.add(arrow);
+    }
+
+    protected void removeAsArrowSource(ConcreteArrow arrow) {
+        sourcedArrows.remove(arrow);
+    }
+
+    protected void removeAsArrowTarget(ConcreteArrow arrow){
+        targettedArrows.remove(arrow);
+    }
+
+    public AbstractSet<ConcreteArrow> getAllAttachedArrows() {
+        AbstractSet<ConcreteArrow> result = new HashSet<ConcreteArrow>();
+        result.addAll(sourcedArrows);
+        result.addAll(targettedArrows);
+        return result;
+    }
 
     public abstract void makeAbstractRepresentation();
 

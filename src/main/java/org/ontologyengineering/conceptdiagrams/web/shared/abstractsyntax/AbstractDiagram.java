@@ -9,16 +9,16 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
 /**
  *
- * The generics type here isn't totally correct, because a ConceptDiagram just can't have a parent, but it's fine
+ * The generics type here isn't totally correct, because a ConceptDiagram just can't have a diagram, but it's fine
  * in practise.
  */
-public abstract class AbstractDiagram extends DiagramElement<ConceptDiagram> {
+public abstract class AbstractDiagram<DiagramType extends AbstractDiagram> extends DiagramElement<DiagramType> {
 
     AbstractDiagram() {
         super();
     }
 
-    AbstractDiagram(ConceptDiagram parent) {
+    AbstractDiagram(DiagramType parent) {
         super(parent);
     }
 

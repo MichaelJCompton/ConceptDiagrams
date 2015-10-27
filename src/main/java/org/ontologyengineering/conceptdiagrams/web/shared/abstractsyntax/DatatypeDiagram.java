@@ -8,15 +8,19 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
 
 /**
- * A Labelled diagram with some constraints
+ * A LabelledDiagram where
+ *
+ * A = \emptyset
+ * lambda_s has range V_I
+ * lambda_c has range V_C
  */
 public class DatatypeDiagram extends LabelledDiagram {
 
-    DatatypeDiagram() {
+    public DatatypeDiagram() {
         super();
     }
 
-    DatatypeDiagram(ConceptDiagram parent) {
+    public DatatypeDiagram(LabelledMultiDiagram parent) {
         super(parent);
     }
 

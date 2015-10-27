@@ -13,13 +13,13 @@ import java.util.HashSet;
  * Typing for those things that can be the source and targets of arrows.  Also provides a common interface for functions
  * related to that.
  */
-public abstract class DiagramArrowSourceOrTarget extends DiagramElement<LabelledDiagram> {
+public abstract class DiagramArrowSourceOrTarget<DiagramType extends AbstractDiagram> extends DiagramElement<DiagramType> {
 
     DiagramArrowSourceOrTarget() {
         super();
     }
 
-    DiagramArrowSourceOrTarget(LabelledDiagram parent) {
+    DiagramArrowSourceOrTarget(DiagramType parent) {
         super(parent);
     }
 
@@ -27,7 +27,7 @@ public abstract class DiagramArrowSourceOrTarget extends DiagramElement<Labelled
         super(label);
     }
 
-    DiagramArrowSourceOrTarget(String label, LabelledDiagram parent) {
+    DiagramArrowSourceOrTarget(String label, DiagramType parent) {
         super(label, parent);
     }
 

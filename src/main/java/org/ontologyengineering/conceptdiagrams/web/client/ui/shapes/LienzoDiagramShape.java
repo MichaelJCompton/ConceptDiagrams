@@ -98,10 +98,14 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
     protected static final ColorName rubberBandColourName = ColorName.DARKSLATEGRAY;
     protected static final Color rubberBandColour = rubberBandColourName.getColor().setA(0.5);
 
+    protected static final double dragBoxSize = 6;
+
 
     private T element;
     protected M representation;
-    private LienzoDragBoundsBoxes dragRepresentation;
+
+    private LienzoDragBoundsGroup dragRepresentation;
+    private LienzoDragRubberBand dragRubberBand;
 
     private LienzoLabel label;
 
@@ -204,37 +208,56 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
      */
     public abstract void redraw();
 
+    public void drawRubberBand() {
+        makedragRubberBand();
+        getDragRubberBand().draw(null);
+    }
+
+    public void undrawRubberBand() {
+        getDragRubberBand().undraw();
+    }
+
+
     /**
-     * draw the selection boxes, boundary shape etc.
+     * draw the boundary rubber band
      * <p/>
      * Requires that has already been drawn and getRepresentation().getLayer() != null
      */
-    public void drawDragRepresentation() {
-        if (getRepresentation() != null && getLayer() != null) {
-            setDragRepresentation(new LienzoDragBoundsBoxes(getCanvas(), this));
-            getDragRepresentation().draw(getLayer());
-        }
-    }
-
-    public void unDrawDragRepresentation() {
-        if (getDragRepresentation() != null) {
-            getDragRepresentation().undraw();
-            setDragRepresentation(null);
-        }
-    }
+//    public void drawRubberBandRepresentation() {
+//        if (getRepresentation() != null && getLayer() != null) {
+//            setDragRepresentation(new Lie(getCanvas(), this));
+//            getDragRepresentation().draw(getLayer());
+//        }
+//    }
+//
+//    public void unDrawDragRepresentation() {
+//        if (getDragRepresentation() != null) {
+//            getDragRepresentation().undraw();
+//            setDragRepresentation(null);
+//        }
+//    }
 
     public abstract void setAsSelected();
 
     public abstract void setAsUnSelected();
 
-    protected LienzoDragBoundsBoxes getDragRepresentation() {
+    protected LienzoDragBoundsGroup getDragRepresentation() {
         return dragRepresentation;
     }
 
-    protected void setDragRepresentation(LienzoDragBoundsBoxes dragRepresentation) {
+    protected void setDragRepresentation(LienzoDragBoundsGroup dragRepresentation) {
         this.dragRepresentation = dragRepresentation;
     }
 
+    protected LienzoDragRubberBand getDragRubberBand() {
+        return dragRubberBand;
+    }
+
+    protected void makedragRubberBand() {
+        if(dragRubberBand == null) {
+            dragRubberBand = new LienzoDragRubberBand(getCanvas(), this);
+        }
+    }
 
     // subclasses with children will override
     public void drawAll(Layer layer) {

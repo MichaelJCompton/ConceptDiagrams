@@ -16,56 +16,95 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
 //import com.ait.lienzo.client.core.types.Point2D;
 //import com.ait.lienzo.client.core.types.Point2DArray;
 //import com.ait.lienzo.shared.core.types.Color;
+import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Arrow;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.PointArray;
 
 
-public class ConcreteArrow extends ConcreteDiagramElement {
+public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
 
     private ConcreteDiagramElement source;
     private ConcreteDiagramElement target;
 
-    private Point endPoint;  // startpoint is in the super
-    private PointArray controlPoints;
+    //private Point startPoint, endPoint;  // startpoint is in the super
+
+    // start and end points are calculated from the ratios below
+
+    // how far from the top left of the element the start/end point is - as a proportion of width/height.
+    // So that on moves and resizes we can keep the arrow in the right spot
+    private double xRatioSource, yRatioSource, xRatioTarget, yRatioTarget;
 
 
+    private boolean isObjectProperty = true;
+    private boolean typeUnknown = true;  // if we don't know the type, we are free to infer it (once)
 
-    // FIXME : also needs to respond to moves of the parents
-    // FIXME : need to make attached to it's source and target so if they move, this can move too
+    // Assumes that the points are correct
+    public ConcreteArrow(Point startPoint, Point endPoint, ConcreteDiagramElement source, ConcreteDiagramElement target) {
+        super(startPoint, ConcreteDiagramElement_TYPES.CONCRETEARROW);  // wrong start point!  but need something
 
-    public ConcreteArrow(Point topLeft, Point endPoint) {
-        super(topLeft, ConcreteDiagramElement_TYPES.CONCRETEARROW);
-        this.endPoint = endPoint;
-//
-//        setLineColour(arrowColour);
-//        setLineSelectedColour(arrowSelectedColour);
-//        lineWidth = arrowLineWidth;
+        setTopLeft(new Point(Math.min(startPoint.getX(), endPoint.getX()), Math.min(startPoint.getY(), endPoint.getY())));
+
+        setSource(source);
+        setStartPoint(startPoint);
+        setTarget(target);
+        setEndPoint(endPoint);
+
+        // FIXME : maybe this should set the boundary rectangle as the sourcce/target?
     }
 
+    // really set the ratio to the source top left
+    private void setStartPoint(Point startPoint) {
+        xRatioSource = (startPoint.getX() - source.topLeft().getX()) / source.getWidth();
+        yRatioSource = (startPoint.getY() - source.topLeft().getY()) / source.getHeight();
+    }
 
     public void setSource(ConcreteDiagramElement newSource) {
+        if(source != null) {
+            source.removeAsArrowSource(this);
+        }
         source = newSource;
+        if(newSource != null) {
+            source.setAsArrowSource(this);
+        }
+
+        // FIXME also if the source is a data curve/rectangle setAsDataProperty
     }
 
     public ConcreteDiagramElement getSource() {
         return source;
     }
 
+    private void setEndPoint(Point endPoint) {
+        xRatioTarget = (endPoint.getX() - target.topLeft().getX()) / target.getWidth();
+        yRatioTarget = (endPoint.getY() - target.topLeft().getY()) / target.getHeight();
+    }
+
     public void setTarget(ConcreteDiagramElement newTarget) {
+        if(target != null) {
+            target.removeAsArrowTarget(this);
+        }
         target = newTarget;
+        if(newTarget != null) {
+            target.setAsArrowTarget(this);
+        }
     }
 
     public ConcreteDiagramElement getTarget() {
         return target;
     }
 
-    public Point getEndPoint() {
-        return endPoint;
-    }
+
 
     // ignore moves, they happen through source and dest
     public void move(Point topLeft) {}
 
+    public boolean singleRectangle() {
+        return getSource().getBoundaryRectangle() == getTarget().getBoundaryRectangle();
+    }
+
+    public boolean spansRectangles() {
+        return ! singleRectangle();
+    }
 
     @Override
     public void setBoundaryRectangle(ConcreteBoundaryRectangle rect) {
@@ -78,95 +117,82 @@ public class ConcreteArrow extends ConcreteDiagramElement {
 
     }
 
-//    @Override
-//    public void makeConcreteRepresentation() {
-//        double[] xpoints = new double[pointsInArrowLine + 2];  // +2 for start and end points
-//        double[] ypoints = new double[pointsInArrowLine + 2];
-//        double xdiff = (getX() < getEndPoint().getX()) ? getEndPoint().getX() - getX() : getX() - getEndPoint().getX();
-//        double ydiff = (getY() < getEndPoint().getY()) ? getEndPoint().getY() - getY() : getY() - getEndPoint().getY();
-//
-//        xpoints[0] = getX();
-//        ypoints[0] = getY();
-//        for(int i = 1; i <= pointsInArrowLine; i++) {
-//            if(getX() < getEndPoint().getX()) {
-//                xpoints[i] = getX() + (xdiff / (pointsInArrowLine+1)) * i;
-//            } else {
-//                xpoints[i] = getX() - (xdiff / (pointsInArrowLine+1)) * i;
-//            }
-//            if(getY() < getEndPoint().getY()) {
-//                ypoints[i] = getY() + (ydiff / (pointsInArrowLine+1)) * i;
-//            } else {
-//                ypoints[i] = getY() - (ydiff / (pointsInArrowLine+1)) * i;
-//            }
-//        }
-//        xpoints[pointsInArrowLine+1] = getEndPoint().getX();
-//        ypoints[pointsInArrowLine+1] = getEndPoint().getY();
-//
-//        controlPoint = new Point2DArray(xpoints, ypoints);
-//
-//        final Spline spline = new Spline(controlPoint);
-//        spline.setStrokeColor(getBorderColour());
-//        spline.setStrokeWidth(getLineWidth());
-//        spline.setDraggable(false);
-//
-//        spline.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
-//
-//            public void onNodeMouseEnter(NodeMouseEnterEvent event) {
-//                spline.setStrokeColor(getBorderSelectedColour());
-//                setIsUnderMouse();
-//                spline.getLayer().batch();
-//            }
-//        });
-//        spline.addNodeMouseExitHandler(new NodeMouseExitHandler() {
-//
-//            public void onNodeMouseExit(NodeMouseExitEvent event) {
-//                spline.setStrokeColor(getBorderColour());
-//                spline.getLayer().batch();
-//            }
-//        });
-//
-//        setConcreteRepresentation(spline);
-//    }
+    public void setAsObjectProperty() {
+        setAsObject();
+    }
+
+    public void setAsDataProperty() {
+        setAsData();
+    }
+
+    public boolean isObjectProperty() {
+        return isObject();
+    }
+
+    public boolean isDataProperty() {
+        return isData();
+    }
+
+    @Override
+    public void checkValidity() {
+        inferType();
+    }
+
+    public void inferType() {
+        boolean validity;
+
+        // source must be object
+        validity = getSource().isObject();
+
+        // target and my type must agree
+        if(getTarget().typeIsKnown()) {
+            if(typeIsKnown()) {
+                validity = (isObjectProperty == getTarget().isObject());
+            } else { // if it's not known then it's just valid
+                if(getTarget().isObject()) {
+                    setAsObjectProperty();
+                } else {
+                    setAsDataProperty();
+                }
+            }
+        }
+
+        setValid(validity);
+
+    }
+
+    public void deleteMe() {
+        // FIXME : in flux
+
+        getBoundaryRectangle().removeArrow(this);
+    }
 
 
-//    @Override
-//    public void drawOnLayer(Layer layer) {
-//        layer.add(getConcreteRepresentation());
-//    }
-//
-//    public void removeFromLayer(Layer layer) {
-//        layer.remove(getConcreteRepresentation());
-//    }
-//
-//    public void setAsUnSelected() {
-//        //getBoundaryRectangle().getDragLayer(). remove...
-//    }
-
-//    public void setAsSelected() {
-//        // FIXME : should be done without the concretes knowing about the layers
-//        removeFromLayer(getBoundaryRectangle().getCurveLayer());
-//
-//        getBoundaryRectangle().getDragLayer().add(getConcreteRepresentation());
-//
-////        Point2DArray splinepoints =
-////        controlPoints = new Rectangle[pointsInArrowLine];
-////        for(int i = 0; i < pointsInArrowLine; i++) {
-////            final Rectangle controlPoint = new
-////        }
-//
-//        // draw the rubberbanding one
-//    }
-
+    // ---------------------------------------------------------------------------------------
+    //                          Geometry
+    // ---------------------------------------------------------------------------------------
 
 
     public Point centre() {
         return new Point((getX() + getEndPoint().getX()) / 2, (getY() + getEndPoint().getY()) / 2);
     }
 
-    public void deleteMe() {
-        // FIXME : in flux
-        //getConcreteRepresentation().setListening(false);
-        //getBoundaryRectangle().getCurveLayer().remove(getConcreteRepresentation());
-        getBoundaryRectangle().removeArrow(this);
+    public Point bottomRight() {
+        return new Point(Math.max(getStartPoint().getX(), getEndPoint().getX()), Math.max(getStartPoint().getY(), getEndPoint().getY()));
+    }
+
+    public Point getStartPoint() {
+        return new Point(getSource().topLeft().getX() + (getSource().getWidth() * xRatioSource),
+                getSource().topLeft().getY() + (getSource().getHeight() * yRatioSource));
+    }
+
+    public Point getEndPoint() {
+        return new Point(getTarget().topLeft().getX() + (getTarget().getWidth() * xRatioTarget),
+                getTarget().topLeft().getY() + (getTarget().getHeight() * yRatioTarget));
+    }
+
+    public boolean intersectsBox(Point topLeft, Point botRight) {
+        return ConcreteRectangularElement.rectangleContainment(getStartPoint(), topLeft, botRight) ||
+                ConcreteRectangularElement.rectangleContainment(getEndPoint(), topLeft, botRight);
     }
 }

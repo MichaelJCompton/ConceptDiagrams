@@ -37,7 +37,12 @@ public class LienzoIntersectionZone extends LienzoDiagramShape<ConcreteIntersect
         setSelectedLineColour(zoneSelectedColor);
         setSelectedFillColour(zoneSelectedColor);
 
+        if(elementToRepresent.shaded()) {
+            shade();
+        }
+
         makeRepresentation();
+
     }
 
     @Override

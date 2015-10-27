@@ -22,12 +22,10 @@ import java.util.AbstractCollection;
 /**
  *
  */
-public abstract class DiagramElement<ParentType extends DiagramElement> {
+public abstract class DiagramElement<DiagramType extends AbstractDiagram> {
 
 
-    // I think each element should have but one parent?  otherwise some sort of list or set is required.
-    // Zones can be inside multiple curves and Spiders in multiple zones, but their parents are the labelled diagram.
-    private ParentType myParent;
+    private DiagramType myDiagram;
 
     private String label;
 
@@ -45,14 +43,14 @@ public abstract class DiagramElement<ParentType extends DiagramElement> {
         setLabel(label);
     }
 
-    DiagramElement(ParentType parent) {
+    DiagramElement(DiagramType diagram) {
         initialise();
-        setParent(parent);
+        setDiagram(diagram);
     }
 
-    DiagramElement(String label, ParentType parent) {
+    DiagramElement(String label, DiagramType diagram) {
         initialise();
-        setParent(parent);
+        setDiagram(diagram);
         setLabel(label);
     }
 
@@ -61,13 +59,13 @@ public abstract class DiagramElement<ParentType extends DiagramElement> {
         label = "";
     }
 
-    public ParentType parent () {
-        return myParent;
+    public DiagramType diagram() {
+        return myDiagram;
     }
 
 
-    public void setParent(ParentType newParent) {
-        myParent = newParent;
+    public void setDiagram(DiagramType newDiagram) {
+        myDiagram = newDiagram;
     }
 
 
@@ -91,6 +89,10 @@ public abstract class DiagramElement<ParentType extends DiagramElement> {
 
     public Boolean isUnLabelled() {
         return label.equals("");
+    }
+
+    public Boolean isLabelled() {
+        return ! isUnLabelled();
     }
 
 

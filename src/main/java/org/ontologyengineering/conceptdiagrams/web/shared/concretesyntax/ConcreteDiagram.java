@@ -7,6 +7,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.AbstractDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractSet;
@@ -21,12 +22,16 @@ import java.util.HashSet;
  * <p/>
  * The whole space for diagrams is an infinite 2D space.  The boundary rectangles themselves don't know anything about
  * their location in this space.  The boundary rectangles sort out the curves and arrows within them, but know nothing
- * about their location in the whole space.
+ * about their location in the whole space.  --- NO maybe that's optimal, but not how it works at the moment.
+ * <p/>
+ * These (when valid) represent either ConceptDiagrams or PropertyDiagrams (those with a star)
  */
-public class ConcreteDiagram extends ConcreteDiagramElement {
+public class ConcreteDiagram extends ConcreteDiagramElement <AbstractDiagram> {
 
     private AbstractSet<ConcreteBoundaryRectangle> myRectangles;
     private AbstractSet<ConcreteArrow> myArrows;
+
+    private boolean isConceptDiagram = true;
 
     public ConcreteDiagram(ConcreteBoundaryRectangle initalRectangle) {
         super(ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEDIAGRAM);
@@ -65,9 +70,58 @@ public class ConcreteDiagram extends ConcreteDiagramElement {
 
     }
 
+
+    public boolean isConceptDiagram() {
+        return isConceptDiagram;
+    }
+
+    public boolean isPropertyDiagram() {
+        return !isConceptDiagram();
+    }
+
+    @Override
+    public void checkValidity() {
+        inferType();
+    }
+
+
+    public void inferType() {
+        boolean validity = true;
+        boolean containsAStar = false;
+
+        for(ConcreteBoundaryRectangle r : getRectangles()) {
+            r.checkValidity();
+            if(! r.isValid()) {
+                validity = false;
+            }
+            if(r.isStarRectangle()) {
+                containsAStar = true;
+            }
+        }
+
+        // we've inferred the types of the rectangles, now what am I?
+        if(containsAStar) {
+            isConceptDiagram = false;
+        }
+
+        for(ConcreteArrow a : getArrows()) {
+            a.checkValidity();
+            if(! a.isValid()) {
+                validity = false;
+            }
+        }
+
+        setValid(validity);
+    }
+
+
     @Override
     public Point centre() {
         // FIXME ... don't think I need this method, but might want to implement it as the center of a bounding box of all the stuff in here
+        return new Point(0,0);
+    }
+
+    public Point bottomRight() {
         return new Point(0,0);
     }
 
@@ -79,6 +133,16 @@ public class ConcreteDiagram extends ConcreteDiagramElement {
     @Override
     public void deleteMe() {
 
+    }
+
+    public AbstractSet<ConcreteDiagramElement> elementsInBoundingBox(Point topLeft, Point botRight) {
+        AbstractSet<ConcreteDiagramElement> result = new HashSet<ConcreteDiagramElement>();
+
+        for(ConcreteBoundaryRectangle rec : getRectangles()) {
+            result.addAll(rec.elementsInBoundingBox(topLeft, botRight));
+        }
+
+        return result;
     }
 
     // FIXME : might need to become more with a basic diagram and a complex diagram.

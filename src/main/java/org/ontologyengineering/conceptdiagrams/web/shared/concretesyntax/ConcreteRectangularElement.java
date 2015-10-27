@@ -6,6 +6,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.DiagramElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractCollection;
@@ -14,7 +15,7 @@ import java.util.AbstractCollection;
  * Brings together all the rectangular shaped elements (boundary rectangles, curves and zones) which share things such
  * as width and height, and also curved corners.
  */
-public abstract class ConcreteRectangularElement extends ConcreteDiagramElement {
+public abstract class ConcreteRectangularElement <T extends DiagramElement> extends ConcreteDiagramElement <T> {
 
     private Point bottomRight;
 
@@ -196,6 +197,17 @@ public abstract class ConcreteRectangularElement extends ConcreteDiagramElement 
     public boolean completelyEncloses(ConcreteRectangularElement other) {
         return rectangleContainment(new Point(other.getX(), other.getY())) &&
                 rectangleContainment(new Point(other.getX() + other.getWidth(), other.getY() + other.getHeight()));
+    }
+
+    public boolean completelyEncloses(Point topLeft, Point botRight) {
+        return rectangleContainment(topLeft) &&
+                rectangleContainment(botRight);
+    }
+
+    // is this element enclosed by the bounding box
+    public boolean completelyEnclosed(Point topLeft, Point botRight) {
+        return rectangleContainment(topLeft(), topLeft, botRight) &&
+                rectangleContainment(bottomRight(), topLeft, botRight);
     }
 
 

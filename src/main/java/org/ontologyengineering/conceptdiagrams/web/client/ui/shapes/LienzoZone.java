@@ -26,6 +26,10 @@ public class LienzoZone extends LienzoDiagramShape<ConcreteZone, Rectangle> {
         setSelectedLineColour(zoneSelectedColor);
         setSelectedFillColour(zoneSelectedColor);
 
+        if(elementToRepresent.shaded()) {
+            shade();
+        }
+
         makeRepresentation();
     }
 

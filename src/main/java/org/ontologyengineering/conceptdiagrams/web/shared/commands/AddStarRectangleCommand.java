@@ -14,8 +14,11 @@ import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveZoneEvent
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteStarRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddEmptyClassAndObjectPropertyDiagram;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
 import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.HashSet;
 
 
@@ -63,6 +66,21 @@ public class AddStarRectangleCommand extends Command {
         result.add(new RemoveBoundaryRectangleEvent(boundaryRectangle));
         result.add(new RemoveZoneEvent(boundaryRectangle.getMainZone()));
         return result;
+    }
+
+    @Override
+    public ConcreteDiagram getDiagram() {
+        return boundaryRectangle.getDiagram();
+    }
+
+    @Override
+    public boolean leadsToValid() {
+        return true;  // nothing to test, just valid on its own
+    }
+
+    @Override
+    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+        return new AddEmptyClassAndObjectPropertyDiagram(boundaryRectangle);
     }
 
 }

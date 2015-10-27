@@ -30,7 +30,7 @@ import java.util.HashSet;
  *
  * However, maybe the Spider should have functions to validate names to ensure they are correct for the implied type?
  */
-public class Spider extends DiagramArrowSourceOrTarget {
+public class Spider extends DiagramArrowSourceOrTarget<LabelledDiagram> {
 
     private AbstractSet<Zone> eta;
     private AbstractSet<Spider> equalSpiders;   // shared by all spiders in this equivalence

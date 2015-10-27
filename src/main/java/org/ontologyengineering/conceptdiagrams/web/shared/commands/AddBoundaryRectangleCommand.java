@@ -14,8 +14,12 @@ import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveZoneEvent
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteBoundaryRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddEmptyClassAndObjectPropertyDiagram;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddEmptyDatatypeDiagram;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
 import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.HashSet;
 
 public class AddBoundaryRectangleCommand extends Command  {
@@ -61,6 +65,25 @@ public class AddBoundaryRectangleCommand extends Command  {
         result.add(new RemoveBoundaryRectangleEvent(boundaryRectangle));
         result.add(new RemoveZoneEvent(boundaryRectangle.getMainZone()));
         return result;
+    }
+
+    @Override
+    public ConcreteDiagram getDiagram() {
+        return boundaryRectangle.getDiagram();
+    }
+
+    @Override
+    public boolean leadsToValid() {
+        return boundaryRectangle.isValid();
+    }
+
+    @Override
+    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+        if(boundaryRectangle.isObject()) {
+            return new AddEmptyClassAndObjectPropertyDiagram(boundaryRectangle);
+        } else {
+            return new AddEmptyDatatypeDiagram(boundaryRectangle);
+        }
     }
 
 }

@@ -15,14 +15,12 @@ import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.client.core.types.Point2DArray;
 import com.ait.lienzo.client.core.types.Transform;
 import com.ait.lienzo.client.widget.LienzoPanel;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.*;
 import org.ontologyengineering.conceptdiagrams.web.client.events.*;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.shapes.LienzoDiagramShape;
+import org.ontologyengineering.conceptdiagrams.web.client.ui.shapes.LienzoDragBoundsGroup;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.AddArrowCommand;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.ChangeLabelCommand;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.ChangeZoneShadingCommand;
@@ -66,10 +64,13 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
     private TextBox textInputBox;
     private Label inputLabel = new Label("  Label :  ");
+    // - maybe make this also a search box, so you can have things that are alread there brought in again - especially when working with a bigger ontology or included ontologies
+    // - also could add a drag in feature .. ie. if there is a class tree portlet then can drag things from the tree onto the canvas - but that's dangerous cause what if we dragged them to the wrong/inconsisten spot (maybe just who cares)
+    // - what about a function that searches for an existing concept and tries to place it in the selected boundary rectangle in the right way???
+    //      actually that would be neat the OWL -> diagrams idea, not generating the whole diagram, just select some bits of the ontology and try to place on the canvas or in the selected boundary rectange -> way hard!!!
 
-    // quick debugging output
-    private Label textOutLabel;
-    private DateTimeFormat dateFormat;
+    private boolean shiftDown;
+    private LienzoDragBoundsGroup selectionGroup;
 
     private Point click;
     private Point2D clickT; // The onscreen clicked point transformed into  coordinates on the panel (which may be scalled and transformed)
@@ -98,6 +99,9 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         clickT = new Point2D();
         lastValidPointT = new Point2D();
         mouseAtT = new Point2D();
+
+        shiftDown = false;
+        selectionGroup = new LienzoDragBoundsGroup(this);
 
         createCanvas();
     }
@@ -133,10 +137,9 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         zoneLayer.setListening(true);
         boundaryRectangleLayer.setListening(true);
 
+        // FIXME ... but then it won't be in the edit history!!! change this
+
         // Not a command, so it can't be undone ... but can delete the initial boundary rectangle
-//        ConcreteBoundaryRectangle initalBoundaryRectangle = new ConcreteBoundaryRectangle(
-//                new Point(initBoundaryRectangleXoffset, initBoundaryRectangleYoffset),
-//                new Point(initBoundaryRectangleXoffset + initBoundaryRectangleWidth, initBoundaryRectangleYoffset + initBoundaryRectangleHeight));
         ConcreteBoundaryRectangle initalBoundaryRectangle = new ConcreteBoundaryRectangle(
                 new Point(initBoundaryRectangleXoffset, initBoundaryRectangleYoffset),
                 new Point((panel.getViewport().getWidth() / 2),
@@ -167,6 +170,18 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         panel.getMediators().push(new MouseWheelZoomMediator(EventFilter.CONTROL));
         panel.getMediators().push(new MousePanMediator(EventFilter.SHIFT));
 
+        panel.addKeyDownHandler(new KeyDownHandler() {
+            public void onKeyDown(KeyDownEvent keyDownEvent) {
+                shiftDown = keyDownEvent.isShiftKeyDown();
+            }
+        });
+
+        panel.addKeyUpHandler(new KeyUpHandler() {
+            public void onKeyUp(KeyUpEvent keyUpEvent) {
+                shiftDown = keyUpEvent.isShiftKeyDown();
+            }
+        });
+
     }
 
 
@@ -178,6 +193,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
                     public void onAddCurve(AddCurveEvent event) {
                         painter.drawCurve(event.getCurve());
                         setAsSelectedElement(event.getCurve());
+                        drawSelectedRepresentation();
                     }
                 });
 
@@ -207,6 +223,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
                     public void onAddSpider(AddSpiderEvent event) {
                         painter.drawSpider(event.getSpider());
                         setAsSelectedElement(event.getSpider());
+                        drawSelectedRepresentation();
                     }
                 });
 
@@ -256,24 +273,30 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
                     public void onAddArrow(AddArrowEvent event) {
                         painter.drawArrow(event.getAddedArrow());
                         setAsSelectedElement(event.getAddedArrow());
+                        drawSelectedRepresentation();
                     }
                 });
 
+        CommandManager.get().getEventBus().addHandler(MoveElementEvent.TYPE, new MoveElementEventHandler() {
+            public void onMoveElement(MoveElementEvent event) {
+                painter.redraw(event.getMovedElement());
+
+                // not sure why, but the compiler barfed if I did this in one motion in the 'for'
+                AbstractCollection<ConcreteArrow> bogus = event.getMovedElement().getAllAttachedArrows();
+                for(ConcreteArrow arrow : bogus) {
+                    painter.redraw(arrow);
+                }
+            }
+        });
 
         CommandManager.get().getEventBus().addHandler(ResizeElementEvent.TYPE, new ResizeElementEventHandler() {
             public void onResizeElement(ResizeElementEvent event) {
-//                if (getCurveToZoneMap().containsKey(event.getResizedElement())) {
-//                    // undraw all the curves in the map
-//                    for (ConcreteZone z : getCurveToZoneMap().get(event.getResizedElement())) {
-//                        painter.removeZone(z);
-//                    }
-//                    removeFromCurveToZoneMap((ConcreteCurve) event.getResizedElement());
-//
-//                    // now draw the new ones
-//                    painter.drawAllZones((ConcreteCurve) event.getResizedElement());
-//                }
-
                 painter.redraw(event.getResizedElement());
+
+                AbstractCollection<ConcreteArrow> bogus = event.getResizedElement().getAllAttachedArrows();
+                for(ConcreteArrow arrow : bogus) {
+                    painter.redraw(arrow);
+                }
             }
         });
 
@@ -420,27 +443,71 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         zoneLayer.batch();
     }
 
-
-    protected void setNotSelected(ConcreteDiagramElement elmnt) {
-        getRepresentation(elmnt).unDrawDragRepresentation();
-        getRepresentation(elmnt).setAsUnSelected();
+    public void addSelectedElement(ConcreteDiagramElement elmnt) {
+        super.addSelectedElement(elmnt);
+        selectionGroup.addElement(getRepresentation(elmnt));
     }
 
-    protected void setSelected(ConcreteDiagramElement elmnt) {
-        getRepresentation(elmnt).drawDragRepresentation();
-        getRepresentation(elmnt).setAsSelected();
+    protected void clearSelection() {
+        super.clearSelection();
+        selectionGroup.clearAndUndraw();
+        textInputBox.setFocus(false);
     }
 
-    public void setAsSelectedElement(ConcreteDiagramElement elmnt) {
-        super.setAsSelectedElement(elmnt);
 
-        if(getRepresentation(elmnt) != null && getRepresentation(elmnt).hasLabel()) {
-            textInputBox.setText(getRepresentation(elmnt).getLabelText());
+    protected void drawSelectedRepresentation() {
+        selectionGroup.draw(getCurveLayer());
+        if(getSelectedElements().size() == 1){
+            drawForSingleSelection(getSelectedElement());
         } else {
             textInputBox.setText("");
+            textInputBox.setFocus(false);
         }
-        textInputBox.setFocus(true);
     }
+
+//    protected void setNotSelected(ConcreteDiagramElement elmnt) {
+//        //getRepresentation(elmnt).unDrawDragRepresentation();
+//        getRepresentation(elmnt).setAsUnSelected();
+//    }
+//
+//    protected void setSelected(ConcreteDiagramElement elmnt) {
+//        //getRepresentation(elmnt).drawDragRepresentation();
+//        getRepresentation(elmnt).setAsSelected();
+//    }
+
+//    public void setAsSelectedElement(ConcreteDiagramElement elmnt) {
+//        super.setAsSelectedElement(elmnt);
+//        //addSelectedElement(elmnt);
+//    }
+
+
+    private boolean canHaveLabel(ConcreteDiagramElement elmnt) {
+        return elmnt.getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETECURVE ||
+                elmnt.getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEARROW ||
+                elmnt.getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETESPIDER;
+    }
+
+    public void drawForSingleSelection(ConcreteDiagramElement elmnt) {
+       // super.setAsSelectedElement(elmnt);
+
+        if(getRepresentation(elmnt) != null && canHaveLabel(elmnt)) {
+            if (getRepresentation(elmnt).hasLabel()) {
+                textInputBox.setText(getRepresentation(elmnt).getLabelText());
+            } else {
+                textInputBox.setText("");
+            }
+            textInputBox.setFocus(true);
+        } else {
+            textInputBox.setText("");
+            textInputBox.setFocus(false);
+        }
+        //drawSelectedRepresentation();
+    }
+
+//    private void drawForMultiSelection() {
+//        textInputBox.setFocus(false);
+//    }
+//
 
     private void addLayerHandlers() {
 
@@ -503,47 +570,50 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
         curveLayer.addNodeMouseMoveHandler(new NodeMouseMoveHandler() {
             public void onNodeMouseMove(NodeMouseMoveEvent event) {
-                setMouseAt(new Point(event.getX(), event.getY()));
 
-                switch (getMode()) {
-                    case DRAGSELECT:
-                        dragRubberBandRectangle(getMouseAtAsScreenCoord());
-                        break;
-                    case DRAWINGCRVE:
-                        if (clickedInRectangle != null) {
-                            if (clickedInRectangle.containsPoint(getMouseAtAsCanvasCoordP())) {
+                if (event.isButtonLeft()) {
+
+                    setMouseAt(new Point(event.getX(), event.getY()));
+
+                    switch (getMode()) {
+                        case DRAGSELECT:
+                            dragRubberBandRectangle(getMouseAtAsScreenCoord());
+                            break;
+                        case DRAWINGCRVE:
+                            if (clickedInRectangle != null) {
+                                if (clickedInRectangle.containsPoint(getMouseAtAsCanvasCoordP())) {
+                                    setLastValidPoint(getMouseAtAsScreenCoord());
+                                }
+                            }
+                            dragRubberBandRectangle(getLastValidAsScreenCoord());
+                            break;
+                        case DRAWINGSPIDER:
+                            if (clickedInRectangle != null) {
+                                if (clickedInRectangle.containsPoint(getMouseAtAsCanvasCoordP())) {
+                                    setLastValidPoint(getMouseAtAsScreenCoord());
+                                }
+                            }
+                            dragRubberBandSpider(getLastValidAsScreenCoord());
+                            break;
+                        case DRAWINGBOUNDARYRECTANGLE:
+                            if (boundaryRectangleAtPoint(getMouseAtAsCanvasCoordP()) == null) {
                                 setLastValidPoint(getMouseAtAsScreenCoord());
                             }
-                        }
-                        dragRubberBandRectangle(getLastValidAsScreenCoord());
-                        break;
-                    case DRAWINGSPIDER:
-                        if (clickedInRectangle != null) {
-                            if (clickedInRectangle.containsPoint(getMouseAtAsCanvasCoordP())) {
+                            dragRubberBandRectangle(getLastValidAsScreenCoord());
+                            break;
+                        case DRAWINGSTARRECTANGLE:
+                            if (boundaryRectangleAtPoint(getMouseAtAsCanvasCoordP()) == null) {
                                 setLastValidPoint(getMouseAtAsScreenCoord());
                             }
-                        }
-                        dragRubberBandSpider(getLastValidAsScreenCoord());
-                        break;
-                    case DRAWINGBOUNDARYRECTANGLE:
-                        if (boundaryRectangleAtPoint(getMouseAtAsCanvasCoordP()) == null) {
-                            setLastValidPoint(getMouseAtAsScreenCoord());
-                        }
-                        dragRubberBandRectangle(getLastValidAsScreenCoord());
-                        break;
-                    case DRAWINGSTARRECTANGLE:
-                        if (boundaryRectangleAtPoint(getMouseAtAsCanvasCoordP()) == null) {
-                            setLastValidPoint(getMouseAtAsScreenCoord());
-                        }
-                        dragRubberBandRectangle(getLastValidAsScreenCoord());
-                        break;
-                    case DRAWINGARROW:
-                        dragRubberBandArrow(getMouseAtAsScreenCoord());
-                        break;
+                            dragRubberBandRectangle(getLastValidAsScreenCoord());
+                            break;
+                        case DRAWINGARROW:
+                            dragRubberBandArrow(getMouseAtAsScreenCoord());
+                            break;
+                    }
+                    curveLayer.batch();
                 }
-                curveLayer.batch();
             }
-
         });
 
         curveLayer.addNodeMouseUpHandler(new NodeMouseUpHandler() {
@@ -565,41 +635,45 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
                         case DRAGSELECT:
                             setMode(ModeTypes.SELECTION);
 
-                            // FIXME : need to check for shift key down for add to selection
-                            // how do I know if it's shift or not???
+                            // FIXME ... what the!!!!  wont event register the clicks if shift is down, but mouse-down -> shift -> mouse-up works just fine
+                            if (!event.isShiftKeyDown()) {
+                                clearSelection();
+                            }
 
-                            //clearSelection();
                             // might have been a drag select or a regular click, check which
                             if (getMouseAtAsScreenCoord().getX() == getClickAsScreenCoord().getX() && getMouseAtAsScreenCoord().getY() == getClickAsScreenCoord().getY()) {
                                 // click select
-
-
                                 if (underMouse() != null) {
                                     if (underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETECURVE
                                             || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETESPIDER
                                             || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEARROW
                                             || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEBOUNDARYRECTANGE
                                             || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETESTARRECTANGLE) {
-                                        setAsSelectedElement(underMouse());
+                                        addSelectedElement(underMouse());
                                     }
                                 }
-
-
-                                // FIXME : need to check here if we are adding to selection or new selection
-//                                if(ConcreteSyntaxElement.getElementUnderMouse().getType() == ConcreteSyntaxElement.ConcreteSyntaxElement_TYPES.CONCRETEARROW) {
-//                                    setMode(ModeTypes.DRAGINGARROW);
-//                                    addSelectedElement(ConcreteSyntaxElement.getElementUnderMouse());
-//                                    (ConcreteSyntaxElement.getElementUnderMouse()).setAsSelected();
-//                                }
-
-                                // find what's under the mouse
-                                // could do this in reverse and have objects register that they are under the mouse in the mouse over routines
-                                //ConcreteSyntaxElement.getElementUnderMouse().swapShading();
                             } else {
                                 //drag select
-                            }
 
+                                //convert to canvas coords
+                                Point2D rubberbandTopLeft = new Point2D();
+                                Point2D rubberbandBotRight = new Point2D();
+                                panel.getViewport().getTransform().getInverse().transform(rubberbandRectangle.getLocation(), rubberbandTopLeft);
+                                panel.getViewport().getTransform().getInverse().transform(new Point2D(rubberbandRectangle.getLocation().getX() + rubberbandRectangle.getWidth(), rubberbandRectangle.getLocation().getY() + rubberbandRectangle.getHeight()), rubberbandBotRight);
+
+
+                                for (ConcreteDiagramElement d : (getDiagramsOnCanvas().elementsInBoundingBox(new Point(rubberbandTopLeft.getX(), rubberbandTopLeft.getY()),
+                                        new Point(rubberbandBotRight.getX(), rubberbandBotRight.getY())))) {
+                                    if (d.getType() != ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEZONE &&
+                                            d.getType() != ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEINTERSECTIONZONE) {
+                                        addSelectedElement(d);
+                                    }
+                                }
+                            }
                             removeRubberBandRectangle();
+
+                            drawSelectedRepresentation();
+
                             break;
                         case DRAWINGCRVE:
                             setMode(ModeTypes.DRAWCURVE);
@@ -671,13 +745,19 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 //                            }
                             break;
                         case DRAWINGARROW:
+
+                            // FIXME ... if the start and end are in different diagrams we need to merge them
+                            // so somehow this needs to pass through the diagram set (that should probably live in concrete syntax)
+                            // ... and add an arrow goes through this set and thus passed down as required .. or merges diagrams etc.
+                            // .. also delete arrows will pass through in the same way and maybe split up diagrams.
+
                             setMode(ModeTypes.DRAWARROW);
-                            if (underMouse() != null) {
+                            if (underMouse() != null && arrowSource != underMouse()) {
                                 if (underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETECURVE
                                         || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETESPIDER
                                         || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEBOUNDARYRECTANGE) {
 
-                                    CommandManager.get().executeCommand(new AddArrowCommand(getClickAsCanvasCoordP(), new Point(mouseAtT.getX(), mouseAtT.getY()), arrowSource, underMouse()));
+                                    CommandManager.get().executeCommand(new AddArrowCommand(getClickAsCanvasCoordP(), getMouseAtAsCanvasCoordP(), arrowSource, underMouse()));
                                 }
                             }
                             setMode(ModeTypes.DRAWARROW);
@@ -686,12 +766,44 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
                     }
                 }
 
+                resetMode();
+                removeRubberBandRectangle();
                 clickedInRectangle = null;
                 panel.getDragLayer().batch();
                 curveLayer.batch();
             }
         });
 
+    }
+
+
+    public void resetMode() {
+        switch (getMode()) {
+            case DRAGSELECT:
+                setMode(ModeTypes.SELECTION);
+                break;
+            case PANNING:
+                setMode(ModeTypes.PAN);
+                break;
+            case ZOOMING:
+                setMode(ModeTypes.ZOOM);
+                break;
+            case DRAWINGCRVE:
+                setMode(ModeTypes.DRAWCURVE);
+                break;
+            case DRAWINGSPIDER:
+                setMode(ModeTypes.DRAWSPIDER);
+                break;
+            case DRAWINGARROW:
+                setMode(ModeTypes.DRAWARROW);
+                break;
+            case DRAWINGBOUNDARYRECTANGLE:
+                setMode(ModeTypes.DRAWBOUNDARYRECTANGLE);
+                break;
+            case DRAWINGSTARRECTANGLE:
+                setMode(ModeTypes.DRAWSTARRECTANGLE);
+                break;
+        }
     }
 
     private void setClick(Point clickedPoint) {
@@ -780,8 +892,10 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
     }
 
     public void removeRubberBandRectangle() {
-        panel.getDragLayer().remove(rubberbandRectangle);
-        panel.getDragLayer().batch();
+        if(rubberbandRectangle != null) {
+            panel.getDragLayer().remove(rubberbandRectangle);
+            panel.getDragLayer().batch();
+        }
     }
 
     private void startRubberBandSpider() {
@@ -816,6 +930,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         selectModeButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.SELECTION);
+                clearSelection();
             }
         });
 
@@ -869,6 +984,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         //undoButton.setEnabled(false);
         undoButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
+                clearSelection();
                 if (CommandManager.get().canUndo()) {
                     CommandManager.get().undo();
                 }
@@ -882,6 +998,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         //redoButton.setEnabled(false);
         redoButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
+                clearSelection();
                 if (CommandManager.get().canRedo()) {
                     CommandManager.get().redo();
                 }
@@ -895,10 +1012,8 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         drawCurveButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.DRAWCURVE);
-                //for (ConcreteSyntaxElement e : elementsMap) {
-                //  e.getConcreteRepresentation().setDraggable(false);
-                //}
                 curveLayer.setListening(true);
+                clearSelection();
             }
         });
 
@@ -909,6 +1024,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.DRAWSPIDER);
                 curveLayer.setListening(true);
+                clearSelection();
             }
         });
 
@@ -919,6 +1035,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.DRAWARROW);
                 curveLayer.setListening(true);
+                clearSelection();
             }
         });
 
@@ -929,6 +1046,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.SHADE);
                 curveLayer.setListening(true);
+                clearSelection();
             }
         });
 
@@ -938,6 +1056,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.DRAWBOUNDARYRECTANGLE);
                 curveLayer.setListening(true);
+                clearSelection();
             }
         });
 
@@ -947,6 +1066,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.DRAWSTARRECTANGLE);
                 curveLayer.setListening(true);
+                clearSelection();
             }
         });
 
@@ -957,6 +1077,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onClick(ClickEvent event) {
                 setMode(ModeTypes.DELETE);
                 curveLayer.setListening(true);
+                clearSelection();
             }
         });
 

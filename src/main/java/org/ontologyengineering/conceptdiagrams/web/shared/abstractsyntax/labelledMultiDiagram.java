@@ -28,21 +28,21 @@ import java.util.HashSet;
  * lambda_d : labels the A_d
  * lambda_# : may add <=, = or >= constraints to the A_o/A_d
  *
- * The labels are implemented as part of *Arrow classes
+ * The labels are implemented as part of Arrow classes
  *
  */
-public class LabelledMultiDiagram extends AbstractDiagram {
+public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram> {
 
 
     // might change the types of these as we go along ... trying for a pretty direct translation
     // of the syntax and semantics document at this stage.
-    private AbstractSet<LabelledDiagram> labelledDiagrams; // FIXME : Class and object diagrams ???
+    private AbstractSet<ClassAndObjectPropertyDiagram> classAndObectPropertyDiagrams;
     private AbstractSet<DatatypeDiagram> datatypeDiagrams;
     private AbstractSet<ObjectPropertyArrow> objectPropertyArrows;
     private AbstractSet<DatatypePropertyArrow> datatypePropertyArrows;
 
     LabelledMultiDiagram() {
-        labelledDiagrams = new HashSet<LabelledDiagram>();
+        classAndObectPropertyDiagrams = new HashSet<ClassAndObjectPropertyDiagram>();
         datatypeDiagrams = new HashSet<DatatypeDiagram>();
         objectPropertyArrows = new HashSet<ObjectPropertyArrow>();
         datatypePropertyArrows = new HashSet<DatatypePropertyArrow>();
@@ -50,12 +50,25 @@ public class LabelledMultiDiagram extends AbstractDiagram {
 
     @Override
     public AbstractCollection<DiagramElement> children() {
-        AbstractSet<DiagramElement> result = new HashSet<DiagramElement>(labelledDiagrams);
+        AbstractSet<DiagramElement> result = new HashSet<DiagramElement>(classAndObectPropertyDiagrams);
         result.addAll(datatypeDiagrams);
         result.addAll(objectPropertyArrows);
         result.addAll(datatypePropertyArrows);
         return result;
     }
+
+
+    // after this operation the diagram will be a bit inconsistent because the new diagram isn't yet jnoined to the others
+    public void addClassAndObjectPropertyDiagram(ClassAndObjectPropertyDiagram newDiagram) {
+        classAndObectPropertyDiagrams.add(newDiagram);
+    }
+
+    public void addDatatypeDiagram(DatatypeDiagram newDiagram) {
+        datatypeDiagrams.add(newDiagram);
+    }
+
+
+
 
     // TODO : implement the constraints
 }

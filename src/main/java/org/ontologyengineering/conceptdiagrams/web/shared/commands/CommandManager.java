@@ -23,7 +23,7 @@ public class CommandManager {
 
     // hhmmm should be a bit more separated and not have gwt stuff buried in here.
     // but need some sort of eventing infrastructure built in, or should the commands and the events be a bit more
-    // separated, extract out the even controller to the GWT level?
+    // separated, extract out the event controller to the GWT level?
     private EventBus eventBus;
 
 

@@ -10,11 +10,14 @@ import com.google.web.bindery.event.shared.Event;
 import org.ontologyengineering.conceptdiagrams.web.client.events.AddZoneEvent;
 import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveZoneEvent;
 import org.ontologyengineering.conceptdiagrams.web.client.events.ResizeElementEvent;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteRectangularElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
 import java.util.AbstractCollection;
+import java.util.AbstractList;
 import java.util.HashSet;
 
 
@@ -62,7 +65,8 @@ public class ResizeCommand extends Command {
             result.add(new RemoveZoneEvent(z));
         }
 
-        for(ConcreteZone z : element.getAllZones()) {
+        AbstractCollection<ConcreteZone> bogus = element.getAllZones();
+        for(ConcreteZone z : bogus) {
             result.add(new AddZoneEvent(z));
         }
 
@@ -77,5 +81,20 @@ public class ResizeCommand extends Command {
     @Override
     public AbstractCollection<Event> getUnExecuteEvents() {
         return events();
+    }
+
+    @Override
+    public ConcreteDiagram getDiagram() {
+        return element.getDiagram();
+    }
+
+    @Override
+    public boolean leadsToValid() {
+        return true;
+    }
+
+    @Override
+    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+        return null;
     }
 }

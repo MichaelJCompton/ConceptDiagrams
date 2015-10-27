@@ -11,4 +11,6 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 public class PropertyDiagram extends LabelledMultiDiagram {
 
 
+    // FIXME : constraints if needed
+
 }

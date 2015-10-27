@@ -15,12 +15,13 @@ import java.util.*;
 /**
  *
  */
-public class ConcreteCurve extends ConcreteRectangularElement {
+public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
 
     private AbstractList<ConcreteIntersectionZone> intersectionZonesInCurve;
     private ConcreteZone mainZone;
 
     private AbstractSet<ConcreteCurve> intersectingCurves;
+
 
 
     public ConcreteCurve(Point topLeft, Point bottomRight) {
@@ -143,6 +144,11 @@ public class ConcreteCurve extends ConcreteRectangularElement {
         myBoundaryRectangle = rect;
         getMainZone().setBoundaryRectangle(rect);
         rect.addCurve(this);  // FIXME ???
+    }
+
+    @Override
+    public void checkValidity() {
+        setValid(true);
     }
 
 

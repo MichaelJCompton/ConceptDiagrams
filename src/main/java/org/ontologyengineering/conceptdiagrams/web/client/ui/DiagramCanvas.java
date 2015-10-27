@@ -14,6 +14,7 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.Concret
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
+import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
 
 import java.util.AbstractSet;
 import java.util.HashSet;
@@ -47,7 +48,7 @@ public abstract class DiagramCanvas {
 
 
     // should be a diagram set ???
-    private AbstractSet<ConcreteDiagram> diagramsOnCanvas;
+    private DiagramSet diagramsOnCanvas;
 
 
     public enum ModeTypes {
@@ -77,10 +78,10 @@ public abstract class DiagramCanvas {
         initBoundaryRectangleWidth = width - (2 * initBoundaryRectangleXoffset);
         initBoundaryRectangleHeight = height - (2 * initBoundaryRectangleYoffset);
 
-        diagramsOnCanvas = new HashSet<ConcreteDiagram>();
+        diagramsOnCanvas = new DiagramSet();
         mode = ModeTypes.SELECTION;
         selectedElements = new HashSet<ConcreteDiagramElement>();
-        clearSelection();
+        //clearSelection();
     }
 
 
@@ -88,46 +89,45 @@ public abstract class DiagramCanvas {
         underMouse = element;
     }
 
+    public void clearUnderMouse() {
+        underMouse = null;
+    }
+
     protected ConcreteDiagramElement underMouse() {
         return underMouse;
     }
 
     protected void addDiagram(ConcreteDiagram diagram) {
-        diagramsOnCanvas.add(diagram);
+        diagramsOnCanvas.addDiagram(diagram);
     }
 
     protected void removeDiagram(ConcreteDiagram diagram) {
-        diagramsOnCanvas.remove(diagram);
+        diagramsOnCanvas.removeDiagram(diagram);
     }
 
-    private AbstractSet<ConcreteDiagram> getDiagramsOnCanvas() {
+    protected DiagramSet getDiagramsOnCanvas() {
         return diagramsOnCanvas;
     }
 
     protected ConcreteBoundaryRectangle boundaryRectangleAtPoint(Point p) {
-        for (ConcreteDiagram d : getDiagramsOnCanvas()) {
-            for (ConcreteBoundaryRectangle rectangle : d.getRectangles()) {
-                if (rectangle.containsPoint(p)) {
-                    return rectangle;
-                }
-            }
-        }
-        return null;
+        return getDiagramsOnCanvas().boundaryRectangleAtPoint(p);
     }
 
 
     protected void clearSelection() {
-        for (ConcreteDiagramElement elmnt : getSelectedElements()) {
-            setNotSelected(elmnt);
-        }
+//        for (ConcreteDiagramElement elmnt : getSelectedElements()) {
+//            setNotSelected(elmnt);
+//        }
 
         // is it faster to clear or make new ??
         selectedElements.clear();
     }
 
-    protected abstract void setNotSelected(ConcreteDiagramElement elmnt);
+//    protected abstract void setNotSelected(ConcreteDiagramElement elmnt);
+//
+//    protected abstract void setSelected(ConcreteDiagramElement elmnt);
 
-    protected abstract void setSelected(ConcreteDiagramElement elmnt);
+
 
     public AbstractSet<ConcreteDiagramElement> getSelectedElements() {
         return selectedElements;
@@ -148,10 +148,13 @@ public abstract class DiagramCanvas {
         getSelectedElements().add(elmnt);
     }
 
+    public void removeSelectedElement(ConcreteDiagramElement element) {
+        getSelectedElements().remove(element);
+    }
+
     public void setAsSelectedElement(ConcreteDiagramElement elmnt) {
         clearSelection();
-        getSelectedElements().add(elmnt);
-        setSelected(elmnt);
+        addSelectedElement(elmnt);
     }
 
     public abstract void createCanvas();
@@ -176,25 +179,9 @@ public abstract class DiagramCanvas {
         return mode;
     }
 
-    // FIXME : needs to use the command infrastructure
+
     protected void addCurve(Point topLeft, Point bottomRight, ConcreteBoundaryRectangle parentRectangle) {
-
         CommandManager.get().executeCommand(new AddCurveCommand(topLeft, bottomRight, parentRectangle));
-
-//
-        // FIXME now happens in the painter
-//        //elementsOnCanvas.add(curve);
-//        //elementsOnCanvas.add(curve.getMainZone());
-//
-
-
-        // FIXME now in painter
-//        curve.drawOnLayer(curveLayer);
-//        curve.drawZonesOnLayer(curveLayer);
-//        // redraw the whole boundary rectangle that this is on ... maybe with connected components or something could make nicer
-//        // FIXME : need to pick the rectangle here once we have many
-//        curve.getBoundaryRectangle().drawOnLayer(curveLayer);
-
     }
 
     protected void addSpider(Point centre, ConcreteBoundaryRectangle parentRectangle) {
@@ -203,19 +190,6 @@ public abstract class DiagramCanvas {
 
     protected void addBoundaryRectangle(Point topLeft, Point bottomRight) {
         CommandManager.get().executeCommand(new AddBoundaryRectangleCommand(topLeft, bottomRight));
-
-
-        // FIXME called from elsewhere
-//        initialBoundaryRectangle =
-//                new ConcreteBoundaryRectangle(initBoundaryRectangleXoffset, initBoundaryRectangleYoffset);
-//        initialBoundaryRectangle.setWidth(initBoundaryRectangleWidth);
-//        initialBoundaryRectangle.setHeight(initBoundaryRectangleHeight);
-//
-//        initialBoundaryRectangle.makeConcreteRepresentation();
-//        //elementsOnCanvas.add(initialBoundaryRectangle);
-//        initialBoundaryRectangle.setZoneLayer(zoneLayer);
-//        initialBoundaryRectangle.setBoundaryRectangleLayer(boundaryRectangleLayer);
-//        initialBoundaryRectangle.drawOnLayer(curveLayer);
     }
 
     protected void addStarRectangle(Point topLeft, Point bottomRight) {

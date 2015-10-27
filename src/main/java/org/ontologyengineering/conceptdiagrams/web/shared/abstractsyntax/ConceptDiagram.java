@@ -10,5 +10,6 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
 public class ConceptDiagram extends LabelledMultiDiagram {
 
+    // FIXME : no arrow sourced on * ... how about just no *_rectangle
 
 }

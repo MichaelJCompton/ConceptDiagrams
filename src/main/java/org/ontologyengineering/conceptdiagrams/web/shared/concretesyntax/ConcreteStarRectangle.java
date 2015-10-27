@@ -9,12 +9,18 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 /**
- * Created by Michael on 24/09/2015.
+ *
  */
 public class ConcreteStarRectangle extends ConcreteBoundaryRectangle {
 
     public ConcreteStarRectangle(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight, ConcreteDiagramElement_TYPES.CONCRETESTARRECTANGLE);
+
+        setAsObject();
+    }
+
+    public boolean isStarRectangle() {
+        return true;
     }
 
     // no ops ... no curves etc in this rectangle

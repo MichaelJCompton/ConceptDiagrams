@@ -14,6 +14,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
 //import com.ait.lienzo.client.core.shape.Rectangle;
 //import com.ait.lienzo.client.core.types.Point2D;
 
+import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Zone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractCollection;
@@ -27,7 +28,7 @@ import java.util.HashSet;
  * Hence the zones here are the same shape as the curves, just a bit smaller to account for the border of the square.
  * There are no borders on zones.
  */
-public class ConcreteZone extends ConcreteRectangularElement {
+public class ConcreteZone extends ConcreteRectangularElement <Zone> {
 
     // means curves that make up the intersection that results in this zone.  For example, completely enclosing a zone
     // won't get the curve in this list.  A main zone, there for, can only be in one curve.
@@ -58,7 +59,11 @@ public class ConcreteZone extends ConcreteRectangularElement {
         drawingLevel = 1;
         curvesImIn = new HashSet<ConcreteCurve>();
         topLeftIsCircle = botLeftIsCircle = topRightIsCircle = botRightIsCircle = true;
+
+        checkValidity();
     }
+
+
 
     public void swapShading() {
         if (shaded()) {
@@ -157,7 +162,10 @@ public class ConcreteZone extends ConcreteRectangularElement {
         rect.addZone(this);
     }
 
-
+    @Override
+    public void checkValidity() {
+        setValid(true);
+    }
 
 
     @Override

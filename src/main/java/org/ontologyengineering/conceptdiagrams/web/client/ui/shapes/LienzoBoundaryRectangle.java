@@ -126,6 +126,7 @@ public class LienzoBoundaryRectangle extends LienzoDiagramShape<ConcreteBoundary
         getRepresentation().setHeight(getDiagramElement().getHeight());
         getRepresentation().setX(getDiagramElement().getX());
         getRepresentation().setY(getDiagramElement().getY());
+        batch();
     }
 
     public void undraw() {

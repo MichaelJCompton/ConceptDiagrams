@@ -6,7 +6,10 @@ package org.ontologyengineering.conceptdiagrams.web.shared.diagrams;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteBoundaryRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
+import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractSet;
 import java.util.HashSet;
@@ -16,7 +19,7 @@ import java.util.HashSet;
  * <p/>
  * The set of diagrams that make up some descriptive unit: such as the set of diagrams used to express an ontology (or
  * part of the ontology if some of the ontology is expressed otherwise), or the diagrams for some project etc if not
- * being used to express an ontology.
+ * being used to express an ontology, or the set of diagrams drawn on a single canvas.
  *
  */
 public class DiagramSet {
@@ -27,7 +30,7 @@ public class DiagramSet {
         theDiagrams = new HashSet<ConcreteDiagram>();
     }
 
-    private AbstractSet<ConcreteDiagram> getDiagrams() {
+    public AbstractSet<ConcreteDiagram> getDiagrams() {
         return theDiagrams;
     }
 
@@ -38,5 +41,27 @@ public class DiagramSet {
     public void removeDiagram(ConcreteDiagram diagram) {
         getDiagrams().remove(diagram);
     }
+
+    public AbstractSet<ConcreteDiagramElement> elementsInBoundingBox(Point topLeft, Point botRight) {
+        AbstractSet<ConcreteDiagramElement> result = new HashSet<ConcreteDiagramElement>();
+
+        for(ConcreteDiagram d : getDiagrams()) {
+            result.addAll(d.elementsInBoundingBox(topLeft, botRight));
+        }
+
+        return result;
+    }
+
+    public ConcreteBoundaryRectangle boundaryRectangleAtPoint(Point p) {
+        for (ConcreteDiagram d : getDiagrams()) {
+            for (ConcreteBoundaryRectangle rectangle : d.getRectangles()) {
+                if (rectangle.containsPoint(p)) {
+                    return rectangle;
+                }
+            }
+        }
+        return null;
+    }
+
 
 }

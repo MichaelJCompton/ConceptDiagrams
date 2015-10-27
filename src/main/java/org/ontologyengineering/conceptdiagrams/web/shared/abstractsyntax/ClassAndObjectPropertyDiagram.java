@@ -9,15 +9,18 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
 
 /**
- * a LabelledDiagram with extra conststraints
+ * a LabelledDiagram where
+ *
+ * lambda_s has range V_I
+ * lambda_c has range V_C
  */
 public class ClassAndObjectPropertyDiagram extends LabelledDiagram {
 
-    ClassAndObjectPropertyDiagram() {
+    public ClassAndObjectPropertyDiagram() {
         super ();
     }
 
-    ClassAndObjectPropertyDiagram(ConceptDiagram parent) {
+    public ClassAndObjectPropertyDiagram(LabelledMultiDiagram parent) {
         super(parent);
     }
 
