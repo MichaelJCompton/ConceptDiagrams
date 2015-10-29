@@ -26,6 +26,14 @@ public class FastCurveSet {
         bitset = new long[2];
     }
 
+    public FastCurveSet(FastCurveSet toCopy) {
+        bitset = new long[toCopy.numWords()];
+
+        for(int i = 0; i < toCopy.numWords(); i++) {
+            bitset[i] = toCopy.bitset[i];
+        }
+    }
+
     // find the point in bitset, given a bit address
     // longs are 64 bit twos compliment, don't think we need to care about the twos compliment, just treat it as
     // 64 bits to play with.  So bits 0..63 are in index 0, 63..127 are in index 2, etc.
@@ -60,6 +68,10 @@ public class FastCurveSet {
         bitset[index] |= (1L << (bit - (index * 64)));
     }
 
+    public void set(Curve c) {
+        set(c.getCurveID());
+    }
+
     public void clear(int bit) {
         int index = bit / 64;
         if(index > bitset.length) {
@@ -69,12 +81,52 @@ public class FastCurveSet {
         bitset[index] &= ~(1L << (bit - (index * 64)));
     }
 
+    public void clear(Curve c) {
+        clear(c.getCurveID());
+    }
+
     public boolean isSet(int bit) {
         int index = bit / 64;
         if(index > bitset.length) {
             return false;
         }
-        return (bitset[index] & (1L << (bit - (index * 64)))) == 0;
+        return (bitset[index] & (1L << (bit - (index * 64)))) == 0L;
+    }
+
+    public boolean isZero() {
+        boolean isZero = true;
+        for(int i = 0; i < numWords(); i++) {
+            isZero = (bitset[i] == 0L) && isZero;
+        }
+        return isZero;
+    }
+
+    public void logicalXOR(FastCurveSet other, FastCurveSet result) {
+        int maxLen = Math.max(numWords(), other.numWords());
+
+        if(maxLen > numWords()) {
+            expand(other.numBits());
+        } else if (maxLen > other.numWords()) {
+            other.expand(numBits());
+        }
+
+        result.expand(maxLen);
+
+        for(int i = 0; i < numWords(); i++) {
+            result.bitset[i] = bitset[i] ^ other.bitset[i];
+        }
+    }
+
+    public FastCurveSet logicalXOR(FastCurveSet other) {
+        FastCurveSet result = new FastCurveSet();
+        logicalXOR(other, result);
+        return result;
+    }
+
+    // FIXME might make something like this the equals for the class
+    public boolean logicalEQ(FastCurveSet other) {
+        FastCurveSet test = logicalXOR(other);
+        return test.isZero();
     }
 
     public void logicalAND(FastCurveSet other, FastCurveSet result) {
@@ -127,6 +179,47 @@ public class FastCurveSet {
 
     public void logicalNOT() {
         logicalNOT(this);
+    }
+
+    // is this set a subset of other
+    public boolean subseteqOF(FastCurveSet other) {
+        FastCurveSet mask = new FastCurveSet();
+
+        logicalAND(other, mask);
+        return logicalEQ(mask);
+    }
+
+
+    // is this set a subset of other if we ignore the curves in mask
+    public boolean subseteqOF(FastCurveSet other, FastCurveSet mask) {
+        FastCurveSet thisMasked = new FastCurveSet(this);
+        thisMasked.logicalXOR(mask);
+
+        FastCurveSet otherMasked = new FastCurveSet(other);
+        otherMasked.logicalXOR(mask);
+
+        otherMasked.logicalAND(thisMasked);
+        return otherMasked.logicalEQ(thisMasked);
+    }
+
+    public void intersection(FastCurveSet other, FastCurveSet result, FastCurveSet mask) {
+        FastCurveSet thisMasked = new FastCurveSet(this);
+        thisMasked.logicalXOR(mask);
+
+        FastCurveSet otherMasked = new FastCurveSet(other);
+        otherMasked.logicalXOR(mask);
+
+        otherMasked.logicalAND(thisMasked, result);
+    }
+
+    public boolean intersectionEmpty(FastCurveSet other, FastCurveSet mask) {
+        FastCurveSet test = new FastCurveSet();
+        intersection(other, test, mask);
+        return test.isZero();
+    }
+
+    public boolean intersectionNOTempty(FastCurveSet other, FastCurveSet mask) {
+        return !intersectionEmpty(other, mask);
     }
 
 }

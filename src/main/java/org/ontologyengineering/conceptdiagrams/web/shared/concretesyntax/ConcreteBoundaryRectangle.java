@@ -176,6 +176,7 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
         getCurves().remove(curve);
         removeCurveFromIntersectionGrid(curve);
 
+        curve.removeAllCompletelyContainedZones();
         // now remove those zones from intersecting curves
         // main zone can only be in the one curve
         //
@@ -185,9 +186,16 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
             zone.disassociateFromCurves(curve);
             if(zone.getCurves().size() == 1) {
                 removeZone(zone);   // FIXME : I think on removing a curve all it's zones go ... because they are the result of intersections between two curves.  A zone can be inside many curves
+
+                for(ConcreteCurve c : zone.getCompletelyEnclosingCurves()) {
+                    c.removeCompletelyContainedZone(zone);
+                }
             }
         }
         removeZone(curve.getMainZone());
+        for(ConcreteCurve c : curve.getMainZone().getCompletelyEnclosingCurves()) {
+            c.removeCompletelyContainedZone(curve.getMainZone());
+        }
 
         // now remove all intersections
         curve.disassociateFromAllIntersectingCurves();

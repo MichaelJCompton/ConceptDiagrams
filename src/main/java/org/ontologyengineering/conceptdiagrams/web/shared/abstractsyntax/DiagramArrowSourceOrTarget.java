@@ -6,6 +6,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
+
 import java.util.AbstractCollection;
 import java.util.HashSet;
 
@@ -13,13 +15,13 @@ import java.util.HashSet;
  * Typing for those things that can be the source and targets of arrows.  Also provides a common interface for functions
  * related to that.
  */
-public abstract class DiagramArrowSourceOrTarget<DiagramType extends AbstractDiagram> extends DiagramElement<DiagramType> {
+public abstract class DiagramArrowSourceOrTarget<ConcreteType extends ConcreteDiagramElement> extends DiagramElement<LabelledDiagram, ConcreteType> {
 
     DiagramArrowSourceOrTarget() {
         super();
     }
 
-    DiagramArrowSourceOrTarget(DiagramType parent) {
+    DiagramArrowSourceOrTarget(LabelledDiagram parent) {
         super(parent);
     }
 
@@ -27,7 +29,7 @@ public abstract class DiagramArrowSourceOrTarget<DiagramType extends AbstractDia
         super(label);
     }
 
-    DiagramArrowSourceOrTarget(String label, DiagramType parent) {
+    DiagramArrowSourceOrTarget(String label, LabelledDiagram parent) {
         super(label, parent);
     }
 

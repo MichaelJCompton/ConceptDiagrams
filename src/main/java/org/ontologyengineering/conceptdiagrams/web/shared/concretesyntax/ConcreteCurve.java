@@ -1,11 +1,11 @@
 package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
 
-
 /**
  * Author: Michael Compton<br>
  * Date: September 2015<br>
  * See license information in base directory.
  */
+
 
 import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Curve;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
@@ -24,6 +24,8 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
 
 
 
+    private AbstractSet<ConcreteZone> completelyContainedZones;
+
     public ConcreteCurve(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight, ConcreteDiagramElement_TYPES.CONCRETECURVE);
 
@@ -32,6 +34,7 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
 
         intersectionZonesInCurve = new LinkedList<ConcreteIntersectionZone>();
         intersectingCurves = new HashSet<ConcreteCurve>();
+        completelyContainedZones = new HashSet<ConcreteZone>();
 
         refresh();
         makeMainZone();
@@ -53,7 +56,11 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
         getMainZone().addEnclosingCurve(this);
     }
 
-    protected AbstractSet<ConcreteCurve> getIntersectingCurves() {
+    public AbstractSet<ConcreteCurve> getAllEnclosingCurves() {
+        return getMainZone().getCompletelyEnclosingCurves();
+    }
+
+    public AbstractSet<ConcreteCurve> getIntersectingCurves() {
         return intersectingCurves;
     }
 
@@ -83,6 +90,27 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
             other.removeIntersectingCurve(this);
         }
     }
+
+    protected AbstractSet<ConcreteZone> getCompletelyContainedZones() {
+        return completelyContainedZones;
+    }
+
+    protected void addCompletelyContainedZone(ConcreteZone zone) {
+        getCompletelyContainedZones().add(zone);
+        zone.addCompletelyEnclosingCurve(this);
+    }
+
+    protected void removeCompletelyContainedZone(ConcreteZone zone) {
+        getCompletelyContainedZones().remove(zone);
+        zone.removeCompletelyEnclosingCurve(this);
+    }
+
+    protected void removeAllCompletelyContainedZones() {
+        for(ConcreteZone z : getCompletelyContainedZones()) {
+            removeCompletelyContainedZone(z);
+        }
+    }
+
 
     @Override
     public void makeAbstractRepresentation() {
@@ -301,6 +329,15 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
 
         for (ConcreteZone z : intersectingZones) {
             getMainZone().computeIntersection(z);
+        }
+
+        //if there are any completely enclosing zones ... then all my zones are completely enclosed
+        if(getMainZone().getCompletelyEnclosingCurves().size() > 0) {
+            for(ConcreteCurve c : getMainZone().getCompletelyEnclosingCurves()) {
+                for (ConcreteZone z : getEnclosedZones()) {
+                    c.addCompletelyContainedZone(z);
+                }
+            }
         }
     }
 

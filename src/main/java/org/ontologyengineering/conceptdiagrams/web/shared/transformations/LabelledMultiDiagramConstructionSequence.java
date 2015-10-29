@@ -40,6 +40,8 @@ public class LabelledMultiDiagramConstructionSequence {
             constructedAbstractDiagram = new PropertyDiagram();
         }
 
+        constructedAbstractDiagram.setConcreteRepresentation(diagram);
+
         for(LabelledMultiDiagramTransformation t : constructionSequence) {
             // at each iteration the constructed diagram changes until we get to the final
             t.translate(constructedAbstractDiagram, outputter);

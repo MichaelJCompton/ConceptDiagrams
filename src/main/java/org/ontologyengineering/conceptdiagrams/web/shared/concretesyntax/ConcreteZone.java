@@ -34,6 +34,10 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
     // won't get the curve in this list.  A main zone, there for, can only be in one curve.
     private AbstractSet<ConcreteCurve> curvesImIn;
 
+    // curves that completely enclose this zone ... but aren't involved in the intersection
+    private AbstractSet<ConcreteCurve> completelyEnclosingCurves;
+
+
     private Boolean isShaded;
     Integer drawingLevel;
 
@@ -58,6 +62,7 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
         setBorderWidth(0);
         drawingLevel = 1;
         curvesImIn = new HashSet<ConcreteCurve>();
+        completelyEnclosingCurves = new HashSet<ConcreteCurve>();
         topLeftIsCircle = botLeftIsCircle = topRightIsCircle = botRightIsCircle = true;
 
         checkValidity();
@@ -141,6 +146,18 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
         }
     }
 
+
+    public AbstractSet<ConcreteCurve> getCompletelyEnclosingCurves() {
+        return completelyEnclosingCurves;
+    }
+
+    protected void addCompletelyEnclosingCurve(ConcreteCurve curve) {
+        getCompletelyEnclosingCurves().add(curve);
+    }
+
+    protected void removeCompletelyEnclosingCurve(ConcreteCurve curve) {
+        getCompletelyEnclosingCurves().remove(curve);
+    }
 
     // should only be called from the boundary rectangle
     protected void increaseLevel() {
@@ -265,11 +282,17 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
 
         if (completelyEncloses(other)) {
             other.getBoundaryRectangle().increaseLevel(other);
+            for(ConcreteCurve c : getCurves()) { // this is only called for main zones so should only be one
+                c.addCompletelyContainedZone(other);
+            }
             return;     // no new zones to add
         }
 
         if (other.completelyEncloses(this)) {
             getBoundaryRectangle().increaseLevel(this);
+            for(ConcreteCurve c : other.getCurves()) {  // this time there may be many
+                c.addCompletelyContainedZone(this);
+            }
             return;
         }
 
@@ -308,7 +331,8 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
         }
 
         // FIXME : I need to sanitise these enclosed zones.  As more zones are added the list starts to get completely enclosed things as well as intersections ... how to check?
+        // FIXME : don't think that's true but test again.
 
-        //z.makeConcreteRepresentation();
+
     }
 }

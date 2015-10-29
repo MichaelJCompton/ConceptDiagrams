@@ -109,7 +109,7 @@ public abstract class ConcreteDiagramElement <T extends DiagramElement> {
         abstractSyntaxUpToDate = false;
     }
 
-    protected void setAbstractSyntaxRepresentation(T representation) {
+    public void setAbstractSyntaxRepresentation(T representation) {
         abstractSyntaxRepresentation = representation;
         setAbstractSyntaxUpToDate();
     }
@@ -230,6 +230,7 @@ public abstract class ConcreteDiagramElement <T extends DiagramElement> {
         return result;
     }
 
+    // FIXME to remove ... done now through the translations
     public abstract void makeAbstractRepresentation();
 
     public abstract void deleteMe();

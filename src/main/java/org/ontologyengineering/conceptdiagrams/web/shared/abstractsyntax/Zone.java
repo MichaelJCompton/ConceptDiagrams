@@ -6,6 +6,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
+
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.HashSet;
@@ -19,7 +21,7 @@ import java.util.HashSet;
  * child zone, or if it's only needed for particular operations it should be computed at the start of the operation and
  * kept as valid for only the operation.
  */
-public class Zone extends DiagramElement<LabelledDiagram> {
+public class Zone extends DiagramElement<LabelledDiagram, ConcreteZone> {
 
     private Boolean isShaded;
     private AbstractSet<Curve> in;
@@ -42,6 +44,19 @@ public class Zone extends DiagramElement<LabelledDiagram> {
         isShaded = shading;
         in = new HashSet<Curve>();
         fastCurveSet = new FastCurveSet();
+    }
+
+    public FastCurveSet inAsFastCurveSet() {
+        return fastCurveSet;
+    }
+
+    public FastCurveSet outAsFastCurveSet() {
+        FastCurveSet result = new FastCurveSet();
+
+        inAsFastCurveSet().logicalNOT(result);
+        result.logicalAND(diagram().getCurvesInUse());
+
+        return result;
     }
 
     public Boolean isShaded() {
@@ -84,5 +99,9 @@ public class Zone extends DiagramElement<LabelledDiagram> {
     }
 
 
+    // FIXME might need this if we copy zones
+//    public Zone clone() {
+//
+//    }
 
 }

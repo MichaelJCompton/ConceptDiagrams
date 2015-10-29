@@ -26,7 +26,8 @@ public class AddCurveLabel extends LabelledDiagramTransformation {
     public void executeTransformation(LabelledDiagram transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
-        // then the rest
+        // somewhere along the line I should be checking that the labels are legal
+        transformedDiagram.labelCurve(labelledCurve);
     }
 
     @Override

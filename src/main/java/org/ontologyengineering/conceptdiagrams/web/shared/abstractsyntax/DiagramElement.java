@@ -6,6 +6,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
+
 import java.util.AbstractCollection;
 
 
@@ -22,10 +24,11 @@ import java.util.AbstractCollection;
 /**
  *
  */
-public abstract class DiagramElement<DiagramType extends AbstractDiagram> {
+public abstract class DiagramElement<DiagramType extends AbstractDiagram, ConcreteType extends ConcreteDiagramElement> {
 
 
     private DiagramType myDiagram;
+    private ConcreteType concreteRepresentation;
 
     private String label;
 
@@ -68,7 +71,13 @@ public abstract class DiagramElement<DiagramType extends AbstractDiagram> {
         myDiagram = newDiagram;
     }
 
+    public ConcreteType getConcreteRepresentation() {
+        return concreteRepresentation;
+    }
 
+    public void setConcreteRepresentation(ConcreteType concreteRepresentation) {
+        this.concreteRepresentation = concreteRepresentation;
+    }
 
     abstract public AbstractCollection<DiagramElement> children ();
 

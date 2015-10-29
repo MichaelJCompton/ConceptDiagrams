@@ -7,6 +7,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  */
 
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
+
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.HashSet;
@@ -31,8 +33,10 @@ import java.util.HashSet;
  * The labels are implemented as part of Arrow classes
  *
  */
-public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram> {
+public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram, ConcreteDiagram> {
 
+
+    // TODO : implement the constraints
 
     // might change the types of these as we go along ... trying for a pretty direct translation
     // of the syntax and semantics document at this stage.
@@ -68,7 +72,14 @@ public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram> {
     }
 
 
+    // Definition 25
+    public AbstractSet<ZonalRegion> SC(Arrow arrow) {
+        if(arrow.diagram() == this) {
+            LabelledDiagram v = (LabelledDiagram) arrow.getTarget().diagram();  // FIXME : why cast required ... maybe I'm wrong and it will crash at some point??
+            return v.SZR(v.ISC(arrow), v.getISCcurveMask(arrow));
+        }
 
+        return null;
+    }
 
-    // TODO : implement the constraints
 }

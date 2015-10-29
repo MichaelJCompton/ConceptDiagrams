@@ -15,31 +15,31 @@ import java.util.AbstractSet;
  */
 public class ZonalRegion {
 
-    private AbstractSet<Zone> IN;
-    private AbstractSet<Zone> OUT;
+    private FastCurveSet IN;
+    private FastCurveSet OUT;
     private LabelledDiagram v;
 
     private AbstractSet<Zone> result;
 
-    public ZonalRegion(AbstractSet<Zone> IN, AbstractSet<Zone> OUT, LabelledDiagram v) {
+    public ZonalRegion(FastCurveSet IN, FastCurveSet OUT, LabelledDiagram v) {
         this.IN = IN;
         this.OUT = OUT;
         this.v = v;
         // should be that all the zones are in v
+        result = null;
     }
 
-    public AbstractSet<Zone> IN() {
+    public FastCurveSet IN() {
         return IN;
     }
 
-    public AbstractSet<Zone> OUT() {
+    public FastCurveSet OUT() {
         return OUT;
     }
 
     // FIXME : implement if needed
     public AbstractSet<Zone> computeZonalRegion() {
-        result = null;
-        return null;
+        return result;
     }
 
 }

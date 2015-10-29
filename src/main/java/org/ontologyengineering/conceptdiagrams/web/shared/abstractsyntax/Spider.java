@@ -6,6 +6,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteSpider;
+
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.HashSet;
@@ -30,7 +32,7 @@ import java.util.HashSet;
  *
  * However, maybe the Spider should have functions to validate names to ensure they are correct for the implied type?
  */
-public class Spider extends DiagramArrowSourceOrTarget<LabelledDiagram> {
+public class Spider extends DiagramArrowSourceOrTarget<ConcreteSpider> {
 
     private AbstractSet<Zone> eta;
     private AbstractSet<Spider> equalSpiders;   // shared by all spiders in this equivalence

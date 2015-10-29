@@ -7,6 +7,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  */
 
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteBoundaryRectangle;
+
 /**
  *  * may need functions for accessing curves, spiders etc - are these children + separate?
  *
@@ -15,7 +17,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  *
  * - The diagram of a BoundaryRectangle can really only be a LabelledDiagram (or subclass).
  */
-public class BoundaryRectangle extends DiagramArrowSourceOrTarget<LabelledDiagram> {
+public class BoundaryRectangle extends DiagramArrowSourceOrTarget<ConcreteBoundaryRectangle> {
 
     private boolean isStarRectangle = false;
 

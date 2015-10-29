@@ -26,11 +26,7 @@ public class AddUnlabelledCurve extends LabelledDiagramTransformation {
     public void executeTransformation(LabelledDiagram transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
-        // gets my labelled diagram
-        addedCurve.getBoundaryRectangle().getAbstractSyntaxRepresentation().diagram()
-
-        // gets the whole diagram
-        addedCurve.getBoundaryRectangle().getParentDiagram()
+        transformedDiagram.addUnlabelledCurve(addedCurve);
 
         setAsExecuted();
     }

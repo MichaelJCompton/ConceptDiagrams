@@ -6,10 +6,12 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteArrow;
+
 import java.util.AbstractCollection;
 import java.util.HashSet;
 
-public abstract class Arrow extends DiagramElement<AbstractDiagram> {
+public abstract class Arrow extends DiagramElement<AbstractDiagram, ConcreteArrow> {
 
     // TODO : need to add the lambda functions once this code is linked up with WebProt
 
@@ -54,6 +56,14 @@ public abstract class Arrow extends DiagramElement<AbstractDiagram> {
     @Override
     public AbstractCollection<DiagramElement> children() {
         return new HashSet<DiagramElement>();
+    }
+
+    public DiagramArrowSourceOrTarget getTarget() {
+        return target;
+    }
+
+    public DiagramArrowSourceOrTarget getSource() {
+        return source;
     }
 
 

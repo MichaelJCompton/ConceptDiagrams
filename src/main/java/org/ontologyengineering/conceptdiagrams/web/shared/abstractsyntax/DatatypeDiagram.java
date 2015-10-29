@@ -7,6 +7,9 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  */
 
 
+import java.util.AbstractSet;
+import java.util.HashSet;
+
 /**
  * A LabelledDiagram where
  *
@@ -26,4 +29,20 @@ public class DatatypeDiagram extends LabelledDiagram {
 
     // TODO : datatype diagram constraints to add
     // - no arrows
+
+
+    @Override
+    public AbstractSet<Zone> getZonesToTest(AbstractSet<Zone> Zdash, FastCurveSet curveMask, FastCurveSet IN, FastCurveSet OUT, FastCurveSet removedCurves) {
+        AbstractSet<Zone> zonesToTest = new HashSet<Zone>();
+        for (Zone z : Z()) {
+            if (!Zdash.contains(z)) {
+                // fine but do we need to test it given what we have removed from OUT, so maybe remove
+                if(removedCurves.intersectionEmpty(z.inAsFastCurveSet(), curveMask)) {
+                    zonesToTest.add(z);
+                }
+            }
+        }
+        return zonesToTest;
+    }
+
 }

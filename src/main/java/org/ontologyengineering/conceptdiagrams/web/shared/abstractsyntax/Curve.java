@@ -1,5 +1,7 @@
 package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteCurve;
+
 import java.util.AbstractSet;
 import java.util.HashSet;
 
@@ -10,7 +12,7 @@ import java.util.HashSet;
  */
 
 
-public class Curve extends DiagramArrowSourceOrTarget<LabelledDiagram> {
+public class Curve extends DiagramArrowSourceOrTarget<ConcreteCurve> {
 
     private int curveID; // unique ordering id in this boundary rectangle
 
