@@ -70,6 +70,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>net.sourceforge.owlapi</groupId>
+            <artifactId>owlapi-distribution</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+
 
     </dependencies>
 

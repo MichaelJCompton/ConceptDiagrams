@@ -21,6 +21,18 @@ public abstract class LabelledMultiDiagramTransformation extends Transformation 
     }
 
 
+    // Definition 20
+    public void T(AbstractSet<ZonalRegion> zonalRegions, OWLOutputter outputter) {
+
+    }
+
+    // Definition 21
+    public void T_data(AbstractSet<ZonalRegion> zonalRegions, OWLOutputter outputter) {
+
+    }
+
+
+
     // Definition 26
     public void T_SC(Arrow arrow, OWLOutputter outputter) {
         if(arrow.diagram() != diagram()) {
@@ -30,14 +42,14 @@ public abstract class LabelledMultiDiagramTransformation extends Transformation 
 
         AbstractSet<ZonalRegion> SC = diagram().SC(arrow);
 
-        if(SC == null) {
-            // ??? shouldn't happen
-        } else if (SC.size() == 0) {
-            // OWL:Nothing
-        } else if (SC.size() == 1) {
-            // T(<IN, OUT, v>)
-        }
+
 
     }
+
+    // Definition 27
+    public void T_SC_data(Arrow arrow, OWLOutputter outputter) {
+    }
+
+
 
 }

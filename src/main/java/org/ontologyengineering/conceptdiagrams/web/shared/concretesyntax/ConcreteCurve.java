@@ -21,9 +21,6 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
     private ConcreteZone mainZone;
 
     private AbstractSet<ConcreteCurve> intersectingCurves;
-
-
-
     private AbstractSet<ConcreteZone> completelyContainedZones;
 
     public ConcreteCurve(Point topLeft, Point bottomRight) {
@@ -91,7 +88,7 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
         }
     }
 
-    protected AbstractSet<ConcreteZone> getCompletelyContainedZones() {
+    public AbstractSet<ConcreteZone> getCompletelyContainedZones() {
         return completelyContainedZones;
     }
 

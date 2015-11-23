@@ -8,6 +8,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
 
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * A minimal implementation of a bitset.  Seems that java.util.BitSet isn't supported in GWT, so this will be a
@@ -16,9 +18,11 @@ import java.util.Arrays;
  * the bitsets are implemented as a long array and all the opperations are just java's bitwise and shift operators.
  * No resizing or anything, just use as is and expand all operations to the max of the two
  */
-public class FastCurveSet {
+public class FastCurveSet implements Iterable<Integer>, Iterator<Integer> {
 
     private long[] bitset;
+
+    private int iteratorCursor;
 
     // let's assume an initial max of two longs as enough and expand if required
     // that would be 128 curves in a single diagram, so it's enough to not be exceeded often
@@ -49,6 +53,18 @@ public class FastCurveSet {
 
     public int numWords() {
         return bitset.length + 1;
+    }
+
+    // might need to improve this with some caching ... but how would it work for AND etc?
+    // maybe just invalidate it on those?
+    public int numBitsSet() {
+        int result = 0;
+        for(int i = 0; i < numBits(); i++) {
+            if(isSet(i)) {
+                result++;
+            }
+        }
+        return result;
     }
 
     protected void expand(int numBits) {
@@ -91,6 +107,10 @@ public class FastCurveSet {
             return false;
         }
         return (bitset[index] & (1L << (bit - (index * 64)))) == 0L;
+    }
+
+    public boolean isSet(Curve c) {
+        return isSet(c.getCurveID());
     }
 
     public boolean isZero() {
@@ -221,5 +241,48 @@ public class FastCurveSet {
     public boolean intersectionNOTempty(FastCurveSet other, FastCurveSet mask) {
         return !intersectionEmpty(other, mask);
     }
+
+
+
+
+    // ---------------------------------------------------------------------------------------
+    //                          Iterator impl
+    // ---------------------------------------------------------------------------------------
+
+
+    // how else to iterate through all the set bits??
+
+    public Iterator<Integer> iterator() {
+        iteratorCursor = 0;
+        return this;
+    }
+
+    public boolean hasNext() {
+        boolean foundNext = false;
+        for(int i = iteratorCursor + 1; i < numBits(); i++) {
+            if(isSet(i)) {
+                foundNext = true;
+            }
+        }
+        return foundNext;
+    }
+
+    public Integer next() {
+
+        for(int i = iteratorCursor + 1; i < numBits(); i++) {
+            if(isSet(i)) {
+                iteratorCursor = i;
+                return i;
+            }
+        }
+        // didn't find a next
+        throw new NoSuchElementException();
+
+    }
+
+    public void remove() {
+        throw new UnsupportedOperationException();
+    }
+
 
 }

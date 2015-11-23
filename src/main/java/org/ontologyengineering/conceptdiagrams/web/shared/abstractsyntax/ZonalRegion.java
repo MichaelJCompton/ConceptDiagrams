@@ -37,6 +37,14 @@ public class ZonalRegion {
         return OUT;
     }
 
+    public boolean INcontainsCurve(Curve c) {
+        return IN().isSet(c);
+    }
+
+    public boolean OUTcontainsCurve(Curve c) {
+        return OUT().isSet(c);
+    }
+
     // FIXME : implement if needed
     public AbstractSet<Zone> computeZonalRegion() {
         return result;

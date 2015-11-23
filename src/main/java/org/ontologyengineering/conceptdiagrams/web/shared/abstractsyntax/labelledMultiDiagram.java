@@ -7,11 +7,13 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
  */
 
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteArrow;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 
 import java.util.AbstractCollection;
 import java.util.AbstractSet;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * (sample of comments - in the end what these to be consistent with the text (as well as the code being consistent),
@@ -61,6 +63,14 @@ public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram, Concr
         return result;
     }
 
+    public AbstractSet<ObjectPropertyArrow> getObjectPropertyArrows() {
+        return objectPropertyArrows;
+    }
+
+    public AbstractSet<DatatypePropertyArrow> getDatatypePropertyArrows() {
+        return datatypePropertyArrows;
+    }
+
 
     // after this operation the diagram will be a bit inconsistent because the new diagram isn't yet jnoined to the others
     public void addClassAndObjectPropertyDiagram(ClassAndObjectPropertyDiagram newDiagram) {
@@ -70,6 +80,67 @@ public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram, Concr
     public void addDatatypeDiagram(DatatypeDiagram newDiagram) {
         datatypeDiagrams.add(newDiagram);
     }
+
+
+    public AbstractSet<Arrow> arrowsTov(LabelledDiagram v) {
+        AbstractSet<Arrow> result = new HashSet<Arrow>();
+        result.addAll(objectArrowsTov(v));
+        result.addAll(dataArrowsTov(v));
+        return result;
+    }
+
+    public AbstractSet<ObjectPropertyArrow> objectArrowsTov(LabelledDiagram v) {
+        AbstractSet<ObjectPropertyArrow> result = new HashSet<ObjectPropertyArrow>();
+        for(ObjectPropertyArrow a : getObjectPropertyArrows()) {
+            if(a.getTarget().diagram() == v) {
+                result.add(a);
+            }
+        }
+        return result;
+    }
+
+    public AbstractSet<DatatypePropertyArrow> dataArrowsTov(LabelledDiagram v) {
+        AbstractSet<DatatypePropertyArrow> result = new HashSet<DatatypePropertyArrow>();
+        for(DatatypePropertyArrow a : getDatatypePropertyArrows()) {
+            if(a.getTarget().diagram() == v) {
+                result.add(a);
+            }
+        }
+        return result;
+    }
+
+
+    // ooohhh bad style, but otherwise I think I have a cast on getAbstractRep
+    public ObjectPropertyArrow addObjectPropertyArrow(ConcreteArrow arrow) {
+        // should check this has different source and target diagrams
+        ObjectPropertyArrow result =
+                // ouch how to do this without the casts?  need another type in the concrete??
+                new ObjectPropertyArrow((DiagramArrowSourceOrTarget) arrow.getSource().getAbstractSyntaxRepresentation(),
+                        (DiagramArrowSourceOrTarget) arrow.getTarget().getAbstractSyntaxRepresentation(),
+                        arrow.labelText());
+
+        getObjectPropertyArrows().add(result);
+        return result;
+    }
+
+    public DatatypePropertyArrow addDataPropertyArrow(ConcreteArrow arrow) {
+        DatatypePropertyArrow result =
+                // ouch how to do this without the casts?  need another type in the concrete??
+                new DatatypePropertyArrow((DiagramArrowSourceOrTarget) arrow.getSource().getAbstractSyntaxRepresentation(),
+                        (DiagramArrowSourceOrTarget) arrow.getTarget().getAbstractSyntaxRepresentation(),
+                        arrow.labelText());
+
+        getDatatypePropertyArrows().add(result);
+        return result;
+    }
+
+
+    public Set<Arrow> DE(Arrow a) {
+        // FIXME !!!
+        // Cache these
+        return new HashSet<Arrow>();
+    }
+
 
 
     // Definition 25

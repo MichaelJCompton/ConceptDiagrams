@@ -67,4 +67,21 @@ public abstract class Arrow extends DiagramElement<AbstractDiagram, ConcreteArro
     }
 
 
+    public boolean targetIsCurve() {
+        return getTarget().getClass() == Curve.class;
+    }
+
+
+    public Curve targetAsCurve() {
+        if(targetIsCurve()) {
+            return (Curve) getTarget();
+        }
+        return null;
+    }
+
+    public boolean targetIsBoundaryRectangle() {
+        return getTarget().getClass() == BoundaryRectangle.class;
+    }
+
+
 }

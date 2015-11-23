@@ -16,9 +16,9 @@ import java.util.AbstractSet;
 /**
  * Transformation 5
  */
-public class AddShading extends LabelledDiagramTransformation {
+public abstract class AddShading  <T extends LabelledDiagram> extends LabelledDiagramTransformation <T>  {
 
-    private AbstractSet<ConcreteZone> shadedZones;
+    protected AbstractSet<ConcreteZone> shadedZones;
 
     public AddShading(AbstractSet<ConcreteZone> shadedZones) {
 
@@ -32,14 +32,16 @@ public class AddShading extends LabelledDiagramTransformation {
     }
 
     @Override
-    public void executeTransformation(LabelledDiagram transformedDiagram) {
+    public void executeTransformation(T transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
-        // then the rest
+        transformedDiagram.shadeZones(shadedZones);
+
+        setAsExecuted();
     }
 
     @Override
-    public void translate(LabelledDiagram transformedDiagram, OWLOutputter outputter) {
+    public void translate(T transformedDiagram, OWLOutputter outputter) {
         // do some preamble
 
         executeTransformation(transformedDiagram);

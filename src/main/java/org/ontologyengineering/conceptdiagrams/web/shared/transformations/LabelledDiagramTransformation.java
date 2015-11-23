@@ -12,7 +12,7 @@ import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Labelle
 import org.ontologyengineering.conceptdiagrams.web.shared.owlOutput.OWLOutputter;
 
 
-public abstract class LabelledDiagramTransformation extends Transformation <LabelledDiagram> {
+public abstract class LabelledDiagramTransformation <T extends LabelledDiagram> extends Transformation <T> {
 
     public LabelledDiagramTransformation() {
     }

@@ -14,7 +14,7 @@ import org.ontologyengineering.conceptdiagrams.web.shared.owlOutput.OWLOutputter
 /**
  * Transformation 3
  */
-public class AddUnlabelledCurve extends LabelledDiagramTransformation {
+public class AddUnlabelledCurve extends LabelledDiagramTransformation<LabelledDiagram> {
 
     private ConcreteCurve addedCurve;
 

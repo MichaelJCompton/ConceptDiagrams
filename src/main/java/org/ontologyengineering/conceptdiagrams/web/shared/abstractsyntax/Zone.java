@@ -63,6 +63,10 @@ public class Zone extends DiagramElement<LabelledDiagram, ConcreteZone> {
         return isShaded;
     }
 
+    public void shade() {
+        isShaded = true;
+    }
+
     public void setInSet(AbstractCollection<Curve> inSet) {
         for(Curve c : inSet) {
             addToInSet(c);
@@ -79,6 +83,14 @@ public class Zone extends DiagramElement<LabelledDiagram, ConcreteZone> {
         fastCurveSet.clear(c.getCurveID());
     }
 
+    public boolean INcontainsCurve(Curve c) {
+        return fastCurveSet.isSet(c);
+    }
+
+    public boolean OUTcontainsCurve(Curve c) {
+        return c.diagram() == diagram() && !fastCurveSet.isSet(c);
+    }
+
 
     public FastCurveSet minusCurveSet(FastCurveSet takeAway) {
         FastCurveSet result = new FastCurveSet();
@@ -88,6 +100,10 @@ public class Zone extends DiagramElement<LabelledDiagram, ConcreteZone> {
         fastCurveSet.logicalAND(result, result);
 
         return result;
+    }
+
+    public AbstractSet<Curve> IN() {
+        return in;
     }
 
     // Don't think spiders are children of their zones.  They can live in many zones.
