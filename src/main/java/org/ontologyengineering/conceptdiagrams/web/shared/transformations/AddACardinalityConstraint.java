@@ -25,7 +25,9 @@ public class AddACardinalityConstraint extends LabelledMultiDiagramTransformatio
     public void executeTransformation(LabelledMultiDiagram transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
-        // then the rest
+        constrainedArrow.getAbstractSyntaxRepresentation().setCardinalityConstraint(constrainedArrow.getCardinalityConstraint(), constrainedArrow.getCardinality());
+
+        setAsExecuted();
     }
 
     @Override
@@ -37,6 +39,15 @@ public class AddACardinalityConstraint extends LabelledMultiDiagramTransformatio
 
         // do some outputting
 
+        if(constrainedArrow.isObjectProperty()) {
+            if (!constrainedArrow.isInverse()) {
+                outputter.addFunctionalObjectProperty(constrainedArrow.getAbstractSyntaxRepresentation());
+            } else {
+                outputter.addInverseFunctionalObjectProperty(constrainedArrow.getAbstractSyntaxRepresentation());
+            }
+        } else {
+            outputter.addFunctionalDataProperty(constrainedArrow.getAbstractSyntaxRepresentation());
+        }
     }
 }
 

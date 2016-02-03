@@ -7,6 +7,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
 import java.util.AbstractSet;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * a LabelledDiagram where
@@ -41,7 +42,19 @@ public class ClassAndObjectPropertyDiagram extends LabelledDiagram {
         return zonesToTest;
     }
 
+    // Definition 30 ... carried down from LabelledMultiDiagram
+    public Set<Arrow> DE(Arrow arrow) {
 
+        // FIXME --- Cache these and just build up???
+
+        HashSet<Arrow> result = new HashSet<Arrow>();
+        for (Arrow a : A()) {
+            if (a.isInverse() == arrow.isInverse()) {  // because it's a ClassAndObjectPropertyDiagram, they are ObjectPropertyArrow(s)
+                result.add(a);
+            }
+        }
+        return result;
+    }
 
 
 }

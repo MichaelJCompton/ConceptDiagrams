@@ -242,7 +242,15 @@ public class FastCurveSet implements Iterable<Integer>, Iterator<Integer> {
         return !intersectionEmpty(other, mask);
     }
 
+    // remove the things in the mask
+    public FastCurveSet mask(FastCurveSet mask) {
+        FastCurveSet result = new FastCurveSet();
 
+        mask.logicalNOT(result);
+        result.logicalAND(this);
+
+        return result;
+    }
 
 
     // ---------------------------------------------------------------------------------------

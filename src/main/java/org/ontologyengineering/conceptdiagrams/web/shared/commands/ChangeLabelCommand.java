@@ -11,10 +11,7 @@ import org.ontologyengineering.conceptdiagrams.web.client.events.ChangeLabelEven
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteCurve;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddCurveLabel;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformAClassAndObjectPropertyDiagram;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformADatatypeDiagram;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.*;
 
 import java.util.AbstractCollection;
 import java.util.AbstractList;
@@ -85,9 +82,9 @@ public class ChangeLabelCommand extends Command {
             }
             if(firstLabelling) {
                 if(getElement().isObject()) {
-                    return new TransformAClassAndObjectPropertyDiagram(new AddCurveLabel((ConcreteCurve) getElement()));
+                    return new TransformAClassAndObjectPropertyDiagram(new AddCurveLabelToClassPropertyDiagram((ConcreteCurve) getElement()));
                 } else {
-                    return new TransformADatatypeDiagram(new AddCurveLabel((ConcreteCurve) getElement()));
+                    return new TransformADatatypeDiagram(new AddCurveLabelToDataPropertyDiagram((ConcreteCurve) getElement()));
                 }
             }
         }

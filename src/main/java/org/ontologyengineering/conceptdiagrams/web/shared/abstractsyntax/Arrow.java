@@ -18,7 +18,7 @@ public abstract class Arrow extends DiagramElement<AbstractDiagram, ConcreteArro
     private DiagramArrowSourceOrTarget source;
     private DiagramArrowSourceOrTarget target;
 
-    protected enum CardinalityConstraint {NONE, EQ, LEQ, GEQ}
+    public enum CardinalityConstraint {NONE, EQ, LEQ, GEQ}
     private CardinalityConstraint cardinalityConstraint;
     private Integer cardinality;
 
@@ -50,7 +50,19 @@ public abstract class Arrow extends DiagramElement<AbstractDiagram, ConcreteArro
     }
 
     public Boolean hasCardinalityConstraint() {
-        return cardinalityConstraint == CardinalityConstraint.NONE;
+        return cardinalityConstraint != CardinalityConstraint.NONE;
+    }
+
+    public CardinalityConstraint getCardinalityConstraint() {
+        return cardinalityConstraint;
+    }
+
+    public Integer getCardinality() {
+        return cardinality;
+    }
+
+    public boolean isInverse() {
+        return false;
     }
 
     @Override

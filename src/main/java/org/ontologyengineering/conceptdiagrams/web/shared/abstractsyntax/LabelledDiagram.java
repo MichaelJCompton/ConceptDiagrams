@@ -15,13 +15,18 @@ import java.util.*;
  * <p/>
  * where
  * <p/>
- * rect     : the boundry rectangle of the diagram Sigma    : finite set of Spider(s) K        : finite set of Curve(s)
- * Z        : set of Zone(s) s.t. z \subseteq {(in, K-in) : in \subseteq K} Z*       : set of shaded Zone(s) s.t. Z*
- * \subseteq Z eta      : function giving the set of Zone(s) a Spider resides in tau      : reflexive, symetric
- * (equality) relation on Sigma A        : finitie multiset of arrows (s,t,o) s.t. s,t : Sigma U K U rect lambda_s :
- * labels Spider(s) as OWL individuals or literals (V_I U V_LT) lambda_c : labels Curve(s) as OWL concepts or datatypes
- * (V_C U V_DT) lambda_a : labels Arrow(s) as OWL object property expressions (V_OP U V{^-}_{OP}) lambda_# : labels
- * Arrow(s) with <=, =, =< for OWL cardinality constraints
+ * rect     : the boundry rectangle of the diagram
+ * Sigma    : finite set of Spider(s)
+ * K        : finite set of Curve(s)
+ * Z        : set of Zone(s) s.t. z \subseteq {(in, K-in) : in \subseteq K}
+ * Z*       : set of shaded Zone(s) s.t. Z* \subseteq Z
+ * eta      : function giving the set of Zone(s) a Spider resides in
+ * tau      : reflexive, symetric (equality) relation on Sigma
+ * A        : finitie multiset of arrows (s,t,o) s.t. s,t : Sigma U K U rect
+ * lambda_s : labels Spider(s) as OWL individuals or literals (V_I U V_LT)
+ * lambda_c : labels Curve(s) as OWL concepts or datatypes (V_C U V_DT)
+ * lambda_a : labels Arrow(s) as OWL object property expressions (V_OP U V{^-}_{OP})
+ * lambda_# : labels Arrow(s) with <=, =, =< for OWL cardinality constraints
  * <p/>
  * the lambda and eta and tau are implemented in the Spider, Arrow and Curve classes
  * <p/>

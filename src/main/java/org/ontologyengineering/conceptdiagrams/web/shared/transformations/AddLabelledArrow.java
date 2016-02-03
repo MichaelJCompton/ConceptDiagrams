@@ -14,7 +14,7 @@ import org.ontologyengineering.conceptdiagrams.web.shared.owlOutput.OWLOutputter
 /**
  * Transformation 7
  */
-public class AddLabelledArrow extends LabelledDiagramTransformation {
+public class AddLabelledArrow<T extends LabelledDiagram> extends LabelledDiagramTransformation <T> {
 
     private ConcreteArrow addedArrow;
 
@@ -23,14 +23,14 @@ public class AddLabelledArrow extends LabelledDiagramTransformation {
     }
 
     @Override
-    public void executeTransformation(LabelledDiagram transformedDiagram) {
+    public void executeTransformation(T transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
         // then the rest
     }
 
     @Override
-    public void translate(LabelledDiagram transformedDiagram, OWLOutputter outputter) {
+    public void translate(T transformedDiagram, OWLOutputter outputter) {
         // do some preamble
 
         executeTransformation(transformedDiagram);

@@ -62,6 +62,8 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
     private Button undoButton;
     private Button selectModeButton;
 
+    private Button compileToOWLButton;
+
     private TextBox textInputBox;
     private Label inputLabel = new Label("  Label :  ");
     // - maybe make this also a search box, so you can have things that are alread there brought in again - especially when working with a bigger ontology or included ontologies
@@ -1098,6 +1100,14 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         }
     });
 
+
+        toolPanel.add(compileToOWLButton);
+        compileToOWLButton.setEnabled(true);
+        compileToOWLButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent clickEvent) {
+                compileToOWL();
+            }
+        });
 
         setEnabledButtons();
     }

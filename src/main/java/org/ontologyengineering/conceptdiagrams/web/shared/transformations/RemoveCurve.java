@@ -15,7 +15,8 @@ import org.ontologyengineering.conceptdiagrams.web.shared.owlOutput.OWLOutputter
  * Don't think this one will be used in practise.  It's implemented (only part of it is implemented) because the defn.
  * is there, but it will be much faster to do the real defn in RemoveCurves (Transformation 10).
  */
-public class RemoveCurve extends LabelledDiagramTransformation {
+public class RemoveCurve<T extends LabelledDiagram> extends LabelledDiagramTransformation <T> {
+
 
     private ConcreteCurve removedCurve;
 
@@ -24,14 +25,14 @@ public class RemoveCurve extends LabelledDiagramTransformation {
     }
 
     @Override
-    public void executeTransformation(LabelledDiagram transformedDiagram) {
+    public void executeTransformation(T transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
         // never called
     }
 
     @Override
-    public void translate(LabelledDiagram transformedDiagram, OWLOutputter outputter) {
+    public void translate(T transformedDiagram, OWLOutputter outputter) {
         // should never be called
     }
 }

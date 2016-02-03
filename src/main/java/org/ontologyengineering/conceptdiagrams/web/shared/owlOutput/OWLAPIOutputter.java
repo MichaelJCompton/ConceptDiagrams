@@ -1,13 +1,14 @@
 package org.ontologyengineering.conceptdiagrams.web.shared.owlOutput;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import org.ontologyengineering.conceptdiagrams.web.client.handler.AddAxiomsHandler;
+import org.ontologyengineering.conceptdiagrams.web.client.handler.AddAxiomsHandlerAsync;
 import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.*;
-import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
-import java.util.AbstractSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * Author: Michael Compton<br> Date: October 2015<br> See license information in base directory.
@@ -19,25 +20,56 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     // needs to be a bit more sophisticated once we have multiple ontologies, inports, existing classes etc!
 
-    private OWLOntologyManager manager;
     private IRI ontologyIRI;
-    private OWLOntology ontology;
     private OWLDataFactory factory;
 
+    private AddAxiomsHandlerAsync addAxiomsService = GWT.create(AddAxiomsHandler.class);
+
+    private ArrayList<OWLAxiom> axioms;
 
     // everything from scratch
     public OWLAPIOutputter(String iri) {
-        manager = OWLManager.createOWLOntologyManager();
+        ontologyIRI = IRI.create(iri);
 
-        try {
-            ontologyIRI = IRI.create(iri);
+        AsyncCallback<OWLDataFactory> callback = new AsyncCallback<OWLDataFactory>() {
+            public void onFailure(Throwable caught) {
+                // TODO: Do something with errors.
+            }
 
-            ontology = manager.createOntology(ontologyIRI);
+            public void onSuccess(OWLDataFactory result) {
+                setDataFactory(result);
+            }
+        };
+        addAxiomsService.createManager(iri, callback);
 
-            factory = manager.getOWLDataFactory();
-        } catch (Exception e) {
-            // OUCH!
-        }
+        clearStoredAxioms();
+    }
+
+
+    public void clearStoredAxioms() {
+        axioms = new ArrayList<OWLAxiom>();
+    }
+
+    public void commitChanges() {
+        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+            public void onFailure(Throwable caught) {
+                // TODO: Do something with errors.
+            }
+
+            public void onSuccess(Void result) {
+            }
+        };
+        addAxiomsService.AddAxioms(axioms, callback);
+
+        clearStoredAxioms();
+    }
+
+    private void addAxiom(OWLAxiom axiom) {
+        axioms.add(axiom);
+    }
+
+    private void setDataFactory(OWLDataFactory factory) {
+        this.factory = factory;
     }
 
     private Set<OWLClass> FastCurveSetAsClasses(FastCurveSet curves, LabelledDiagram v) {
@@ -167,19 +199,19 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addGlobalContradiction() {
-        manager.addAxiom(ontology, factory.getOWLEquivalentClassesAxiom(factory.getOWLThing(), factory.getOWLNothing()));
+        addAxiom(factory.getOWLEquivalentClassesAxiom(factory.getOWLThing(), factory.getOWLNothing()));
     }
 
     @Override
     public void addEquivalentUnionThing(FastCurveSet curves, LabelledDiagram v) {
-        manager.addAxiom(ontology, factory.getOWLEquivalentClassesAxiom(
+        addAxiom(factory.getOWLEquivalentClassesAxiom(
                 makeUnion(curves, v),
                 factory.getOWLThing()));
     }
 
     @Override
     public void addEquivalentNoThing(Curve curve, LabelledDiagram v) {
-        manager.addAxiom(ontology, factory.getOWLEquivalentClassesAxiom(factory.getOWLClass(IRI.create(ontologyIRI + "#" + v.CL(curve))), factory.getOWLNothing()));
+        addAxiom(factory.getOWLEquivalentClassesAxiom(factory.getOWLClass(IRI.create(ontologyIRI + "#" + v.CL(curve))), factory.getOWLNothing()));
     }
 
     private OWLClassExpression makeIntersection(FastCurveSet intCurves, LabelledDiagram v) {
@@ -200,7 +232,7 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addSubClassAxiomIntUnion(FastCurveSet intCurves, FastCurveSet unionCurves, LabelledDiagram v) {
-        manager.addAxiom(ontology, factory.getOWLEquivalentClassesAxiom(makeIntersection(intCurves, v), makeUnion(unionCurves, v)));
+        addAxiom(factory.getOWLEquivalentClassesAxiom(makeIntersection(intCurves, v), makeUnion(unionCurves, v)));
     }
 
     @Override
@@ -208,7 +240,7 @@ public class OWLAPIOutputter extends OWLOutputter {
         Set<OWLClassExpression> classes = new HashSet<OWLClassExpression>();
         classes.add(factory.getOWLClass(IRI.create(ontologyIRI + "#" + v.CL(curve1))));
         classes.add(factory.getOWLClass(IRI.create(ontologyIRI + "#" + v.CL(curve2))));
-        manager.addAxiom(ontology, factory.getOWLDisjointClassesAxiom(classes));
+        addAxiom(factory.getOWLDisjointClassesAxiom(classes));
     }
 
     @Override
@@ -216,7 +248,7 @@ public class OWLAPIOutputter extends OWLOutputter {
         Set<OWLClassExpression> disj = new HashSet<OWLClassExpression>();
         disj.add(factory.getOWLClass(IRI.create(ontologyIRI + "#" + v.CL(curve))));
         disj.add(makeIntersection(intCurves, v));
-        manager.addAxiom(ontology, factory.getOWLDisjointClassesAxiom(disj));
+        addAxiom(factory.getOWLDisjointClassesAxiom(disj));
     }
 
     // ---------------------------------------------------------------------------------------
@@ -227,8 +259,11 @@ public class OWLAPIOutputter extends OWLOutputter {
 
 
     private OWLObjectPropertyExpression OM(Arrow a) {
-        // FIXME need OPE-
-        return factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a.getLabel()));
+        if(a.isInverse()) {
+            return factory.getOWLObjectInverseOf(factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a.getLabel())));
+        } else {
+            return factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a.getLabel()));
+        }
     }
 
     private Set<OWLObjectPropertyExpression> OMset(Set<Arrow> arrows) {
@@ -242,7 +277,7 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addObjectPropertyDomain(ObjectPropertyArrow arrow, Curve curve, LabelledDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLObjectPropertyDomainAxiom(
                         factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),  // FIXME is this OM
                         factory.getOWLClass(IRI.create(ontologyIRI + "#" + v.CL(curve)))));
@@ -250,7 +285,7 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addObjectPropertyDomainTSC(ObjectPropertyArrow arrow, AbstractSet<ZonalRegion> SC, ClassAndObjectPropertyDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLObjectPropertyDomainAxiom(
                         factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),  // FIXME again OM???
                         T_SC(SC, v)));
@@ -258,7 +293,7 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addObjectPropertyRange(ObjectPropertyArrow arrow, Curve curve, LabelledDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLObjectPropertyRangeAxiom(
                         factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),
                         factory.getOWLClass(IRI.create(ontologyIRI + "#" + v.CL(curve)))));
@@ -266,41 +301,57 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addObjectPropertyRangeTSC(ObjectPropertyArrow arrow, AbstractSet<ZonalRegion> SC, ClassAndObjectPropertyDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLObjectPropertyRangeAxiom(
                         factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),
                         T_SC(SC, v)));
     }
 
     public void addObjectPropertyEquivTop(ObjectPropertyArrow arrow, LabelledDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLEquivalentObjectPropertiesAxiom(
                         factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),
                         factory.getOWLTopObjectProperty()));
     }
 
     public void addObjectPropertyEquivBot(ObjectPropertyArrow arrow, LabelledDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLEquivalentObjectPropertiesAxiom(
                         factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),
                         factory.getOWLBottomObjectProperty()));
     }
 
     public void addEquivalentObjectProperties(Set<Arrow> arrows) {
-        manager.addAxiom(ontology, factory.getOWLEquivalentObjectPropertiesAxiom(OMset(arrows)));
+        addAxiom(factory.getOWLEquivalentObjectPropertiesAxiom(OMset(arrows)));
     }
 
-    public void addInverseObjectProperties(Arrow a1, Arrow a2) {  // FIXME again check the OM
-        manager.addAxiom(ontology, factory.getOWLInverseObjectPropertiesAxiom(factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a1.getLabel())), factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a2.getLabel()))));
+    public void addInverseObjectProperties(Arrow a1, Arrow a2) {  // FIXME again check the OM  ... do I need to?  when called from def 41, it's OK
+        addAxiom(
+                factory.getOWLInverseObjectPropertiesAxiom(
+                        factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a1.getLabel())),
+                        factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a2.getLabel()))));
     }
 
     public void addSubObjectProperties(Arrow a1, Arrow a2) {
-        manager.addAxiom(ontology, factory.getOWLSubObjectPropertyOfAxiom(OM(a1), OM(a2)));
+        addAxiom(factory.getOWLSubObjectPropertyOfAxiom(OM(a1), OM(a2)));
     }
 
     public void addDisjointObjectProperties(Arrow a1, Arrow a2) {
-        manager.addAxiom(ontology, factory.getOWLDisjointObjectPropertiesAxiom(OM(a1), OM(a2)));
+        addAxiom(factory.getOWLDisjointObjectPropertiesAxiom(OM(a1), OM(a2)));
     }
+
+
+    public void addFunctionalObjectProperty(Arrow a) {
+        addAxiom(
+                factory.getOWLFunctionalObjectPropertyAxiom(factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a.getLabel()))));
+    }
+
+
+    public void addInverseFunctionalObjectProperty(Arrow a) {
+        addAxiom(
+                factory.getOWLInverseFunctionalObjectPropertyAxiom(factory.getOWLObjectProperty(IRI.create(ontologyIRI + "#" + a.getLabel()))));
+    }
+
 
     // ---------------------------------------------------------------------------------------
     //                          Data
@@ -430,7 +481,7 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addDataPropertyRange(DatatypePropertyArrow arrow, Curve curve, LabelledDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLDataPropertyRangeAxiom(
                         factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),
                         factory.getOWLDatatype(IRI.create(ontologyIRI + "#" + v.CL(curve)))));
@@ -438,7 +489,7 @@ public class OWLAPIOutputter extends OWLOutputter {
 
     @Override
     public void addDataPropertyRangeTSC(DatatypePropertyArrow arrow, AbstractSet<ZonalRegion> SC, DatatypeDiagram v) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLDataPropertyRangeAxiom(
                         factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + arrow.getLabel())),
                         T_SCdata(SC, v)));
@@ -447,12 +498,12 @@ public class OWLAPIOutputter extends OWLOutputter {
 
 
     public void addEquivalentDataProperties(Set<Arrow> arrows) {
-        manager.addAxiom(ontology, factory.getOWLEquivalentDataPropertiesAxiom(dataPropertySet(arrows)));
+        addAxiom(factory.getOWLEquivalentDataPropertiesAxiom(dataPropertySet(arrows)));
     }
 
 
     public void addSubDataProperties(Arrow a1, Arrow a2) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLSubDataPropertyOfAxiom(
                         factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + a1.getLabel())),
                         factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + a2.getLabel()))));
@@ -460,10 +511,16 @@ public class OWLAPIOutputter extends OWLOutputter {
 
 
     public void addDisjointDataProperties(Arrow a1, Arrow a2) {
-        manager.addAxiom(ontology,
+        addAxiom(
                 factory.getOWLDisjointDataPropertiesAxiom(
-                    factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + a1.getLabel())),
-                    factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + a2.getLabel()))));
+                        factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + a1.getLabel())),
+                        factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + a2.getLabel()))));
     }
 
+
+
+    public void addFunctionalDataProperty(Arrow a) {
+        addAxiom(
+                factory.getOWLFunctionalDataPropertyAxiom(factory.getOWLDataProperty(IRI.create(ontologyIRI + "#" + a.getLabel()))));
+    }
 }

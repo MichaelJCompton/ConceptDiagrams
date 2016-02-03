@@ -24,6 +24,8 @@ public abstract class LabelledMultiDiagramTransformation extends Transformation 
     // Definition 20
     public void T(AbstractSet<ZonalRegion> zonalRegions, OWLOutputter outputter) {
 
+            // FIXME : these are in the outputters --- what should be here???
+
     }
 
     // Definition 21

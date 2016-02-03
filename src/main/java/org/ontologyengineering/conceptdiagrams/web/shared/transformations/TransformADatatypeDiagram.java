@@ -29,7 +29,7 @@ public class TransformADatatypeDiagram extends LabelledMultiDiagramTransformatio
 
     @Override
     public void translate(LabelledMultiDiagram transformedDiagram, OWLOutputter outputter) {
-// do some preamble
+        // do some preamble
 
         executeTransformation(transformedDiagram);
 

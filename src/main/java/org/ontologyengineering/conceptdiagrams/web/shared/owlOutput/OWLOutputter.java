@@ -52,6 +52,9 @@ public abstract class OWLOutputter {
     public abstract void addSubObjectProperties(Arrow a1, Arrow a2);
     public abstract void addDisjointObjectProperties(Arrow a1, Arrow a2);
 
+    public abstract void addFunctionalObjectProperty(Arrow a);
+    public abstract void addInverseFunctionalObjectProperty(Arrow a);
+
 
     // ---------------------------------------------------------------------------------------
     //                          Data Properties
@@ -64,4 +67,6 @@ public abstract class OWLOutputter {
     public abstract void addEquivalentDataProperties(Set<Arrow> arrows);
     public abstract void addDisjointDataProperties(Arrow a1, Arrow a2);
     public abstract void addSubDataProperties(Arrow a1, Arrow a2);
+
+    public abstract void addFunctionalDataProperty(Arrow a);
 }

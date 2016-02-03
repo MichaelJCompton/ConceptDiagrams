@@ -6,6 +6,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.transformations;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.ClassAndObjectPropertyDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.LabelledDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.LabelledMultiDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteArrow;
@@ -14,7 +15,8 @@ import org.ontologyengineering.conceptdiagrams.web.shared.owlOutput.OWLOutputter
 /**
  * Transformation 8
  */
-public class AddCardinalityConstraint extends LabelledDiagramTransformation {
+public class AddCardinalityConstraint<T extends LabelledDiagram> extends LabelledDiagramTransformation <T> {
+
 
     private ConcreteArrow constrainedArrow;
 
@@ -22,15 +24,18 @@ public class AddCardinalityConstraint extends LabelledDiagramTransformation {
         this.constrainedArrow = constrainedArrow;
     }
 
+
     @Override
-    public void executeTransformation(LabelledDiagram transformedDiagram) {
+    public void executeTransformation(T transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
         // then the rest
     }
 
+
+
     @Override
-    public void translate(LabelledDiagram transformedDiagram, OWLOutputter outputter) {
+    public void translate(T transformedDiagram, OWLOutputter outputter) {
         // do some preamble
 
         executeTransformation(transformedDiagram);

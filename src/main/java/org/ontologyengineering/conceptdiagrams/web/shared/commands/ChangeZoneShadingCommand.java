@@ -10,10 +10,7 @@ import com.google.web.bindery.event.shared.Event;
 import org.ontologyengineering.conceptdiagrams.web.client.events.ChangeZoneShadingEvent;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddShading;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformAClassAndObjectPropertyDiagram;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformADatatypeDiagram;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.*;
 
 import java.util.AbstractCollection;
 import java.util.AbstractList;
@@ -94,9 +91,9 @@ public class ChangeZoneShadingCommand extends Command {
             shadedZones.addAll(getZone().getBoundaryRectangle().getShadedZones());
 
             if (getZone().getBoundaryRectangle().isObject()) {
-                return new TransformAClassAndObjectPropertyDiagram(new AddShading(shadedZones));
+                return new TransformAClassAndObjectPropertyDiagram(new AddShadingToClassPropertyDiagram(shadedZones));
             } else {
-                return new TransformADatatypeDiagram(new AddShading(shadedZones));
+                return new TransformADatatypeDiagram(new AddShadingToDatatypeDiagram(shadedZones));
             }
         }
 

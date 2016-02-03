@@ -41,6 +41,10 @@ public class ZonalRegion {
         return IN().isSet(c);
     }
 
+    public LabelledDiagram diagram() {
+        return v;
+    }
+
     public boolean OUTcontainsCurve(Curve c) {
         return OUT().isSet(c);
     }

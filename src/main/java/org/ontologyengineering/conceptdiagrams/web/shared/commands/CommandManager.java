@@ -10,6 +10,7 @@ import com.google.web.bindery.event.shared.Event;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -91,6 +92,16 @@ public class CommandManager {
 
     public boolean canUndo() {
         return undoList.size() > 0;
+    }
+
+
+    // FIXME : this isn't good it's used in the transformation manager, but I shouldn't go passing this around ... only marginaly better now it's a copy
+    public ArrayList<Command> getUndoList() {
+        ArrayList<Command> result = new ArrayList<Command>();
+        for(Command c : undoList) {
+            result.add(c);
+        }
+        return result;
     }
 
     public boolean canRedo() {

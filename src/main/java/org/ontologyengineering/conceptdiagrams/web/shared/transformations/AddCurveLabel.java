@@ -35,6 +35,8 @@ public abstract class AddCurveLabel <T extends LabelledDiagram> extends Labelled
         setAsExecuted();
     }
 
-
+    public ConcreteCurve getCurve() {
+        return labelledCurve;
+    }
 
 }

@@ -15,6 +15,8 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.Concret
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
+import org.ontologyengineering.conceptdiagrams.web.shared.owlOutput.OWLAPIOutputter;
+import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformationManager;
 
 import java.util.AbstractSet;
 import java.util.HashSet;
@@ -201,5 +203,13 @@ public abstract class DiagramCanvas {
         //for(ConcreteSyntaxElement e : elementsOnCanvas) {
         //  e.makeAbstractRepresentation();
         //}
+    }
+
+    // compile everything to the diagrams abstract syntax and on to OWL
+    public void compileToOWL() {
+        TransformationManager manager = new TransformationManager(getDiagramsOnCanvas(), CommandManager.get().getUndoList());
+
+        // FIXME ... need to know what sort of application we are running
+        manager.translateAll(new OWLAPIOutputter("http://example.org/newOntology/"));
     }
 }

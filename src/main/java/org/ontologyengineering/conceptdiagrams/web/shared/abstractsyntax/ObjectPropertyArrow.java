@@ -10,6 +10,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax;
 
 public class ObjectPropertyArrow extends Arrow {
 
+    private boolean isInverse;
 
     ObjectPropertyArrow(DiagramArrowSourceOrTarget source, DiagramArrowSourceOrTarget target) {
         super(source, target);
@@ -23,5 +24,13 @@ public class ObjectPropertyArrow extends Arrow {
     ObjectPropertyArrow(DiagramArrowSourceOrTarget source, DiagramArrowSourceOrTarget target,
                         String label, AbstractDiagram parent) {
         super(source, target, label, parent);
+    }
+
+    public boolean isInverse() {
+        return isInverse;
+    }
+
+    public void setAsInverse() {
+        isInverse = true;
     }
 }

@@ -36,7 +36,14 @@ public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
 
 
     private boolean isObjectProperty = true;
+    private boolean isInverse = false;
+
     private boolean typeUnknown = true;  // if we don't know the type, we are free to infer it (once)
+
+    private Arrow.CardinalityConstraint cardinalityConstraint = Arrow.CardinalityConstraint.NONE;
+    private Integer cardinality;
+
+
 
     // Assumes that the points are correct
     public ConcreteArrow(Point startPoint, Point endPoint, ConcreteDiagramElement source, ConcreteDiagramElement target) {
@@ -93,6 +100,39 @@ public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
         return target;
     }
 
+    public boolean isInverse() {
+        return isInverse;
+    }
+
+    public void setAsInverse() {
+        isInverse = true;
+    }
+
+    public void setAsNotInverse() {
+        isInverse = false;
+    }
+
+    public void swapInverse() {
+        isInverse = !isInverse;
+    }
+
+
+    public void setCardinalityConstraint(Arrow.CardinalityConstraint constraint, Integer cardinality) {
+        cardinalityConstraint = constraint;
+        this.cardinality = cardinality;
+    }
+
+    public Boolean hasCardinalityConstraint() {
+        return cardinalityConstraint != Arrow.CardinalityConstraint.NONE;
+    }
+
+    public Arrow.CardinalityConstraint getCardinalityConstraint() {
+        return cardinalityConstraint;
+    }
+
+    public Integer getCardinality() {
+        return cardinality;
+    }
 
 
     // ignore moves, they happen through source and dest
@@ -147,7 +187,7 @@ public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
         // target and my type must agree
         if(getTarget().typeIsKnown()) {
             if(typeIsKnown()) {
-                validity = (isObjectProperty == getTarget().isObject());
+                validity &= (isObjectProperty == getTarget().isObject());
             } else { // if it's not known then it's just valid
                 if(getTarget().isObject()) {
                     setAsObjectProperty();
@@ -155,6 +195,10 @@ public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
                     setAsDataProperty();
                 }
             }
+        }
+
+        if(typeIsKnown() && isDataProperty() && isInverse()) {
+            validity = false;
         }
 
         setValid(validity);

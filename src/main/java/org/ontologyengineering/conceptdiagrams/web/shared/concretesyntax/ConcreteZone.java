@@ -6,13 +6,6 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
-//import com.ait.lienzo.client.core.event.NodeMouseEnterEvent;
-//import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
-//import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
-//import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
-//import com.ait.lienzo.client.core.shape.Layer;
-//import com.ait.lienzo.client.core.shape.Rectangle;
-//import com.ait.lienzo.client.core.types.Point2D;
 
 import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Zone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;

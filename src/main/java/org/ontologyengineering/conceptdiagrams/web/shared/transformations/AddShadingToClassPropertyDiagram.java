@@ -15,6 +15,8 @@ import java.util.*;
 // Definitions 39 & 40
 public class AddShadingToClassPropertyDiagram extends AddShading<ClassAndObjectPropertyDiagram> {
 
+    private ClassAndObjectPropertyDiagram theDiagram;
+
     public AddShadingToClassPropertyDiagram(AbstractSet<ConcreteZone> shadedZones) {
         super(shadedZones);
     }
@@ -22,6 +24,8 @@ public class AddShadingToClassPropertyDiagram extends AddShading<ClassAndObjectP
 
     @Override
     public void translate(ClassAndObjectPropertyDiagram transformedDiagram, OWLOutputter outputter) {
+
+        theDiagram = transformedDiagram;
 
         // cache TEA, ITEA, ITDA, SC for all arrows sourved on * targeted to curves
         HashMap<Arrow, AbstractSet<Arrow>> TEA_v = transformedDiagram.TEAclone();
@@ -201,10 +205,11 @@ public class AddShadingToClassPropertyDiagram extends AddShading<ClassAndObjectP
             if (a.targetIsCurve() && a.getTarget().isUnLabelled() && a.getTarget().diagram() == transformedDiagram ) {
                 AbstractSet<ZonalRegion> SC = transformedDiagram.SC(a); // I think this is cached in the diagram, but no harm here
                 if(!(SC_v.get(a).containsAll(SC) && SC.containsAll(SC_v.get(a)))) {
-                    // FIXME need to split them here on OP and OP-
-                    if() {
+                    if(a.isInverse()) {
+                        // 10. DOM
                         outputter.addObjectPropertyDomainTSC(a, SC, transformedDiagram);
                     } else {
+                        // 11. RAN
                         outputter.addObjectPropertyRangeTSC(a, SC, transformedDiagram);
                     }
                 }
@@ -214,11 +219,14 @@ public class AddShadingToClassPropertyDiagram extends AddShading<ClassAndObjectP
 
     // Definition 39
     private Set<ZonalRegion> CACS() {
-        Set<ZonalRegion> result = new HashSet<ZonalRegion>();
 
-        // FIXME : can't do till work out how SZR(EZ....)  works
+        FastCurveSet dummyMask = new FastCurveSet();
+        AbstractSet<Zone> shading = new HashSet<Zone>();
+        for(ConcreteZone z : shadedZones) {
+            shading.add(z.getAbstractSyntaxRepresentation());
+        }
 
-        return result;
+        return theDiagram.SZR(shading, dummyMask);
     }
 }
 

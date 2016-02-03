@@ -42,13 +42,13 @@ public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram, Concr
 
     // might change the types of these as we go along ... trying for a pretty direct translation
     // of the syntax and semantics document at this stage.
-    private AbstractSet<ClassAndObjectPropertyDiagram> classAndObectPropertyDiagrams;
+    private AbstractSet<ClassAndObjectPropertyDiagram> classAndObjectPropertyDiagrams;
     private AbstractSet<DatatypeDiagram> datatypeDiagrams;
     private AbstractSet<ObjectPropertyArrow> objectPropertyArrows;
     private AbstractSet<DatatypePropertyArrow> datatypePropertyArrows;
 
     LabelledMultiDiagram() {
-        classAndObectPropertyDiagrams = new HashSet<ClassAndObjectPropertyDiagram>();
+        classAndObjectPropertyDiagrams = new HashSet<ClassAndObjectPropertyDiagram>();
         datatypeDiagrams = new HashSet<DatatypeDiagram>();
         objectPropertyArrows = new HashSet<ObjectPropertyArrow>();
         datatypePropertyArrows = new HashSet<DatatypePropertyArrow>();
@@ -56,7 +56,7 @@ public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram, Concr
 
     @Override
     public AbstractCollection<DiagramElement> children() {
-        AbstractSet<DiagramElement> result = new HashSet<DiagramElement>(classAndObectPropertyDiagrams);
+        AbstractSet<DiagramElement> result = new HashSet<DiagramElement>(classAndObjectPropertyDiagrams);
         result.addAll(datatypeDiagrams);
         result.addAll(objectPropertyArrows);
         result.addAll(datatypePropertyArrows);
@@ -74,7 +74,11 @@ public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram, Concr
 
     // after this operation the diagram will be a bit inconsistent because the new diagram isn't yet jnoined to the others
     public void addClassAndObjectPropertyDiagram(ClassAndObjectPropertyDiagram newDiagram) {
-        classAndObectPropertyDiagrams.add(newDiagram);
+        classAndObjectPropertyDiagrams.add(newDiagram);
+    }
+
+    public AbstractSet<ClassAndObjectPropertyDiagram> getObjectDiagrams() {
+        return classAndObjectPropertyDiagrams;
     }
 
     public void addDatatypeDiagram(DatatypeDiagram newDiagram) {
@@ -135,10 +139,23 @@ public class LabelledMultiDiagram extends AbstractDiagram<AbstractDiagram, Concr
     }
 
 
-    public Set<Arrow> DE(Arrow a) {
-        // FIXME !!!
-        // Cache these
-        return new HashSet<Arrow>();
+    // Definition 30
+    public Set<Arrow> DE(Arrow arrow) {
+
+        // FIXME --- Cache these and just build up???
+
+        HashSet<Arrow> result = new HashSet<Arrow>();
+        for(ObjectPropertyArrow a : getObjectPropertyArrows()) {
+            if(a.isInverse() == arrow.isInverse()) {
+                result.add(a);
+            }
+        }
+
+        for(ClassAndObjectPropertyDiagram opd : getObjectDiagrams()) {
+            result.addAll(opd.DE(arrow));
+        }
+
+        return result;
     }
 
 

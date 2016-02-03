@@ -23,7 +23,7 @@ import java.util.AbstractSet;
  * against this modified diagram, I'm just testing things about the existing zone.  Removing zones may make two previous
  * zones into the same zone, but in having the removed zone set means we will just treat the two the same.
  */
-public class RemoveCurves extends LabelledDiagramTransformation {
+public class RemoveCurves<T extends LabelledDiagram> extends LabelledDiagramTransformation <T> {
 
     private AbstractSet<ConcreteCurve> removedCurves;
     private FastCurveSet fastRemovedCurves;
@@ -37,14 +37,14 @@ public class RemoveCurves extends LabelledDiagramTransformation {
     }
 
     @Override
-    public void executeTransformation(LabelledDiagram transformedDiagram) {
+    public void executeTransformation(T transformedDiagram) {
         super.executeTransformation(transformedDiagram);
 
         // should never be called
     }
 
     @Override
-    public void translate(LabelledDiagram transformedDiagram, OWLOutputter outputter) {
+    public void translate(T transformedDiagram, OWLOutputter outputter) {
         // should never be called
     }
 
