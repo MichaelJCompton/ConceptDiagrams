@@ -13,6 +13,11 @@ import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
  */
 public class ConcreteStarRectangle extends ConcreteBoundaryRectangle {
 
+    // just for serialization
+    public ConcreteStarRectangle() {
+        //this(new Point(), new Point());
+    }
+
     public ConcreteStarRectangle(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight, ConcreteDiagramElement_TYPES.CONCRETESTARRECTANGLE);
 

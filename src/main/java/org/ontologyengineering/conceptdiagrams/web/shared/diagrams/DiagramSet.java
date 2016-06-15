@@ -6,13 +6,16 @@ package org.ontologyengineering.conceptdiagrams.web.shared.diagrams;
  * See license information in base directory.
  */
 
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteArrow;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteBoundaryRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
+import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * A set of diagrams - roughly corresponds to an ontology
@@ -22,15 +25,15 @@ import java.util.HashSet;
  * being used to express an ontology, or the set of diagrams drawn on a single canvas.
  *
  */
-public class DiagramSet {
+public class DiagramSet implements Serializable {
 
-    private AbstractSet<ConcreteDiagram> theDiagrams;
+    private HashSet<ConcreteDiagram> theDiagrams;
 
     public DiagramSet() {
         theDiagrams = new HashSet<ConcreteDiagram>();
     }
 
-    public AbstractSet<ConcreteDiagram> getDiagrams() {
+    public Set<ConcreteDiagram> getDiagrams() {
         return theDiagrams;
     }
 
@@ -42,8 +45,8 @@ public class DiagramSet {
         getDiagrams().remove(diagram);
     }
 
-    public AbstractSet<ConcreteDiagramElement> elementsInBoundingBox(Point topLeft, Point botRight) {
-        AbstractSet<ConcreteDiagramElement> result = new HashSet<ConcreteDiagramElement>();
+    public Set<ConcreteDiagramElement> elementsInBoundingBox(Point topLeft, Point botRight) {
+        Set<ConcreteDiagramElement> result = new HashSet<ConcreteDiagramElement>();
 
         for(ConcreteDiagram d : getDiagrams()) {
             result.addAll(d.elementsInBoundingBox(topLeft, botRight));
@@ -62,6 +65,26 @@ public class DiagramSet {
         }
         return null;
     }
+
+
+    // this arrow has been added to the diagram set and (maybe) thus joins two diagrams into a single
+    public void addArrowBetween(ConcreteArrow arrow) {
+        if(getDiagrams().contains(arrow.getTarget().getDiagram())) {
+            if (getDiagrams().contains(arrow.getSource().getDiagram())) {
+
+                if (arrow.getSource().getDiagram() != arrow.getTarget().getDiagram()) {
+                    ConcreteDiagram toRemove = arrow.getTarget().getDiagram();
+                    arrow.getSource().getDiagram().mergeWith(arrow.getTarget().getDiagram(), arrow);
+                    getDiagrams().remove(toRemove);
+                }
+            }
+        }
+    }
+
+    // FIXME add way  un-combine diagrams (generally on the removal of an arrow)
+    // harder than the above, because we have to find if removing an arrow leaves two components
+    // unconnected by any chain of arrows.
+    // Important for delete.
 
 
 }

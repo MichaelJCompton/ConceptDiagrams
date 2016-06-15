@@ -14,25 +14,31 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.Concret
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddUnlabelledCurve;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformAClassAndObjectPropertyDiagram;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformADatatypeDiagram;
 
 import java.util.AbstractCollection;
-import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashSet;
 
 
 public class AddCurveCommand extends Command {
 
+    private static String myType = "AddCurveCommand";
+
     private Point topLeft, bottomRight;
+
     private ConcreteBoundaryRectangle boundaryRectangle;
     private ConcreteCurve curve;
     private RemoveCurveCommand myUndo;
 
+    // just for serialization
+    private AddCurveCommand() {
+        super(myType);
+    }
+
     // The boundary rectangle implies the diagram set
     public AddCurveCommand(Point topLeft, Point bottomRight, ConcreteBoundaryRectangle boundaryRectangle) {
+        super(myType);
+
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
         this.boundaryRectangle = boundaryRectangle;
@@ -43,12 +49,18 @@ public class AddCurveCommand extends Command {
     }
 
     public AddCurveCommand(RemoveCurveCommand opposite) {
+        super(myType);
+
         curve = opposite.getCurve();
         topLeft = curve.topLeft();
         bottomRight = curve.bottomRight();
         boundaryRectangle = curve.getBoundaryRectangle();
 
         myUndo = opposite;
+    }
+
+    public ConcreteBoundaryRectangle getBoundaryRectangle() {
+        return boundaryRectangle;
     }
 
     @Override
@@ -65,7 +77,7 @@ public class AddCurveCommand extends Command {
         myUndo.execute();
     }
 
-    public AbstractCollection<Event> getEvents() {
+    public Collection<Event> getEvents() {
         HashSet<Event> result = new HashSet<Event>();
         result.add(new AddCurveEvent(curve));
 
@@ -79,7 +91,7 @@ public class AddCurveCommand extends Command {
     }
 
     @Override
-    public AbstractCollection<Event> getUnExecuteEvents() {
+    public Collection<Event> getUnExecuteEvents() {
         return myUndo.getEvents();
 //        HashSet<Event> result = new HashSet<Event>();
 //        result.add(new RemoveCurveEvent(curve));
@@ -96,16 +108,16 @@ public class AddCurveCommand extends Command {
         return true;  // not sure what could be invalid here?
     }
 
-    @Override
-    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-        if(boundaryRectangle.isObject()) {  // types should have been inferred by now
-            return new TransformAClassAndObjectPropertyDiagram(new AddUnlabelledCurve(getCurve()));
-        } else {
-            return new TransformADatatypeDiagram(new AddUnlabelledCurve(getCurve()));
-        }
-    }
+//    @Override
+//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+//        if(boundaryRectangle.isObject()) {  // types should have been inferred by now
+//            return new TransformAClassAndObjectPropertyDiagram(new AddUnlabelledCurve(getCurve()));
+//        } else {
+//            return new TransformADatatypeDiagram(new AddUnlabelledCurve(getCurve()));
+//        }
+//    }
 
-    protected ConcreteCurve getCurve () {
+    public ConcreteCurve getCurve () {
         return curve;
     }
 }

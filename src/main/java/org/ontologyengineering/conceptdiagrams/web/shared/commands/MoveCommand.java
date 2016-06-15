@@ -15,22 +15,31 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.Concret
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteRectangularElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
 import java.util.AbstractCollection;
-import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashSet;
 
 
 public class MoveCommand extends Command {
 
+    private static String myType = "MoveCommand";
+
     Point topLeft, oldTopLeft;
     ConcreteDiagramElement element;
 
+
+
     // only if it's a rectangular element
-    AbstractCollection<ConcreteZone> removedZones;  // peeking inside the curves we need to know what zones are affected
+    Collection<ConcreteZone> removedZones;  // peeking inside the curves we need to know what zones are affected
+
+    private MoveCommand() {
+        super(myType);
+    }
 
     public MoveCommand(ConcreteDiagramElement elementToMove, Point newTopLeft) {
+        super(myType);
+
         topLeft = newTopLeft;
         element = elementToMove;
         oldTopLeft = element.topLeft();
@@ -61,7 +70,7 @@ public class MoveCommand extends Command {
     }
 
 
-    private AbstractCollection<Event> events() {
+    private Collection<Event> events() {
         HashSet<Event> result = new HashSet<Event>();
         result.add(new MoveElementEvent(element));
 
@@ -71,7 +80,7 @@ public class MoveCommand extends Command {
 
         if (element.getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEBOUNDARYRECTANGE ||
                 element.getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETECURVE) {
-            AbstractCollection<ConcreteZone> bogus = ((ConcreteRectangularElement) element).getAllZones();
+            Collection<ConcreteZone> bogus = ((ConcreteRectangularElement) element).getAllZones();
             for (ConcreteZone z : bogus) {
                 result.add(new AddZoneEvent(z));
             }
@@ -81,12 +90,12 @@ public class MoveCommand extends Command {
     }
 
     @Override
-    public AbstractCollection<Event> getEvents() {
+    public Collection<Event> getEvents() {
         return events();
     }
 
     @Override
-    public AbstractCollection<Event> getUnExecuteEvents() {
+    public Collection<Event> getUnExecuteEvents() {
         return events();
     }
 
@@ -100,8 +109,8 @@ public class MoveCommand extends Command {
         return true;
     }
 
-    @Override
-    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-        return null;
-    }
+//    @Override
+//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+//        return null;
+//    }
 }

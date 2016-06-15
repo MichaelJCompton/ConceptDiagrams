@@ -8,45 +8,69 @@ package org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry;
 
 import com.ait.lienzo.client.core.types.Point2D;
 
+import java.io.Serializable;
+
 /**
  * Points for curves.
  *
  * At the moment this just hides a Lienzo Point2D, but may want to change, so hide that from the rest of the code.
  */
-public class Point {
+public class Point implements Serializable {
 
-    Point2D thePoint;
+    // grr, problem here is that Lienzo can only be used from the client side!
+    // so this is great while the app just ran client side, but now we are serializing the
+    // whole thing to the server side this won't wash, so I'll keep it all locally and have the interface
+    // return the lienzo point on demand when needed
+    //private transient Point2D thePoint;
+    double x;
+    double y;
+
+
+    public Point() {
+        //this(0,0);
+    }
 
     public Point(double x, double y) {
-        thePoint = new Point2D(x,y);
+        //thePoint = new Point2D(x,y);
+        this.x = x;
+        this.y = y;
     }
 
     public Point(Point2D point) {
-        thePoint = point;
+        x = point.getX();
+        y = point.getY();
+        //thePoint = point;
     }
 
+    // only used client side???
     public double distance(Point other) {
         return asLienzoPoint2D().distance(other.asLienzoPoint2D());
     }
 
     public Point2D asLienzoPoint2D() {
-        return new Point2D(thePoint);
+        return new Point2D(x,y);
     }
 
+//    private void newPoint2D(double x, double y) {
+//        thePoint = new Point2D(x,y);
+//    }
+
     public void setX(double x) {
-        thePoint.setX(x);
+        this.x = x;
     }
 
     public void setY(double y) {
-        thePoint.setY(y);
+        this.y = y;
     }
 
     public double getX() {
-        return thePoint.getX();
+        return x;
+        //return thePoint.getX();
     }
 
     public double getY() {
-        return thePoint.getY();
+        return y;
+        //return thePoint.getY();
     }
 
     public boolean equals(Point other) {

@@ -3,10 +3,9 @@ package org.ontologyengineering.conceptdiagrams.web.shared.commands;
 import com.google.web.bindery.event.shared.Event;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteArrow;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
 import java.util.AbstractCollection;
-import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashSet;
 
 
@@ -21,9 +20,17 @@ import java.util.HashSet;
 
 public class FlipObjectPropertyInverse extends Command {
 
+    private static String myType = "FlipObjectPropertyInverse";
+
     private ConcreteArrow arrow;
 
+    // just for serialization
+    private FlipObjectPropertyInverse() {
+        super(myType);
+    }
+
     public FlipObjectPropertyInverse(ConcreteArrow arrow) {
+        super(myType);
         this.arrow = arrow;
     }
 
@@ -38,14 +45,14 @@ public class FlipObjectPropertyInverse extends Command {
     }
 
     @Override
-    public AbstractCollection<Event> getEvents() {
+    public Collection<Event> getEvents() {
         HashSet<Event> result = new HashSet<Event>();
         // I think for the moment there aren't any events to catch for this
         return result;
     }
 
     @Override
-    public AbstractCollection<Event> getUnExecuteEvents() {
+    public Collection<Event> getUnExecuteEvents() {
         HashSet<Event> result = new HashSet<Event>();
         return result;
     }
@@ -61,10 +68,10 @@ public class FlipObjectPropertyInverse extends Command {
         return true;
     }
 
-    @Override
-    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-        return null;
-    }
+//    @Override
+//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+//        return null;
+//    }
 
 
 

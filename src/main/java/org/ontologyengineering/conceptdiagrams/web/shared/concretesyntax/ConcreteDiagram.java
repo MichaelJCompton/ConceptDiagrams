@@ -7,11 +7,12 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.AbstractDiagram;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractSet;
 import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -26,12 +27,17 @@ import java.util.HashSet;
  * <p/>
  * These (when valid) represent either ConceptDiagrams or PropertyDiagrams (those with a star)
  */
-public class ConcreteDiagram extends ConcreteDiagramElement <AbstractDiagram> {
+public class ConcreteDiagram extends ConcreteDiagramElement {
 
-    private AbstractSet<ConcreteBoundaryRectangle> myRectangles;
-    private AbstractSet<ConcreteArrow> myArrows;
+    private HashSet<ConcreteBoundaryRectangle> myRectangles;
+    private HashSet<ConcreteArrow> myArrows;
 
     private boolean isConceptDiagram = true;
+
+    // just for serialization
+    public ConcreteDiagram() {
+        // ?????
+    }
 
     public ConcreteDiagram(ConcreteBoundaryRectangle initalRectangle) {
         super(ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEDIAGRAM);
@@ -41,12 +47,23 @@ public class ConcreteDiagram extends ConcreteDiagramElement <AbstractDiagram> {
         initalRectangle.setDiagram(this);
     }
 
-    public AbstractSet<ConcreteBoundaryRectangle> getRectangles() {
+    public Set<ConcreteBoundaryRectangle> getRectangles() {
         return myRectangles;
     }
 
-    private AbstractSet<ConcreteArrow> getArrows() {
+    private Set<ConcreteArrow> getArrows() {
         return myArrows;
+    }
+
+    protected void addArrow(ConcreteArrow arrow) {
+        // FIXME : most of these calls should be defensive and check it belongs first
+        getArrows().add(arrow);
+    }
+
+    private void addArrows(Set<ConcreteArrow> arrows) {
+        for(ConcreteArrow a : arrows) {
+            addArrow(a);
+        }
     }
 
 //    public void addBoundaryRectangle(Point topLeft, ConcreteBoundaryRectangle rect) {
@@ -57,8 +74,13 @@ public class ConcreteDiagram extends ConcreteDiagramElement <AbstractDiagram> {
 
     public void mergeWith(ConcreteDiagram other, ConcreteArrow arrow) {
         // assumes arrow goes between this diagram and other
-        getArrows().add(arrow);
+        addArrow(arrow);
+        addArrows(other.getArrows());
+
         getRectangles().addAll(other.getRectangles());
+        for(ConcreteBoundaryRectangle r : other.getRectangles()) {
+            r.setDiagram(this);
+        }
     }
 
     public boolean isInDiagram(ConcreteBoundaryRectangle rectangle) {
@@ -125,10 +147,10 @@ public class ConcreteDiagram extends ConcreteDiagramElement <AbstractDiagram> {
         return new Point(0,0);
     }
 
-    @Override
-    public void makeAbstractRepresentation() {
-
-    }
+//    @Override
+//    public void makeAbstractRepresentation() {
+//
+//    }
 
     @Override
     public void deleteMe() {
@@ -145,6 +167,5 @@ public class ConcreteDiagram extends ConcreteDiagramElement <AbstractDiagram> {
         return result;
     }
 
-    // FIXME : might need to become more with a basic diagram and a complex diagram.
 
 }

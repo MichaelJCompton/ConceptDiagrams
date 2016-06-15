@@ -6,26 +6,53 @@ package org.ontologyengineering.conceptdiagrams.web.shared.commands;
  * See license information in base directory.
  */
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.web.bindery.event.shared.Event;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
+import java.io.Serializable;
 import java.util.AbstractCollection;
-import java.util.AbstractList;
+import java.util.Collection;
 
 /**
  * Commands that get executed on the concrete/abstract syntax - these may change the onscreen representation.
  *
  *
  */
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")  // Jackson serialization
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = AddArrowCommand.class, name = "AddArrowCommand"),
+        @JsonSubTypes.Type(value = AddBoundaryRectangleCommand.class, name = "AddBoundaryRectangleCommand"),
+        @JsonSubTypes.Type(value = AddCurveCommand.class, name = "AddCurveCommand"),
+        @JsonSubTypes.Type(value = AddSpiderCommand.class, name = "AddSpiderCommand"),
+        @JsonSubTypes.Type(value = AddStarRectangleCommand.class, name = "AddStarRectangleCommand"),
+        @JsonSubTypes.Type(value = ChangeLabelCommand.class, name = "ChangeLabelCommand"),
+        @JsonSubTypes.Type(value = ChangeZoneShadingCommand.class, name = "ChangeZoneShadingCommand"),
+        @JsonSubTypes.Type(value = FlipObjectPropertyInverse.class, name = "FlipObjectPropertyInverse"),
+        @JsonSubTypes.Type(value = MoveCommand.class, name = "MoveCommand"),
+        @JsonSubTypes.Type(value = RemoveCurveCommand.class, name = "RemoveCurveCommand"),
+        @JsonSubTypes.Type(value = ResizeCommand.class, name = "ResizeCommand")
+})
+public abstract class Command implements Serializable {
 
-public abstract class Command {
+    // for gson serialization with RuntimeTypeAdaptor
+    private String type;
+
+    public Command() { }
+
+    protected Command(String type) {
+        this.type = type;
+    }
 
     public abstract void execute();
     public abstract void unExecute();
 
-    public abstract AbstractCollection<Event> getEvents();
-    public abstract AbstractCollection<Event> getUnExecuteEvents();
+    public abstract Collection<Event> getEvents();
+    public abstract Collection<Event> getUnExecuteEvents();
 
     // Note this may change.  It's a reference to the diagram that this command acted on, but as the diagram changes
     // it may be for example that the diagram and another get joined by an arrow and so become one diagram.
@@ -35,6 +62,6 @@ public abstract class Command {
     // myPlace should be a valid index and the index of 'this'.
     // Need to be able to check through the rest of the command list to make sure that this command is valid and if it needs to
     // be made into a transformation (i.e. if there are many re-names, just take the last)
-    public abstract LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace);
+    //public abstract LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace);
 
 }

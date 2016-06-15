@@ -14,23 +14,31 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.Concret
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteRectangularElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
 import java.util.AbstractCollection;
-import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashSet;
 
 
 public class ResizeCommand extends Command {
 
+    private static String myType = "ResizeCommand";
+
     ConcreteRectangularElement element;
     Point newTopLeft, previousTopLeft;
     Point newBotRight, previousBotRight;
 
-    AbstractCollection<ConcreteZone> removedZones;  // peeking inside the curves we need to know what zones are affected
 
+    Collection<ConcreteZone> removedZones;  // peeking inside the curves we need to know what zones are affected
+
+    // just for serialization
+    private ResizeCommand() {
+        super(myType);
+    }
 
     public ResizeCommand(ConcreteRectangularElement resizedElement, Point newTopLeft, Point newBotRight) {
+        super(myType);
+
         element = resizedElement;
         this.newTopLeft = newTopLeft;
         this.newBotRight = newBotRight;
@@ -57,7 +65,7 @@ public class ResizeCommand extends Command {
         element.resize(previousTopLeft, previousBotRight);
     }
 
-    private AbstractCollection<Event> events() {
+    private Collection<Event> events() {
         HashSet<Event> result = new HashSet<Event>();
         result.add(new ResizeElementEvent(element));
 
@@ -65,7 +73,7 @@ public class ResizeCommand extends Command {
             result.add(new RemoveZoneEvent(z));
         }
 
-        AbstractCollection<ConcreteZone> bogus = element.getAllZones();
+        Collection<ConcreteZone> bogus = element.getAllZones();
         for(ConcreteZone z : bogus) {
             result.add(new AddZoneEvent(z));
         }
@@ -74,12 +82,12 @@ public class ResizeCommand extends Command {
     }
 
     @Override
-    public AbstractCollection<Event> getEvents() {
+    public Collection<Event> getEvents() {
         return events();
     }
 
     @Override
-    public AbstractCollection<Event> getUnExecuteEvents() {
+    public Collection<Event> getUnExecuteEvents() {
         return events();
     }
 
@@ -93,8 +101,8 @@ public class ResizeCommand extends Command {
         return true;
     }
 
-    @Override
-    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-        return null;
-    }
+//    @Override
+//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+//        return null;
+//    }
 }

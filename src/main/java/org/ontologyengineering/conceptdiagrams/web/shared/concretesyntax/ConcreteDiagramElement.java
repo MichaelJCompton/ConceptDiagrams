@@ -7,26 +7,31 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.DiagramElement;
+
+import com.fasterxml.jackson.annotation.*;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
-import java.util.AbstractSet;
+import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
  */
-public abstract class ConcreteDiagramElement <T extends DiagramElement> {
-
-
-    public enum ConcreteDiagramElement_TYPES {
-        CONCRETEARROW, CONCRETEBOUNDARYRECTANGE, CONCRETESTARRECTANGLE,
-        CONCRETECURVE, CONCRETEDIAGRAM,
-        CONCRETESPIDER,
-        CONCRETEZONE, CONCRETEINTERSECTIONZONE
-    }
-    private ConcreteDiagramElement_TYPES myType;
-
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")  // Jackson serialization
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "jacksontype")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = ConcreteArrow.class, name = "ConcreteArrow"),
+        @JsonSubTypes.Type(value = ConcreteBoundaryRectangle.class, name = "ConcreteBoundaryRectangle"),
+        @JsonSubTypes.Type(value = ConcreteCurve.class, name = "ConcreteCurve"),
+        @JsonSubTypes.Type(value = ConcreteDiagram.class, name = "ConcreteDiagram"),
+        @JsonSubTypes.Type(value = ConcreteIntersectionZone.class, name = "ConcreteIntersectionZone"),
+        @JsonSubTypes.Type(value = ConcreteRectangularElement.class, name = "ConcreteRectangularElement"),
+        @JsonSubTypes.Type(value = ConcreteSpider.class, name = "ConcreteSpider"),
+        @JsonSubTypes.Type(value = ConcreteStarRectangle.class, name = "ConcreteStarRectangle"),
+        @JsonSubTypes.Type(value = ConcreteZone.class, name = "ConcreteZone")
+})
+public abstract class ConcreteDiagramElement implements Serializable {
 
     protected static final double curveCornerRadius = 10;
     protected static final double curveBorderWidth = 3;
@@ -46,15 +51,28 @@ public abstract class ConcreteDiagramElement <T extends DiagramElement> {
 
 
 
-    private Boolean abstractSyntaxUpToDate;
-    private T abstractSyntaxRepresentation;  // generic type??
+
+    // for gson serialization
+    private String type;
+
+    public enum ConcreteDiagramElement_TYPES {
+        CONCRETEELEMENT, CONCRETERECTANGULARELEMENT,
+        CONCRETEARROW, CONCRETEBOUNDARYRECTANGE, CONCRETESTARRECTANGLE,
+        CONCRETECURVE, CONCRETEDIAGRAM,
+        CONCRETESPIDER,
+        CONCRETEZONE, CONCRETEINTERSECTIONZONE
+    }
+    private ConcreteDiagramElement_TYPES myType;
+
+//    private Boolean abstractSyntaxUpToDate;
+//    private T abstractSyntaxRepresentation;
 
     protected ConcreteBoundaryRectangle myBoundaryRectangle; // everything should have only one except arrows, which pick source
     // can always get from an arrow any way with destination's boundary rectangle.
 
 
-    private AbstractSet<ConcreteArrow> sourcedArrows;
-    private AbstractSet<ConcreteArrow> targettedArrows;
+    private HashSet<ConcreteArrow> sourcedArrows;
+    private HashSet<ConcreteArrow> targettedArrows;
 
     private Point topLeft;
 
@@ -64,11 +82,15 @@ public abstract class ConcreteDiagramElement <T extends DiagramElement> {
     private boolean typeKnown = true;
     private boolean isValid = true;
 
+    // just for serialization
+    public ConcreteDiagramElement() {
+        //this(new Point(0,0), ConcreteDiagramElement_TYPES.CONCRETEELEMENT);
+    }
 
     public ConcreteDiagramElement(Point topLeft, ConcreteDiagramElement_TYPES type) {
         setTopLeft(topLeft);
         setType(type);
-        setAbstractSyntaxNOTUpToDate();
+        //setAbstractSyntaxNOTUpToDate();
 
         sourcedArrows = new HashSet<ConcreteArrow>();
         targettedArrows = new HashSet<ConcreteArrow>();
@@ -80,11 +102,48 @@ public abstract class ConcreteDiagramElement <T extends DiagramElement> {
 
     private void setType(ConcreteDiagramElement_TYPES newType) {
         myType = newType;
+        setTypeString();
     }
 
     public ConcreteDiagramElement_TYPES getType() {
         return myType;
     }
+
+    private void setTypeString() {
+        switch (getType()) {
+            case CONCRETEELEMENT:
+                type = "ConcreteDiagramElement";
+                break;
+            case CONCRETERECTANGULARELEMENT:
+                type = "ConcreteRectangularElement";
+                break;
+            case CONCRETEARROW:
+                type = "ConcreteArrow";
+                break;
+            case CONCRETEBOUNDARYRECTANGE:
+                type = "ConcreteBoundaryRectangle";
+                break;
+            case CONCRETESTARRECTANGLE:
+                type = "ConcreteStarRectangle";
+                break;
+            case CONCRETECURVE:
+                type = "ConcreteCurve";
+                break;
+            case CONCRETEDIAGRAM:
+                type = "ConcreteDiagram";
+                break;
+            case CONCRETESPIDER:
+                type = "ConcreteSpider";
+                break;
+            case CONCRETEZONE:
+                type = "ConcreteZone";
+                break;
+            case CONCRETEINTERSECTIONZONE:
+                type = "ConcreteIntersectionZone";
+                break;
+        }
+    }
+
 
     public abstract void setBoundaryRectangle(ConcreteBoundaryRectangle rect);// {
 //        myBoundaryRectangle = rect;
@@ -97,26 +156,26 @@ public abstract class ConcreteDiagramElement <T extends DiagramElement> {
 
 
 
-    public Boolean isAbstractRepresentationSyntaxUpToDate() {
-        return abstractSyntaxUpToDate;
-    }
+//    public Boolean isAbstractRepresentationSyntaxUpToDate() {
+//        return abstractSyntaxUpToDate;
+//    }
+//
+//    protected void setAbstractSyntaxUpToDate() {
+//        abstractSyntaxUpToDate = true;
+//    }
+//
+//    protected void setAbstractSyntaxNOTUpToDate() {
+//        abstractSyntaxUpToDate = false;
+//    }
 
-    protected void setAbstractSyntaxUpToDate() {
-        abstractSyntaxUpToDate = true;
-    }
+//    public void setAbstractSyntaxRepresentation(T representation) {
+//        abstractSyntaxRepresentation = representation;
+//        setAbstractSyntaxUpToDate();
+//    }
 
-    protected void setAbstractSyntaxNOTUpToDate() {
-        abstractSyntaxUpToDate = false;
-    }
-
-    public void setAbstractSyntaxRepresentation(T representation) {
-        abstractSyntaxRepresentation = representation;
-        setAbstractSyntaxUpToDate();
-    }
-
-    public T getAbstractSyntaxRepresentation() {
-        return abstractSyntaxRepresentation;
-    }
+//    public T getAbstractSyntaxRepresentation() {
+//        return abstractSyntaxRepresentation;
+//    }
 
 
     public void setLabel(String newLabel) {
@@ -223,15 +282,15 @@ public abstract class ConcreteDiagramElement <T extends DiagramElement> {
         targettedArrows.remove(arrow);
     }
 
-    public AbstractSet<ConcreteArrow> getAllAttachedArrows() {
-        AbstractSet<ConcreteArrow> result = new HashSet<ConcreteArrow>();
+    public Set<ConcreteArrow> getAllAttachedArrows() {
+        Set<ConcreteArrow> result = new HashSet<ConcreteArrow>();
         result.addAll(sourcedArrows);
         result.addAll(targettedArrows);
         return result;
     }
 
     // FIXME to remove ... done now through the translations
-    public abstract void makeAbstractRepresentation();
+//    public abstract void makeAbstractRepresentation();
 
     public abstract void deleteMe();
 

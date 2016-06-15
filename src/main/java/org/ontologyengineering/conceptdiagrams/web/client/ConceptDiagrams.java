@@ -10,8 +10,12 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
+import org.ontologyengineering.conceptdiagrams.web.client.handler.ConvertToOWLServiceManager;
+import org.ontologyengineering.conceptdiagrams.web.client.handler.StandardDiagramsConvertToOWLServiceManager;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.DiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.LienzoDiagramCanvas;
+import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
+import org.ontologyengineering.conceptdiagrams.web.shared.StandardClientContext;
 
 /**
  *
@@ -78,7 +82,14 @@ public class ConceptDiagrams implements EntryPoint {
 
         mainPanel.setSize("1200px", "550px");
 
-        diagramCanvas = new LienzoDiagramCanvas(mainPanel.getOffsetWidth(), mainPanel.getOffsetHeight(), mainPanel);
+
+        StandardClientContext context = new StandardClientContext();
+        context.setIri("http://this.is.a.test/");
+        context.setFileName("TEST.owl");
+
+        ConvertToOWLServiceManager converToOWLsrvc = new StandardDiagramsConvertToOWLServiceManager(context);
+
+        diagramCanvas = new LienzoDiagramCanvas(mainPanel.getOffsetWidth(), mainPanel.getOffsetHeight(), mainPanel, converToOWLsrvc);
 
 
     }

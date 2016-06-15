@@ -1,0 +1,415 @@
+[ {
+  "@id" : 1,
+  "type" : "ChangeLabelCommand",
+  "element" : {
+    "jacksontype" : "ConcreteCurve",
+    "@id" : 2,
+    "type" : "ConcreteCurve",
+    "myType" : "CONCRETECURVE",
+    "myBoundaryRectangle" : {
+      "jacksontype" : "ConcreteBoundaryRectangle",
+      "@id" : 3,
+      "type" : "ConcreteBoundaryRectangle",
+      "myType" : "CONCRETEBOUNDARYRECTANGE",
+      "myBoundaryRectangle" : 3,
+      "sourcedArrows" : [ ],
+      "targettedArrows" : [ ],
+      "topLeft" : {
+        "x" : 198.0,
+        "y" : 51.0
+      },
+      "label" : null,
+      "isObject" : true,
+      "typeKnown" : true,
+      "isValid" : true,
+      "bottomRight" : {
+        "x" : 758.0,
+        "y" : 470.0
+      },
+      "borderWidth" : 6.0,
+      "cornerRadius" : 0.0,
+      "topLeftIsCircle" : false,
+      "botLeftIsCircle" : false,
+      "topRightIsCircle" : false,
+      "botRightIsCircle" : false,
+      "intersectionGrid" : [ [ [ ], [ 2 ], [ 2 ], [ 2 ], [ 2 ] ], [ [ ], [ 2 ], [ 2 ], [ 2 ], [ 2 ] ], [ [ {
+        "jacksontype" : "ConcreteCurve",
+        "@id" : 4,
+        "type" : "ConcreteCurve",
+        "myType" : "CONCRETECURVE",
+        "myBoundaryRectangle" : 3,
+        "sourcedArrows" : [ ],
+        "targettedArrows" : [ {
+          "jacksontype" : "ConcreteArrow",
+          "@id" : 5,
+          "type" : "ConcreteArrow",
+          "myType" : "CONCRETEARROW",
+          "myBoundaryRectangle" : {
+            "jacksontype" : "ConcreteStarRectangle",
+            "@id" : 6,
+            "type" : "ConcreteStarRectangle",
+            "myType" : "CONCRETESTARRECTANGLE",
+            "myBoundaryRectangle" : 6,
+            "sourcedArrows" : [ 5 ],
+            "targettedArrows" : [ ],
+            "topLeft" : {
+              "x" : 55.0,
+              "y" : 258.0
+            },
+            "label" : null,
+            "isObject" : true,
+            "typeKnown" : true,
+            "isValid" : true,
+            "bottomRight" : {
+              "x" : 109.0,
+              "y" : 298.0
+            },
+            "borderWidth" : 6.0,
+            "cornerRadius" : 0.0,
+            "topLeftIsCircle" : false,
+            "botLeftIsCircle" : false,
+            "topRightIsCircle" : false,
+            "botRightIsCircle" : false,
+            "intersectionGrid" : [ [ [ ], [ ], [ ], [ ], [ ] ], [ [ ], [ ], [ ], [ ], [ ] ], [ [ ], [ ], [ ], [ ], [ ] ] ],
+            "initialSquares" : 4,
+            "gridSquareSize" : 13.333333333333334,
+            "mainZone" : {
+              "jacksontype" : "ConcreteZone",
+              "@id" : 7,
+              "type" : "ConcreteZone",
+              "myType" : "CONCRETEZONE",
+              "myBoundaryRectangle" : 6,
+              "sourcedArrows" : [ ],
+              "targettedArrows" : [ ],
+              "topLeft" : {
+                "x" : 61.0,
+                "y" : 264.0
+              },
+              "label" : null,
+              "isObject" : true,
+              "typeKnown" : true,
+              "isValid" : true,
+              "bottomRight" : {
+                "x" : 103.0,
+                "y" : 292.0
+              },
+              "borderWidth" : 0.0,
+              "cornerRadius" : 0.0,
+              "topLeftIsCircle" : true,
+              "botLeftIsCircle" : true,
+              "topRightIsCircle" : true,
+              "botRightIsCircle" : true,
+              "curvesImIn" : [ ],
+              "completelyEnclosingCurves" : [ ],
+              "isShaded" : false,
+              "drawingLevel" : 0
+            },
+            "myDiagram" : {
+              "jacksontype" : "ConcreteDiagram",
+              "@id" : 8,
+              "type" : "ConcreteDiagram",
+              "myType" : "CONCRETEDIAGRAM",
+              "myBoundaryRectangle" : null,
+              "sourcedArrows" : null,
+              "targettedArrows" : null,
+              "topLeft" : null,
+              "label" : null,
+              "isObject" : true,
+              "typeKnown" : true,
+              "isValid" : true,
+              "myRectangles" : [ 6, 3 ],
+              "myArrows" : [ 5 ],
+              "isConceptDiagram" : true
+            },
+            "zoneHeights" : [ ],
+            "mySpiders" : [ ],
+            "myCurves" : [ ],
+            "myArrows" : [ ]
+          },
+          "sourcedArrows" : [ ],
+          "targettedArrows" : [ ],
+          "topLeft" : {
+            "x" : 111.0,
+            "y" : 266.0
+          },
+          "label" : "f",
+          "isObject" : true,
+          "typeKnown" : true,
+          "isValid" : true,
+          "source" : 6,
+          "target" : 4,
+          "xRatioSource" : 1.037037037037037,
+          "yRatioSource" : 0.2,
+          "xRatioTarget" : -0.014492753623188406,
+          "yRatioTarget" : 0.41379310344827586,
+          "isObjectProperty" : true,
+          "isInverse" : false,
+          "typeUnknown" : true,
+          "cardinalityConstraint" : "NONE",
+          "cardinality" : null
+        } ],
+        "topLeft" : {
+          "x" : 240.0,
+          "y" : 355.0
+        },
+        "label" : null,
+        "isObject" : true,
+        "typeKnown" : true,
+        "isValid" : true,
+        "bottomRight" : {
+          "x" : 309.0,
+          "y" : 413.0
+        },
+        "borderWidth" : 3.0,
+        "cornerRadius" : 10.0,
+        "topLeftIsCircle" : false,
+        "botLeftIsCircle" : false,
+        "topRightIsCircle" : false,
+        "botRightIsCircle" : false,
+        "intersectionZonesInCurve" : [ ],
+        "mainZone" : {
+          "jacksontype" : "ConcreteZone",
+          "@id" : 9,
+          "type" : "ConcreteZone",
+          "myType" : "CONCRETEZONE",
+          "myBoundaryRectangle" : 3,
+          "sourcedArrows" : [ ],
+          "targettedArrows" : [ ],
+          "topLeft" : {
+            "x" : 243.0,
+            "y" : 358.0
+          },
+          "label" : null,
+          "isObject" : true,
+          "typeKnown" : true,
+          "isValid" : true,
+          "bottomRight" : {
+            "x" : 306.0,
+            "y" : 410.0
+          },
+          "borderWidth" : 0.0,
+          "cornerRadius" : 7.0,
+          "topLeftIsCircle" : true,
+          "botLeftIsCircle" : true,
+          "topRightIsCircle" : true,
+          "botRightIsCircle" : true,
+          "curvesImIn" : [ 4 ],
+          "completelyEnclosingCurves" : [ ],
+          "isShaded" : false,
+          "drawingLevel" : 1
+        },
+        "intersectingCurves" : [ ],
+        "completelyContainedZones" : [ ]
+      } ], [ 2, 4 ], [ 2, 4 ], [ 2, 4 ], [ 2, 4 ] ] ],
+      "initialSquares" : 4,
+      "gridSquareSize" : 139.66666666666666,
+      "mainZone" : {
+        "jacksontype" : "ConcreteZone",
+        "@id" : 10,
+        "type" : "ConcreteZone",
+        "myType" : "CONCRETEZONE",
+        "myBoundaryRectangle" : 3,
+        "sourcedArrows" : [ ],
+        "targettedArrows" : [ ],
+        "topLeft" : {
+          "x" : 204.0,
+          "y" : 57.0
+        },
+        "label" : null,
+        "isObject" : true,
+        "typeKnown" : true,
+        "isValid" : true,
+        "bottomRight" : {
+          "x" : 752.0,
+          "y" : 464.0
+        },
+        "borderWidth" : 0.0,
+        "cornerRadius" : 0.0,
+        "topLeftIsCircle" : true,
+        "botLeftIsCircle" : true,
+        "topRightIsCircle" : true,
+        "botRightIsCircle" : true,
+        "curvesImIn" : [ ],
+        "completelyEnclosingCurves" : [ ],
+        "isShaded" : false,
+        "drawingLevel" : 0
+      },
+      "myDiagram" : 8,
+      "zoneHeights" : [ [ 10 ], [ {
+        "jacksontype" : "ConcreteZone",
+        "@id" : 11,
+        "type" : "ConcreteZone",
+        "myType" : "CONCRETEZONE",
+        "myBoundaryRectangle" : 3,
+        "sourcedArrows" : [ ],
+        "targettedArrows" : [ ],
+        "topLeft" : {
+          "x" : 403.0,
+          "y" : 83.0
+        },
+        "label" : null,
+        "isObject" : true,
+        "typeKnown" : true,
+        "isValid" : true,
+        "bottomRight" : {
+          "x" : 694.0,
+          "y" : 314.0
+        },
+        "borderWidth" : 0.0,
+        "cornerRadius" : 7.0,
+        "topLeftIsCircle" : true,
+        "botLeftIsCircle" : true,
+        "topRightIsCircle" : true,
+        "botRightIsCircle" : true,
+        "curvesImIn" : [ 2 ],
+        "completelyEnclosingCurves" : [ ],
+        "isShaded" : true,
+        "drawingLevel" : 1
+      }, 9 ] ],
+      "mySpiders" : [ ],
+      "myCurves" : [ 2, 4 ],
+      "myArrows" : [ ]
+    },
+    "sourcedArrows" : [ ],
+    "targettedArrows" : [ ],
+    "topLeft" : {
+      "x" : 400.0,
+      "y" : 80.0
+    },
+    "label" : "A",
+    "isObject" : true,
+    "typeKnown" : true,
+    "isValid" : true,
+    "bottomRight" : {
+      "x" : 697.0,
+      "y" : 317.0
+    },
+    "borderWidth" : 3.0,
+    "cornerRadius" : 10.0,
+    "topLeftIsCircle" : false,
+    "botLeftIsCircle" : false,
+    "topRightIsCircle" : false,
+    "botRightIsCircle" : false,
+    "intersectionZonesInCurve" : [ ],
+    "mainZone" : 11,
+    "intersectingCurves" : [ ],
+    "completelyContainedZones" : [ ]
+  },
+  "newLabel" : "A",
+  "oldLabel" : null
+}, {
+  "@id" : 12,
+  "type" : "ChangeLabelCommand",
+  "element" : 5,
+  "newLabel" : "f",
+  "oldLabel" : null
+}, {
+  "@id" : 13,
+  "type" : "AddArrowCommand",
+  "startPoint" : {
+    "x" : 111.0,
+    "y" : 266.0
+  },
+  "endPoint" : {
+    "x" : 239.0,
+    "y" : 379.0
+  },
+  "source" : 6,
+  "target" : 4,
+  "theArrow" : 5,
+  "diagrams" : {
+    "theDiagrams" : [ 8 ]
+  }
+}, {
+  "@id" : 14,
+  "type" : "ChangeZoneShadingCommand",
+  "zoneChanged" : 11
+}, {
+  "@id" : 15,
+  "type" : "AddCurveCommand",
+  "topLeft" : {
+    "x" : 240.0,
+    "y" : 355.0
+  },
+  "bottomRight" : {
+    "x" : 309.0,
+    "y" : 413.0
+  },
+  "boundaryRectangle" : 3,
+  "curve" : 4,
+  "myUndo" : {
+    "type" : "RemoveCurveCommand",
+    "@id" : 16,
+    "type" : null,
+    "curve" : 4,
+    "myUndo" : 15
+  }
+}, {
+  "@id" : 17,
+  "type" : "AddCurveCommand",
+  "topLeft" : {
+    "x" : 400.0,
+    "y" : 80.0
+  },
+  "bottomRight" : {
+    "x" : 697.0,
+    "y" : 317.0
+  },
+  "boundaryRectangle" : 3,
+  "curve" : 2,
+  "myUndo" : {
+    "type" : "RemoveCurveCommand",
+    "@id" : 18,
+    "type" : null,
+    "curve" : 2,
+    "myUndo" : 17
+  }
+}, {
+  "@id" : 19,
+  "type" : "AddBoundaryRectangleCommand",
+  "topLeft" : {
+    "x" : 198.0,
+    "y" : 51.0
+  },
+  "bottomRight" : {
+    "x" : 758.0,
+    "y" : 470.0
+  },
+  "boundaryRectangle" : 3,
+  "newDiagram" : {
+    "jacksontype" : "ConcreteDiagram",
+    "@id" : 20,
+    "type" : "ConcreteDiagram",
+    "myType" : "CONCRETEDIAGRAM",
+    "myBoundaryRectangle" : null,
+    "sourcedArrows" : null,
+    "targettedArrows" : null,
+    "topLeft" : null,
+    "label" : null,
+    "isObject" : true,
+    "typeKnown" : true,
+    "isValid" : true,
+    "myRectangles" : [ 3 ],
+    "myArrows" : [ ],
+    "isConceptDiagram" : true
+  },
+  "diagrams" : {
+    "theDiagrams" : [ 8 ]
+  }
+}, {
+  "@id" : 21,
+  "type" : "AddStarRectangleCommand",
+  "topLeft" : {
+    "x" : 55.0,
+    "y" : 258.0
+  },
+  "bottomRight" : {
+    "x" : 109.0,
+    "y" : 298.0
+  },
+  "boundaryRectangle" : 6,
+  "newDiagram" : 8,
+  "diagrams" : {
+    "theDiagrams" : [ 8 ]
+  }
+} ]

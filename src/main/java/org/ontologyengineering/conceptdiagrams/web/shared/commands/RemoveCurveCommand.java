@@ -12,19 +12,26 @@ import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveZoneEvent
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteCurve;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteZone;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
 
 import java.util.AbstractCollection;
-import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashSet;
 
 
 public class RemoveCurveCommand extends Command {
 
+    private static String myType = "RemoveCurveCommand";
+
     ConcreteCurve curve;
     AddCurveCommand myUndo;
 
+    private RemoveCurveCommand() {
+        super(myType);
+    }
+
     public RemoveCurveCommand(ConcreteCurve curveToRemove) {
+        super(myType);
+
         curve = curveToRemove;
 
         myUndo = new AddCurveCommand(this);
@@ -48,7 +55,7 @@ public class RemoveCurveCommand extends Command {
     }
 
     @Override
-    public AbstractCollection<Event> getEvents() {
+    public Collection<Event> getEvents() {
         HashSet<Event> result = new HashSet<Event>();
         result.add(new RemoveCurveEvent(curve));
 
@@ -62,7 +69,7 @@ public class RemoveCurveCommand extends Command {
 
 
     @Override
-    public AbstractCollection<Event> getUnExecuteEvents() {
+    public Collection<Event> getUnExecuteEvents() {
         return myUndo.getEvents();
 //        HashSet<Event> result = new HashSet<Event>();
 //        result.add(new AddCurveEvent(curve));
@@ -79,10 +86,10 @@ public class RemoveCurveCommand extends Command {
         return true;
     }
 
-    @Override
-    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-        return null;
-    }
+//    @Override
+//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+//        return null;
+//    }
 
     protected ConcreteCurve getCurve() {
         return curve;

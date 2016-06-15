@@ -7,12 +7,11 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  */
 
 
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Zone;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractCollection;
-import java.util.AbstractSet;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This superclass represents the regular zone that is inside each curve.  The zones arising from intersections are
@@ -21,26 +20,31 @@ import java.util.HashSet;
  * Hence the zones here are the same shape as the curves, just a bit smaller to account for the border of the square.
  * There are no borders on zones.
  */
-public class ConcreteZone extends ConcreteRectangularElement <Zone> {
+public class ConcreteZone extends ConcreteRectangularElement {
 
     // means curves that make up the intersection that results in this zone.  For example, completely enclosing a zone
     // won't get the curve in this list.  A main zone, there for, can only be in one curve.
-    private AbstractSet<ConcreteCurve> curvesImIn;
+    private HashSet<ConcreteCurve> curvesImIn;
 
     // curves that completely enclose this zone ... but aren't involved in the intersection
-    private AbstractSet<ConcreteCurve> completelyEnclosingCurves;
+    private HashSet<ConcreteCurve> completelyEnclosingCurves;
 
 
     private Boolean isShaded;
-    Integer drawingLevel;
+    private Integer drawingLevel;
 
-    ConcreteZone(Point topLeft, Point bottomRight, ConcreteDiagramElement_TYPES type) {
+    // just for serialization
+    public ConcreteZone() {
+        //this(new Point(), new Point());
+    }
+
+    public ConcreteZone(Point topLeft, Point bottomRight, ConcreteDiagramElement_TYPES type) {
         super(topLeft, bottomRight, type);
 
         initialise();
     }
 
-    ConcreteZone(Point topLeft, Point bottomRight) {
+    public ConcreteZone(Point topLeft, Point bottomRight) {
         // This is the actual x,y of the zone the offset from the enclosing curves has already been taken away
         super(topLeft, bottomRight, ConcreteDiagramElement_TYPES.CONCRETEZONE);
 
@@ -100,7 +104,7 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
         return drawingLevel;
     }
 
-    public AbstractSet<ConcreteCurve> getCurves() {
+    public Set<ConcreteCurve> getCurves() {
         return curvesImIn;
     }
 
@@ -140,7 +144,7 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
     }
 
 
-    public AbstractSet<ConcreteCurve> getCompletelyEnclosingCurves() {
+    public Set<ConcreteCurve> getCompletelyEnclosingCurves() {
         return completelyEnclosingCurves;
     }
 
@@ -178,10 +182,10 @@ public class ConcreteZone extends ConcreteRectangularElement <Zone> {
     }
 
 
-    @Override
-    public void makeAbstractRepresentation() {
-
-    }
+//    @Override
+//    public void makeAbstractRepresentation() {
+//
+//    }
 
 
 //    @Override

@@ -16,12 +16,12 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
 //import com.ait.lienzo.client.core.types.Point2D;
 //import com.ait.lienzo.client.core.types.Point2DArray;
 //import com.ait.lienzo.shared.core.types.Color;
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Arrow;
+
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
-import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.PointArray;
 
 
-public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
+
+public class ConcreteArrow extends ConcreteDiagramElement {
 
     private ConcreteDiagramElement source;
     private ConcreteDiagramElement target;
@@ -40,10 +40,14 @@ public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
 
     private boolean typeUnknown = true;  // if we don't know the type, we are free to infer it (once)
 
-    private Arrow.CardinalityConstraint cardinalityConstraint = Arrow.CardinalityConstraint.NONE;
+    public enum CardinalityConstraint {NONE, EQ, LEQ, GEQ}
+    private CardinalityConstraint cardinalityConstraint = CardinalityConstraint.NONE;
     private Integer cardinality;
 
-
+    // just for serialization
+    public ConcreteArrow() {
+        //????
+    }
 
     // Assumes that the points are correct
     public ConcreteArrow(Point startPoint, Point endPoint, ConcreteDiagramElement source, ConcreteDiagramElement target) {
@@ -117,16 +121,16 @@ public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
     }
 
 
-    public void setCardinalityConstraint(Arrow.CardinalityConstraint constraint, Integer cardinality) {
+    public void setCardinalityConstraint(CardinalityConstraint constraint, Integer cardinality) {
         cardinalityConstraint = constraint;
         this.cardinality = cardinality;
     }
 
     public Boolean hasCardinalityConstraint() {
-        return cardinalityConstraint != Arrow.CardinalityConstraint.NONE;
+        return cardinalityConstraint != CardinalityConstraint.NONE;
     }
 
-    public Arrow.CardinalityConstraint getCardinalityConstraint() {
+    public CardinalityConstraint getCardinalityConstraint() {
         return cardinalityConstraint;
     }
 
@@ -149,13 +153,14 @@ public class ConcreteArrow extends ConcreteDiagramElement <Arrow> {
     @Override
     public void setBoundaryRectangle(ConcreteBoundaryRectangle rect) {
         myBoundaryRectangle = rect;
-        rect.addArrow(this);
+        // done by the command that adds the arrow
+        //rect.addArrow(this);
     }
 
-    @Override
-    public void makeAbstractRepresentation() {
-
-    }
+//    @Override
+//    public void makeAbstractRepresentation() {
+//
+//    }
 
     public void setAsObjectProperty() {
         setAsObject();

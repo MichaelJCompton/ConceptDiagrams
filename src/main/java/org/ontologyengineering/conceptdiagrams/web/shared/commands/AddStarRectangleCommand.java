@@ -14,26 +14,43 @@ import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveZoneEvent
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteStarRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.AddEmptyClassAndObjectPropertyDiagram;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.LabelledMultiDiagramTransformation;
+import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
 
 import java.util.AbstractCollection;
-import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashSet;
 
 
 public class AddStarRectangleCommand extends Command {
 
+    private static String myType = "AddStarRectangleCommand";
+
     private Point topLeft, bottomRight;
+
+
     private ConcreteStarRectangle boundaryRectangle;
     private ConcreteDiagram newDiagram;
+    private DiagramSet diagrams;
 
-    public AddStarRectangleCommand(Point topLeft, Point bottomRight) {
+    // just for serialization
+    private AddStarRectangleCommand() {
+        super(myType);
+    }
+
+    public AddStarRectangleCommand(Point topLeft, Point bottomRight, DiagramSet diagrams) {
+        super(myType);
+
         this.topLeft = topLeft;
         this.bottomRight = bottomRight;
+        this.diagrams = diagrams;
 
         boundaryRectangle = new ConcreteStarRectangle(topLeft, bottomRight);
         newDiagram = new ConcreteDiagram(boundaryRectangle);
+    }
+
+
+    public ConcreteStarRectangle getBoundaryRectangle() {
+        return boundaryRectangle;
     }
 
     @Override
@@ -43,6 +60,7 @@ public class AddStarRectangleCommand extends Command {
         // put it somewhere ... on a new diagram, but where does that go?
         // maybe command manager should keep it?
 
+        diagrams.addDiagram(newDiagram);
     }
 
     @Override
@@ -52,7 +70,7 @@ public class AddStarRectangleCommand extends Command {
     }
 
     @Override
-    public AbstractCollection<Event> getEvents() {
+    public Collection<Event> getEvents() {
         HashSet<Event> result = new HashSet<Event>();
         result.add(new AddStarRectangleEvent(boundaryRectangle));
         result.add(new AddZoneEvent(boundaryRectangle.getMainZone()));
@@ -61,7 +79,7 @@ public class AddStarRectangleCommand extends Command {
 
 
     @Override
-    public AbstractCollection<Event> getUnExecuteEvents() {
+    public Collection<Event> getUnExecuteEvents() {
         HashSet<Event> result = new HashSet<Event>();
         result.add(new RemoveBoundaryRectangleEvent(boundaryRectangle));
         result.add(new RemoveZoneEvent(boundaryRectangle.getMainZone()));
@@ -78,9 +96,9 @@ public class AddStarRectangleCommand extends Command {
         return true;  // nothing to test, just valid on its own
     }
 
-    @Override
-    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-        return new AddEmptyClassAndObjectPropertyDiagram(boundaryRectangle);
-    }
+//    @Override
+//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
+//        return new AddEmptyClassAndObjectPropertyDiagram(boundaryRectangle);
+//    }
 
 }

@@ -14,14 +14,18 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
 //import com.ait.lienzo.client.core.shape.Layer;
 //import com.ait.lienzo.client.core.types.Point2D;
 //import michael.com.Spider;
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Spider;
+
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 /**
  * A concrete spider
  */
-public class ConcreteSpider extends ConcreteDiagramElement <Spider> {
+public class ConcreteSpider extends ConcreteDiagramElement {
 
+    // just for serialization
+    public ConcreteSpider() {
+        //this(new Point());
+    }
 
     // This is the centre point of the spider ... breaks the abstraction a bit cause everything else is top left
     public ConcreteSpider(Point centre) {
@@ -57,16 +61,16 @@ public class ConcreteSpider extends ConcreteDiagramElement <Spider> {
         return new Point(topLeft().getX() + (2*getRadius()), topLeft().getY() + (2*getRadius()));
     }
 
-    @Override
-    public void makeAbstractRepresentation() {
-        if (! isAbstractRepresentationSyntaxUpToDate()) {
-            Spider result = new Spider();
-            if (hasLabel()) {
-                result.setLabel(labelText());
-            }
-            setAbstractSyntaxRepresentation(result);
-        }
-    }
+//    @Override
+//    public void makeAbstractRepresentation() {
+//        if (! isAbstractRepresentationSyntaxUpToDate()) {
+//            Spider result = new Spider();
+//            if (hasLabel()) {
+//                result.setLabel(labelText());
+//            }
+//            setAbstractSyntaxRepresentation(result);
+//        }
+//    }
 
 //    @Override
 //    public void makeConcreteRepresentation() {

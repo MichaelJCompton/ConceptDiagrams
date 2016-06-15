@@ -15,12 +15,15 @@ import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.client.core.types.Point2DArray;
 import com.ait.lienzo.client.core.types.Transform;
 import com.ait.lienzo.client.widget.LienzoPanel;
+import com.google.gwt.dev.util.collect.*;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.*;
 import org.ontologyengineering.conceptdiagrams.web.client.events.*;
+import org.ontologyengineering.conceptdiagrams.web.client.handler.ConvertToOWLServiceManager;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.shapes.LienzoDiagramShape;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.shapes.LienzoDragBoundsGroup;
+import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.AddArrowCommand;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.ChangeLabelCommand;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.ChangeZoneShadingCommand;
@@ -29,6 +32,8 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.*;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Created by Michael on 4/09/2015.
@@ -64,6 +69,12 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
     private Button compileToOWLButton;
 
+    private Button clearAllButton;
+
+    private ListBox constraintSelector;
+    private CheckBox functionalSelector;
+    private CheckBox inverseSelector;
+
     private TextBox textInputBox;
     private Label inputLabel = new Label("  Label :  ");
     // - maybe make this also a search box, so you can have things that are alread there brought in again - especially when working with a bigger ontology or included ontologies
@@ -88,15 +99,28 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
     private LienzoDiagramPainter painter;
 
 
+
     private final int widthReduction = 0;
     private final int heightReduction = 100;
 
-    public LienzoDiagramCanvas(int width, int height, Panel addToThis) {
-        super(width, height, addToThis);
+    public LienzoDiagramCanvas(int width, int height, Panel addToThis, ConvertToOWLServiceManager converToOWLsrvc) {
+        super(width, height, addToThis, converToOWLsrvc);
+
+        createElements();
+        createCanvas();
         painter = new LienzoDiagramPainter(this);
+
+
+        // not needed at start
+        //clearAll();
+
+    }
+
+    public void createElements() {
         elementsMap = new HashMap<ConcreteDiagramElement, LienzoDiagramShape>();
         curveToZoneMap = new HashMap<ConcreteCurve, AbstractSet<ConcreteZone>>();
         clickedInRectangle = null;
+
 
         clickT = new Point2D();
         lastValidPointT = new Point2D();
@@ -104,10 +128,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
         shiftDown = false;
         selectionGroup = new LienzoDragBoundsGroup(this);
-
-        createCanvas();
     }
-
 
     public void createCanvas() {
 
@@ -142,15 +163,15 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         // FIXME ... but then it won't be in the edit history!!! change this
 
         // Not a command, so it can't be undone ... but can delete the initial boundary rectangle
-        ConcreteBoundaryRectangle initalBoundaryRectangle = new ConcreteBoundaryRectangle(
-                new Point(initBoundaryRectangleXoffset, initBoundaryRectangleYoffset),
-                new Point((panel.getViewport().getWidth() / 2),
-                        initBoundaryRectangleYoffset + (panel.getViewport().getHeight() - 150)));
-
-        ConcreteDiagram initialDiagram = new ConcreteDiagram(initalBoundaryRectangle);
-        addDiagram(initalBoundaryRectangle.getParentDiagram());
-        painter.drawRectangle(initalBoundaryRectangle);
-        painter.drawZone(initalBoundaryRectangle.getMainZone());
+//        ConcreteBoundaryRectangle initalBoundaryRectangle = new ConcreteBoundaryRectangle(
+//                new Point(initBoundaryRectangleXoffset, initBoundaryRectangleYoffset),
+//                new Point((panel.getViewport().getWidth() / 2),
+//                        initBoundaryRectangleYoffset + (panel.getViewport().getHeight() - 150)));
+//
+//        ConcreteDiagram initialDiagram = new ConcreteDiagram(initalBoundaryRectangle);
+//        addDiagram(initalBoundaryRectangle.getParentDiagram());
+//        painter.drawRectangle(initalBoundaryRectangle);
+//        painter.drawZone(initalBoundaryRectangle.getMainZone());
 
         mainPanel.add(buttonPanel);
         mainPanel.add(panel);
@@ -185,6 +206,31 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         });
 
     }
+
+
+    protected void clearAll() {
+
+        removeRubberBandRectangle();
+        clearSelection();
+
+        Set<ConcreteDiagramElement> elements = new HashSet<ConcreteDiagramElement>();
+        elements.addAll(getElements());
+        for(ConcreteDiagramElement e : elements) {
+            removeFromCanvas(e);
+        }
+
+        createElements();
+
+        super.clearAll();
+        batchAll();
+    }
+
+    private void batchAll() {
+        boundaryRectangleLayer.batch();
+        curveLayer.batch();
+        zoneLayer.batch();
+    }
+
 
 
     // FIXME ... why not in diagram canvas
@@ -239,7 +285,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         CommandManager.get().getEventBus().addHandler(AddBoundaryRectangleEvent.TYPE,
                 new AddBoundaryRectangleEventHandler() {
                     public void onAddBoundaryRectangle(AddBoundaryRectangleEvent event) {
-                        addDiagram(event.getBoundaryRectangle().getParentDiagram());
+                        //addDiagram(event.getBoundaryRectangle().getParentDiagram());  ... now handled in commands
                         painter.drawRectangle(event.getBoundaryRectangle());
                     }
                 });
@@ -247,7 +293,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         CommandManager.get().getEventBus().addHandler(AddStarRectangleEvent.TYPE,
                 new AddStarRectangleEventHandler() {
                     public void onAddStarRectangle(AddStarRectangleEvent event) {
-                        addDiagram(event.getAddedRectangle().getParentDiagram());
+                        //addDiagram(event.getAddedRectangle().getParentDiagram());
                         painter.drawStarRectangle(event.getAddedRectangle());
                     }
                 });
@@ -283,9 +329,8 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onMoveElement(MoveElementEvent event) {
                 painter.redraw(event.getMovedElement());
 
-                // not sure why, but the compiler barfed if I did this in one motion in the 'for'
-                AbstractCollection<ConcreteArrow> bogus = event.getMovedElement().getAllAttachedArrows();
-                for(ConcreteArrow arrow : bogus) {
+                // why does the compiler barf if I don't have the cast here????
+                for(ConcreteArrow arrow : (Set<ConcreteArrow>) event.getMovedElement().getAllAttachedArrows()) {
                     painter.redraw(arrow);
                 }
             }
@@ -295,8 +340,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
             public void onResizeElement(ResizeElementEvent event) {
                 painter.redraw(event.getResizedElement());
 
-                AbstractCollection<ConcreteArrow> bogus = event.getResizedElement().getAllAttachedArrows();
-                for(ConcreteArrow arrow : bogus) {
+                for(ConcreteArrow arrow : (Set<ConcreteArrow>) event.getResizedElement().getAllAttachedArrows()) {
                     painter.redraw(arrow);
                 }
             }
@@ -312,6 +356,9 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
     private Set<ConcreteDiagramElement> getElements() {
         return elementsMap.keySet();
+    }
+    private Collection<LienzoDiagramShape> getLienzoShapes() {
+        return elementsMap.values();
     }
 
     protected boolean isOnCanvas(ConcreteDiagramElement element) {
@@ -451,9 +498,9 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
     }
 
     protected void clearSelection() {
-        super.clearSelection();
         selectionGroup.clearAndUndraw();
         textInputBox.setFocus(false);
+        super.clearSelection();
     }
 
 
@@ -759,7 +806,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
                                         || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETESPIDER
                                         || underMouse().getType() == ConcreteDiagramElement.ConcreteDiagramElement_TYPES.CONCRETEBOUNDARYRECTANGE) {
 
-                                    CommandManager.get().executeCommand(new AddArrowCommand(getClickAsCanvasCoordP(), getMouseAtAsCanvasCoordP(), arrowSource, underMouse()));
+                                    CommandManager.get().executeCommand(new AddArrowCommand(getClickAsCanvasCoordP(), getMouseAtAsCanvasCoordP(), arrowSource, underMouse(), getDiagramsOnCanvas()));
                                 }
                             }
                             setMode(ModeTypes.DRAWARROW);
@@ -902,6 +949,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
     private void startRubberBandSpider() {
         // FIXME : how about a little rubber banding spider with legs for fun?
+        // even more fun would be to animate it, running around the screen
         rubberbandSpider = new Circle(ConcreteDiagramElement.spiderRadius);
         rubberbandSpider.setX(getClickAsScreenCoord().getX()).setY(getClickAsScreenCoord().getY());
         panel.getDragLayer().add(rubberbandSpider);
@@ -923,6 +971,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         rubberbandArrow.setPoints(new Point2DArray(new Point2D(click.getX(), click.getY()), new Point2D(newPoint.getX(), newPoint.getY())));
         panel.getDragLayer().batch();
     }
+
 
 
     private void addToolMenu(Panel toolPanel) {
@@ -1095,17 +1144,97 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
                         CommandManager.get().executeCommand(new ChangeLabelCommand(
                                 getSelectedElement(),
                                 textInputBox.getText()));
+                    }
                 }
             }
-        }
-    });
+        });
 
 
+//        // FIXME : should use commands (also do below)
+//        // also needs an input for the constraint number
+//        toolPanel.add(new Label("fn:"));
+//        functionalSelector = new CheckBox();
+//        toolPanel.add(functionalSelector);
+//        functionalSelector.addClickHandler(new ClickHandler() {
+//            @Override
+//            public void onClick(ClickEvent event) {
+//                if(getSelectedElement() != null && getSelectedElement() instanceof ConcreteArrow) {
+//                    ConcreteArrow selectedArrow = (ConcreteArrow) getSelectedElement();
+//
+//                    boolean checked = ((CheckBox) event.getSource()).getValue();
+//                    if (checked) {
+//                        selectedArrow.setCardinalityConstraint(ConcreteArrow.CardinalityConstraint.LEQ, 1);
+//                    } else {
+//                        selectedArrow.setCardinalityConstraint(ConcreteArrow.CardinalityConstraint.NONE, 0);
+//                    }
+//                }
+//            }
+//        });
+
+        // FIXME should also use to command ... fix when I do the above
+        // also only the last change to inv counts ... but that should be ok cause we just
+        // get it from the arrow.
+        toolPanel.add(new Label("inv:"));
+        inverseSelector = new CheckBox();
+        toolPanel.add(inverseSelector);
+        inverseSelector.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if(getSelectedElement() != null && getSelectedElement() instanceof ConcreteArrow) {
+                    ConcreteArrow selectedArrow = (ConcreteArrow) getSelectedElement();
+
+                    boolean checked = ((CheckBox) event.getSource()).getValue();
+                    if (checked) {
+                        selectedArrow.setAsInverse();
+                    } else {
+                        selectedArrow.setAsNotInverse();
+                    }
+                }
+            }
+        });
+
+//        constraintSelector = new ListBox();
+//        constraintSelector.addItem("none");
+//        constraintSelector.addItem("=");
+//        constraintSelector.addItem("<=");
+//        constraintSelector.addItem(">=");
+//        constraintSelector.setVisibleItemCount(1);
+//        constraintSelector.addChangeHandler(
+//                new ChangeHandler() {
+//                    @Override
+//                    public void onChange(ChangeEvent changeEvent) {
+//                        if(getSelectedElement() != null && getSelectedElement() instanceof ConcreteArrow) {
+//                            ConcreteArrow selectedArrow = (ConcreteArrow) getSelectedElement();
+//                            String selected = constraintSelector.getSelectedItemText();
+//                            if (selected.equals("none")) {
+//
+//                            } else if (selected.equals("=")) {
+//
+//                            } else if (selected.equals("<=")) {
+//
+//                            } else if (selected.equals(">=")) {
+//
+//                            }
+//                        }
+//                    }
+//                });
+
+
+                compileToOWLButton = new Button("Compile to OWL");
         toolPanel.add(compileToOWLButton);
         compileToOWLButton.setEnabled(true);
         compileToOWLButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent clickEvent) {
                 compileToOWL();
+            }
+        });
+
+        clearAllButton = new Button("Clear");
+        toolPanel.add(clearAllButton);
+        clearAllButton.setEnabled(true);
+        clearAllButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent clickEvent) {
+                clearAll();
             }
         });
 

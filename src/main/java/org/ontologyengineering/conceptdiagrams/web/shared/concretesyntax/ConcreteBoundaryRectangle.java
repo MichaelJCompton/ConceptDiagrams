@@ -7,12 +7,11 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
-import com.google.gwt.dev.util.collect.*;
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.BoundaryRectangle;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.*;
-import java.util.HashSet;
 
 /**
  * While in the abstract syntax all the bits of a diagram are 'owned' by the diagram itself (i.e. from the definitions a
@@ -21,10 +20,10 @@ import java.util.HashSet;
  * it's all owned by the boundary rectangle, or concrete diagram, and underneath they sort out the correct abstract
  * representation.
  */
-public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <BoundaryRectangle> {
+public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
 
     // grid to keep intersection checking speedy
-    private List<List<AbstractSet<ConcreteCurve>>> intersectionGrid;
+    private ArrayList<ArrayList<HashSet<ConcreteCurve>>> intersectionGrid;
     private final int initialSquares = 4;
     private double gridSquareSize;
 
@@ -36,13 +35,17 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
     // picking algorithms to draw zones in order such that we can find and pick the visible parts of a zone.  This is
     // partly because I'm not drawing all the different shaped zones we could get, just (possibly-)curved cornered
     // rectangles and then using the drawing to occlude with covering zones to make the shapes.
-    private AbstractList<AbstractSet<ConcreteZone>> zoneHeights;
+    private ArrayList<HashSet<ConcreteZone>> zoneHeights;
 
     //private AbstractSet<ConcreteSyntaxElement> myChildren;
-    private AbstractSet<ConcreteSpider> mySpiders;
-    private AbstractSet<ConcreteCurve> myCurves;
-    private AbstractSet<ConcreteArrow> myArrows;
+    private HashSet<ConcreteSpider> mySpiders;
+    private HashSet<ConcreteCurve> myCurves;
+    private HashSet<ConcreteArrow> myArrows;
 
+    // just for serialization
+    public ConcreteBoundaryRectangle() {
+        //this(new Point(), new Point());
+    }
 
     public ConcreteBoundaryRectangle(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight, ConcreteDiagramElement_TYPES.CONCRETEBOUNDARYRECTANGE);
@@ -59,7 +62,7 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
     private void initialise() {
         setBorderWidth(boundaryRectangleBorderWidth);
 
-        zoneHeights = new ArrayList<AbstractSet<ConcreteZone>>();
+        zoneHeights = new ArrayList<HashSet<ConcreteZone>>();
         mySpiders = new HashSet<ConcreteSpider>();
         myCurves = new HashSet<ConcreteCurve>();
         myArrows = new HashSet<ConcreteArrow>();
@@ -101,29 +104,29 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
         return result;
     }
 
-    public AbstractSet<ConcreteSpider> getSpiders() {
+    public Set<ConcreteSpider> getSpiders() {
         return mySpiders;
     }
 
-    public AbstractSet<ConcreteCurve> getCurves() {
+    public Set<ConcreteCurve> getCurves() {
         return myCurves;
     }
 
-    public AbstractSet<ConcreteArrow> getArrows() {
+    public Set<ConcreteArrow> getArrows() {
         return myArrows;
     }
 
-    public AbstractSet<ConcreteZone> getZones() {
-        AbstractSet<ConcreteZone> result = new HashSet<ConcreteZone>();
-        for (AbstractSet<ConcreteZone> zones : getZoneHeights()) {
+    public Set<ConcreteZone> getZones() {
+        Set<ConcreteZone> result = new HashSet<ConcreteZone>();
+        for (Set<ConcreteZone> zones : getZoneHeights()) {
             result.addAll(zones);
         }
         return result;
     }
 
-    public AbstractList<ConcreteZone> getSortedZones() {
-        AbstractList<ConcreteZone> result = new ArrayList<ConcreteZone>();
-        for (AbstractSet<ConcreteZone> zones : getZoneHeights()) {
+    public List<ConcreteZone> getSortedZones() {
+        List<ConcreteZone> result = new ArrayList<ConcreteZone>();
+        for (Set<ConcreteZone> zones : getZoneHeights()) {
             for(ConcreteZone zone : zones) {
                 result.add(zone);
             }
@@ -131,8 +134,8 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
         return result;
     }
 
-    public AbstractSet<ConcreteZone> getShadedZones() {
-        AbstractSet<ConcreteZone> result = new HashSet<ConcreteZone>();
+    public Set<ConcreteZone> getShadedZones() {
+        Set<ConcreteZone> result = new HashSet<ConcreteZone>();
         for(ConcreteZone z : getZones()) {
             if(z.shaded()) {
                 result.add(z);
@@ -160,6 +163,7 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
                                 if (curve.intersectsRectangularElement(other)) {
                                     intersectingCurves.add(other);
                                     curve.addIntersectingCurve(other);
+                                    other.addIntersectingCurve(curve);
                                 }
                             }
                         }
@@ -210,7 +214,14 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
     }
 
     public void addArrow(ConcreteArrow arrow) {
-        getArrows().add(arrow);
+        if(arrow.getSource().getBoundaryRectangle() == this &&
+                arrow.getTarget().getBoundaryRectangle() == this) {
+            getArrows().add(arrow);
+        } else if(arrow.getSource().getBoundaryRectangle() == this) {
+            getDiagram().addArrow(arrow);
+        } else {
+            // not my arrow
+        }
     }
 
     public void removeArrow(ConcreteArrow arrow) {
@@ -218,7 +229,7 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
     }
 
 
-    private AbstractList<AbstractSet<ConcreteZone>> getZoneHeights() {
+    private List<HashSet<ConcreteZone>> getZoneHeights() {
         return zoneHeights;
     }
 
@@ -337,13 +348,13 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
         }
     }
 
-    @Override
-    public void makeAbstractRepresentation() {
-//        if (!isAbstractRepresentationSyntaxUpToDate()) {
-//            BoundaryRectangle result = new BoundaryRectangle();
-//            setAbstractSyntaxRepresentation(result);
-//        }
-    }
+//    @Override
+//    public void makeAbstractRepresentation() {
+////        if (!isAbstractRepresentationSyntaxUpToDate()) {
+////            BoundaryRectangle result = new BoundaryRectangle();
+////            setAbstractSyntaxRepresentation(result);
+////        }
+//    }
 
     // so it's been moved on the canvas, need to refresh the intersection grid.  All the curves are just where they
     // were as far as this call is concerned
@@ -398,9 +409,9 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement <Bound
                 ? bottomRight().getY() - topLeft().getY() : bottomRight().getX() - topLeft().getX();
         gridSquareSize = minDimension / (numSquares - 1);
 
-        intersectionGrid = new ArrayList<List<AbstractSet<ConcreteCurve>>>();
+        intersectionGrid = new ArrayList<ArrayList<HashSet<ConcreteCurve>>>();
         for (int i = 0; i < (int) Math.ceil(getHeight() / gridSquareSize); i++) {
-            intersectionGrid.add(new ArrayList<AbstractSet<ConcreteCurve>>());
+            intersectionGrid.add(new ArrayList<HashSet<ConcreteCurve>>());
             for (int j = 0; j < (int) Math.ceil(getWidth() / gridSquareSize); j++) {
                 intersectionGrid.get(i).add(new HashSet<ConcreteCurve>());
             }

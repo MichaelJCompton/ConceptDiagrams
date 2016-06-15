@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+    <uri id="Imports Wizard Entry" name="http://www.test.test" uri="Gem_EX_1.owl"/>
+    <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_1_1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_3.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_3_1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_3_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_3_3.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg1_1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg1_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg1_3.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg1_4.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg1_5.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg2_1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg2_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg2_3.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg3_1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg3_2.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg3_3.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg3_4.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test" uri="Gem_EX_4_pg3_5.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="http://www.test.test/ontTest" uri="Gem_EX_2.test.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test/testOnt" uri="Gem_EX_1.test.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test/testOnt" uri="Gem_EX_3_1.test.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test/testOnt" uri="Gem_EX_3_2.test.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="duplicate:http://www.test.test/testOnt" uri="Gem_EX_4_pg1_5.test.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="shadowed:http://www.test.test" uri="workspace/output.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="shadowed:http://www.test.test" uri="systematicTests/test_PD5_ALA_COPD_2iIII_1.1.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1465559936963" name="shadowed:http://www.test.test" uri="systematicTests/test_PD5_ALA_COPD_2iIII_1.owl"/>
+    </group>
+</catalog>

@@ -7,7 +7,6 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  */
 
 
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.Curve;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.*;
@@ -15,13 +14,18 @@ import java.util.*;
 /**
  *
  */
-public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
+public class ConcreteCurve extends ConcreteRectangularElement {
 
-    private AbstractList<ConcreteIntersectionZone> intersectionZonesInCurve;
+    private LinkedList<ConcreteIntersectionZone> intersectionZonesInCurve;
     private ConcreteZone mainZone;
 
-    private AbstractSet<ConcreteCurve> intersectingCurves;
-    private AbstractSet<ConcreteZone> completelyContainedZones;
+    private HashSet<ConcreteCurve> intersectingCurves;
+    private HashSet<ConcreteZone> completelyContainedZones;
+
+    // just for serialization
+    public ConcreteCurve() {
+        //this(new Point(), new Point());
+    }
 
     public ConcreteCurve(Point topLeft, Point bottomRight) {
         super(topLeft, bottomRight, ConcreteDiagramElement_TYPES.CONCRETECURVE);
@@ -53,11 +57,11 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
         getMainZone().addEnclosingCurve(this);
     }
 
-    public AbstractSet<ConcreteCurve> getAllEnclosingCurves() {
+    public Set<ConcreteCurve> getAllEnclosingCurves() {
         return getMainZone().getCompletelyEnclosingCurves();
     }
 
-    public AbstractSet<ConcreteCurve> getIntersectingCurves() {
+    public Set<ConcreteCurve> getIntersectingCurves() {
         return intersectingCurves;
     }
 
@@ -88,7 +92,7 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
         }
     }
 
-    public AbstractSet<ConcreteZone> getCompletelyContainedZones() {
+    public Set<ConcreteZone> getCompletelyContainedZones() {
         return completelyContainedZones;
     }
 
@@ -109,16 +113,16 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
     }
 
 
-    @Override
-    public void makeAbstractRepresentation() {
-        if (!isAbstractRepresentationSyntaxUpToDate()) {
-            Curve result = new Curve();
-            if (hasLabel()) {
-                result.setLabel(labelText());
-            }
-            setAbstractSyntaxRepresentation(result);
-        }
-    }
+//    @Override
+//    public void makeAbstractRepresentation() {
+//        if (!isAbstractRepresentationSyntaxUpToDate()) {
+//            Curve result = new Curve();
+//            if (hasLabel()) {
+//                result.setLabel(labelText());
+//            }
+//            setAbstractSyntaxRepresentation(result);
+//        }
+//    }
 
 
     // May need to be updated later on.  Just blat everything and start again.
@@ -155,11 +159,19 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
         }
     }
 
+    // There is a misnoma here ... This is all the zones that arrise from intersections through the curve, But not
+    // completely contained zones.  see also getAllZonesAndCompleletlyContained()
     @Override
     public AbstractCollection<ConcreteZone> getAllZones() {
         AbstractCollection<ConcreteZone> result = new HashSet<ConcreteZone>();
         result.add(getMainZone());
         result.addAll(getEnclosedZones());
+        return result;
+    }
+
+    public AbstractCollection<ConcreteZone> getAllZonesAndCompleletlyContained() {
+        AbstractCollection<ConcreteZone> result = getAllZones();
+        result.addAll(getCompletelyContainedZones());
         return result;
     }
 
@@ -201,7 +213,7 @@ public class ConcreteCurve extends ConcreteRectangularElement <Curve> {
     /**
      * @return sorted list of the intersection zones - i.e. doesn't include the main zone which is accessed separately
      */
-    public AbstractList<ConcreteIntersectionZone> getEnclosedZones() {
+    public List<ConcreteIntersectionZone> getEnclosedZones() {
         return intersectionZonesInCurve;
     }
 

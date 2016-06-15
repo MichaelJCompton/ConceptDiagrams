@@ -8,7 +8,7 @@
     <artifactId>ConceptDiagrams</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>GWT Maven Archetype</name>
+    <name>Concept Diagrams to OWL</name>
 
 
 
@@ -18,6 +18,10 @@
         <!-- GWT needs at least java 1.5 -->
         <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <slf4j-version>1.7.21</slf4j-version>
+        <junit-version>4.12</junit-version>
+        <jackson-version>2.7.4</jackson-version>
     </properties>
 
     <dependencies>
@@ -28,6 +32,20 @@
             <version>${gwtVersion}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-servlet</artifactId>
+            <version>${gwtVersion}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.gwt</groupId>
+            <artifactId>gwt-codeserver</artifactId>
+            <version>${gwtVersion}</version>
+        </dependency>
+
+
+        <!-- Graphics -->
 
         <dependency>
             <groupId>com.ahome-it</groupId>
@@ -35,25 +53,8 @@
             <version>2.0.125-RC1</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-servlet</artifactId>
-            <version>${gwtVersion}</version>
-            <scope>runtime</scope>
-        </dependency>
 
-        <dependency>
-            <groupId>com.google.gwt</groupId>
-            <artifactId>gwt-codeserver</artifactId>
-            <version>${gwtVersion}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.7</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>javax.validation</groupId>
@@ -70,6 +71,10 @@
             <scope>test</scope>
         </dependency>
 
+
+        <!-- OWL -->
+
+        <!-- These aren't new, but are consistent with what webprotege uses -->
         <dependency>
             <groupId>net.sourceforge.owlapi</groupId>
             <artifactId>owlapi-distribution</artifactId>
@@ -81,12 +86,77 @@
             <version>3.4.9</version>
         </dependency>
 
+
+        <dependency>
+            <groupId>com.hermit-reasoner</groupId>
+            <artifactId>org.semanticweb.hermit</artifactId>
+            <version>1.3.8.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
         <dependency>
             <groupId>net.sourceforge.owlapi</groupId>
             <artifactId>owlapi-distribution</artifactId>
             <version>3.4.8</version>
         </dependency>
+        -->
 
+
+        <!-- Serialization -->
+
+        <!--<dependency>-->
+            <!--<groupId>com.google.code.gson</groupId>-->
+            <!--<artifactId>gson</artifactId>-->
+            <!--<version>2.6.2</version>-->
+        <!--</dependency>-->
+        <!--<dependency> &lt;!&ndash; Not in standard bundle, I compiled this from &ndash;&gt;-->
+            <!--<groupId>com.google.code.gson</groupId>-->
+            <!--<artifactId>gson-extras</artifactId>-->
+            <!--<version>1.0-SNAPSHOT</version>-->
+        <!--</dependency>-->
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+
+
+        <!-- Logging -->
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j-version}</version>
+        </dependency>
+
+
+
+        <!-- Testing -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -94,6 +164,15 @@
     <build>
         <!-- Generate compiled stuff in the folder used for developing mode -->
         <outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.java</include>
+                    <include>**/*.gwt.xml</include>
+                </includes>
+            </resource>
+        </resources>
 
         <plugins>
 
@@ -101,31 +180,31 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>gwt-maven-plugin</artifactId>
-                <version>2.6.0</version>
+                <version>2.7.0</version>
                 <executions>
                     <execution>
                         <goals>
                             <goal>compile</goal>
                             <goal>test</goal>
-                            <goal>i18n</goal>
-                            <goal>generateAsync</goal>
+                            <!--<goal>i18n</goal>-->
+                            <!--<goal>generateAsync</goal>-->
                         </goals>
                     </execution>
                 </executions>
                 <!-- Plugin configuration. There are many available options, see
                   gwt-maven-plugin documentation at codehaus.org -->
-                <configuration>
-                    <runTarget>mjc.html</runTarget>
-                    <hostedWebapp>${webappDirectory}</hostedWebapp>
-                    <i18nMessagesBundle>michael.com.client.Messages</i18nMessagesBundle>
-                </configuration>
+                <!--<configuration>-->
+                    <!--<runTarget>mjc.html</runTarget>-->
+                    <!--<hostedWebapp>${webappDirectory}</hostedWebapp>-->
+                    <!--<i18nMessagesBundle>michael.com.client.Messages</i18nMessagesBundle>-->
+                <!--</configuration>-->
             </plugin>
 
             <!-- Copy static web files before executing gwt:run -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
+                <version>2.6</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>
@@ -136,15 +215,17 @@
                 </executions>
                 <configuration>
                     <webappDirectory>${webappDirectory}</webappDirectory>
+                    <attachClasses>true</attachClasses>
+                    <classesClassifier>classes</classesClassifier>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.5.1</version>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>

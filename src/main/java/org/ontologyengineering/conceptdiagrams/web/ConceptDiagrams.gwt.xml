@@ -7,6 +7,8 @@
     <source path='client'/>
     <source path='shared'/>
     <source path='ConceptDiagrams'/>
+    <!-- <servlet path="conceptDiagrams/ConvertAllToOWLService"
+             class="org.ontologyengineering.conceptdiagrams.web.server.handler.ConvertAllToOWLServiceImpliceImpl"/> -->
 
 
     <inherits name='com.google.gwt.user.User'/>

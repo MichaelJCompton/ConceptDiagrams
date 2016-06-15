@@ -6,7 +6,7 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
-import org.ontologyengineering.conceptdiagrams.web.shared.abstractsyntax.DiagramElement;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractCollection;
@@ -15,7 +15,7 @@ import java.util.AbstractCollection;
  * Brings together all the rectangular shaped elements (boundary rectangles, curves and zones) which share things such
  * as width and height, and also curved corners.
  */
-public abstract class ConcreteRectangularElement <T extends DiagramElement> extends ConcreteDiagramElement <T> {
+public abstract class ConcreteRectangularElement extends ConcreteDiagramElement {
 
     private Point bottomRight;
 
@@ -24,6 +24,10 @@ public abstract class ConcreteRectangularElement <T extends DiagramElement> exte
 
     protected Boolean topLeftIsCircle, botLeftIsCircle, topRightIsCircle, botRightIsCircle;
 
+    // just for serialization
+    public ConcreteRectangularElement() {
+        //this(new Point(), new Point(), ConcreteDiagramElement_TYPES.CONCRETERECTANGULARELEMENT);
+    }
 
     public ConcreteRectangularElement(Point topLeft, Point bottomRight, ConcreteDiagramElement_TYPES type) {
         super(topLeft, type);
@@ -113,7 +117,6 @@ public abstract class ConcreteRectangularElement <T extends DiagramElement> exte
 //    public abstract void makeConcreteRepresentation();
 //    public abstract void drawOnLayer(Layer layer);
 
-    // FIXME
 //    public void setAsSelected() {}
 
 

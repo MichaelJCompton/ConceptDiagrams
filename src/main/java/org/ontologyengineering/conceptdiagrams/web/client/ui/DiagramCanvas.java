@@ -9,14 +9,16 @@ package org.ontologyengineering.conceptdiagrams.web.client.ui;
 
 
 import com.google.gwt.user.client.ui.Panel;
+import org.ontologyengineering.conceptdiagrams.web.client.handler.ConvertToOWLServiceManager;
+import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.*;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteBoundaryRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
-import org.ontologyengineering.conceptdiagrams.web.shared.owlOutput.OWLAPIOutputter;
-import org.ontologyengineering.conceptdiagrams.web.shared.transformations.TransformationManager;
+
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.AbstractSet;
 import java.util.HashSet;
@@ -48,8 +50,6 @@ public abstract class DiagramCanvas {
 
     private AbstractSet<ConcreteDiagramElement> selectedElements;
 
-
-    // should be a diagram set ???
     private DiagramSet diagramsOnCanvas;
 
 
@@ -72,10 +72,18 @@ public abstract class DiagramCanvas {
     private int width, height;
     private Panel parentPanel;
 
-    public DiagramCanvas(int width, int height, Panel addToThis) {
+    private ConvertToOWLServiceManager converToOWLsrvc;
+
+    // now accessed through the service manager
+    //private ClientContext context;
+
+    public DiagramCanvas(int width, int height, Panel addToThis, ConvertToOWLServiceManager converToOWLsrvc) {
         this.width = width;
         this.height = height;
         parentPanel = addToThis;
+
+        //this.context = context;
+        this.converToOWLsrvc = converToOWLsrvc;
 
         initBoundaryRectangleWidth = width - (2 * initBoundaryRectangleXoffset);
         initBoundaryRectangleHeight = height - (2 * initBoundaryRectangleYoffset);
@@ -86,6 +94,13 @@ public abstract class DiagramCanvas {
         //clearSelection();
     }
 
+    protected void clearAll() {
+        underMouse = null;
+        diagramsOnCanvas = new DiagramSet();
+        mode = ModeTypes.SELECTION;
+        clearSelection();
+        CommandManager.get().clearAll();
+    }
 
     public void setIsUnderMouse(ConcreteDiagramElement element) {
         underMouse = element;
@@ -99,6 +114,10 @@ public abstract class DiagramCanvas {
         return underMouse;
     }
 
+    // FIXME : not happy with this.  Should only ever be one call to this at the very start when we
+    // set the first diagram, but really should all be handled by the diagram set and not the canvas.
+    // Maybe if we were allowing the first boundary rectangle to be undone it would all be handled by that
+    // first command and everything would be ok??
     protected void addDiagram(ConcreteDiagram diagram) {
         diagramsOnCanvas.addDiagram(diagram);
     }
@@ -191,11 +210,11 @@ public abstract class DiagramCanvas {
     }
 
     protected void addBoundaryRectangle(Point topLeft, Point bottomRight) {
-        CommandManager.get().executeCommand(new AddBoundaryRectangleCommand(topLeft, bottomRight));
+        CommandManager.get().executeCommand(new AddBoundaryRectangleCommand(topLeft, bottomRight, getDiagramsOnCanvas()));
     }
 
     protected void addStarRectangle(Point topLeft, Point bottomRight) {
-        CommandManager.get().executeCommand(new AddStarRectangleCommand(topLeft, bottomRight));
+        CommandManager.get().executeCommand(new AddStarRectangleCommand(topLeft, bottomRight, getDiagramsOnCanvas()));
     }
 
 
@@ -207,9 +226,8 @@ public abstract class DiagramCanvas {
 
     // compile everything to the diagrams abstract syntax and on to OWL
     public void compileToOWL() {
-        TransformationManager manager = new TransformationManager(getDiagramsOnCanvas(), CommandManager.get().getUndoList());
 
-        // FIXME ... need to know what sort of application we are running
-        manager.translateAll(new OWLAPIOutputter("http://example.org/newOntology/"));
+        // should have been set to the right service at initialisation
+        converToOWLsrvc.convertAllToOWL(CommandManager.get().getUndoList(), diagramsOnCanvas);
     }
 }

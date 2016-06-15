@@ -6,22 +6,31 @@
 
 <web-app>
 
+    <!-- Servlets -->
+    <servlet>
+        <servlet-name>ConvertAllToOWL</servlet-name>
+        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.ConvertAllToOWLServiceImpl</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>TestSerialization</servlet-name>
+        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.TestSerializationImpl</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ConvertAllToOWL</servlet-name>
+        <url-pattern>/conceptDiagrams/ConvertAllToOWL</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>TestSerialization</servlet-name>
+        <url-pattern>/conceptDiagrams/TestSerialization</url-pattern>
+    </servlet-mapping>
+
     <!-- Default page to serve -->
     <welcome-file-list>
         <welcome-file>ConceptDiagrams.html</welcome-file>
     </welcome-file-list>
-
-    <!-- Servlets -->
-    <servlet>
-        <servlet-name>AddAxiomsHandlerImpl</servlet-name>
-        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.AddAxiomsHandlerImpl</servlet-class>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>AddAxiomsHandlerImpl</servlet-name>
-        <url-pattern>/conceptDiagrams/addOWLAxioms</url-pattern>
-    </servlet-mapping>
-
 
 
 </web-app>

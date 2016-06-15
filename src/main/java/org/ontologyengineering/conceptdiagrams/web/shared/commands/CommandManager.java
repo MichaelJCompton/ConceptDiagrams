@@ -46,6 +46,11 @@ public class CommandManager {
         return theInstance;
     }
 
+    public void clearAll() {
+        undoList.clear();
+        redoList.clear();
+    }
+
     public EventBus getEventBus() {
         return eventBus;
     }

@@ -34,7 +34,12 @@ public class ConcreteIntersectionZone extends ConcreteZone {
     //private final Group g = new Group();
     // probably should be able to set as the concrete representation
 
-    ConcreteIntersectionZone(Point topLeft, Point bottomRight,
+    // just for serialization
+    public ConcreteIntersectionZone() {
+        //this(new Point(), new Point(), false, false, false, false);
+    }
+
+    public ConcreteIntersectionZone(Point topLeft, Point bottomRight,
                              Boolean topLeftIsCircle, Boolean botLeftIsCircle,
                              Boolean topRightIsCircle, Boolean botRightIsCircle) {
 
@@ -57,10 +62,10 @@ public class ConcreteIntersectionZone extends ConcreteZone {
 
 
 
-    @Override
-    public void makeAbstractRepresentation() {
-
-    }
+//    @Override
+//    public void makeAbstractRepresentation() {
+//
+//    }
 
 //    @Override
 //    public void makeConcreteRepresentation() {
