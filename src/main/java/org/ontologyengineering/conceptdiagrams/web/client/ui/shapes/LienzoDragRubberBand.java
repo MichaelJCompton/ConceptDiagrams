@@ -1,41 +1,35 @@
 package org.ontologyengineering.conceptdiagrams.web.client.ui.shapes;
 
-import com.ait.lienzo.client.core.event.*;
 import com.ait.lienzo.client.core.shape.Layer;
-import com.ait.lienzo.client.core.shape.Node;
 import com.ait.lienzo.client.core.shape.Rectangle;
+import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.shared.core.types.ColorName;
-import org.ontologyengineering.conceptdiagrams.web.client.ui.DiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.LienzoDiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
 
 
-public class LienzoDragRubberBand extends LienzoDiagramShape<ConcreteDiagramElement, Rectangle> {
+public class LienzoDragRubberBand extends LienzoDiagramShape<ConcreteDiagramElement, Shape> {
 
 
     private LienzoDiagramShape boundedShape;
 
-    private Rectangle rubberband;           // drawn on drag layer - screen coords
+    // just using representation instead
+    //private Shape rubberband;           // drawn on drag layer - screen coords
 
     private Point2D unitTest;
 
-
-    // FIXME : this should probably catch zoom events and resize the lines etc apropriately
-    // and maybe move things if they are on say drag layer
 
     public LienzoDragRubberBand(LienzoDiagramCanvas canvas, LienzoDiagramShape shapeToBound) {
         super(canvas);
         boundedShape = shapeToBound;
 
-        rubberband = new Rectangle(1, 1);
+        representation = new Rectangle(1, 1);
         //rubberband.setStrokeColor(rubberBandColour);
-        rubberband.setStrokeColor(ColorName.RED);
-        rubberband.setDraggable(false);
-        rubberband.setListening(false);
-
-        representation = rubberband;
+        representation.setStrokeColor(ColorName.RED);
+        representation.setDraggable(false);
+        representation.setListening(false);
 
         unitTest = new Point2D();
     }
@@ -46,12 +40,27 @@ public class LienzoDragRubberBand extends LienzoDiagramShape<ConcreteDiagramElem
         return boundedShape.getBoundingBox();
     }
 
+    protected LienzoDiagramShape getBoundedShape() {
+        return boundedShape;
+    }
+
+    protected double getWidth() {
+        return ((Rectangle) representation).getWidth();
+    }
+
+    protected double getHeight() {
+        return ((Rectangle) representation).getHeight();
+    }
 
     // assume in screen coords
+    // top left
     public void dragBoundsMoved(BoundingBox newBoundingBox) {
         setRubberband(newBoundingBox.getX(), newBoundingBox.getY(), newBoundingBox.getWidth(), newBoundingBox.getHeight());
     }
 
+    private Shape getRubberband() {
+        return getRepresentation();
+    }
 
     // draw from the bounded shape
     public void draw(Layer layer) {
@@ -66,11 +75,11 @@ public class LienzoDragRubberBand extends LienzoDiagramShape<ConcreteDiagramElem
 
         setRubberband(xy.getX(), xy.getY(), widthHeight.getX(), widthHeight.getY());
 
-        rubberband.setStrokeWidth(unit.getX() * rubberbandLineWidth);
+        getRubberband().setStrokeWidth(unit.getX() * rubberbandLineWidth);
 
-        boundedShape.getLayer().getViewport().getDragLayer().add(rubberband);
+        boundedShape.getLayer().getViewport().getDragLayer().add(getRubberband());
 
-        batch();
+        boundedShape.getLayer().getViewport().getDragLayer().batch();
     }
 
 
@@ -83,11 +92,12 @@ public class LienzoDragRubberBand extends LienzoDiagramShape<ConcreteDiagramElem
         return unitTest;
     }
 
-    private void setRubberband(double x, double y, double width, double height) {
-        rubberband.setWidth(width);
-        rubberband.setHeight(height);
-        rubberband.setX(x);
-        rubberband.setY(y);
+    // these are top left coords
+    protected void setRubberband(double x, double y, double width, double height) {
+        ((Rectangle) getRepresentation()).setWidth(width);
+        ((Rectangle) getRepresentation()).setHeight(height);
+        getRepresentation().setX(x);
+        getRepresentation().setY(y);
     }
 
     @Override
@@ -104,13 +114,13 @@ public class LienzoDragRubberBand extends LienzoDiagramShape<ConcreteDiagramElem
 
 
 
-    public void undraw() {
-        if (getLayer() != null) {
-            Layer rubberbandLayer = getLayer();
-            rubberbandLayer.remove(rubberband);
-            rubberbandLayer.batch();
-        }
-    }
+//    public void undraw() {
+//        if (getLayer() != null) {
+//            Layer rubberbandLayer = getLayer();
+//            rubberbandLayer.remove(rubberband);
+//            rubberbandLayer.batch();
+//        }
+//    }
 
     @Override
     public void setAsUnSelected() {

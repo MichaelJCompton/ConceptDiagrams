@@ -293,4 +293,38 @@ public abstract class ConcreteRectangularElement extends ConcreteDiagramElement 
     }
 
 
+    // does a circle centred on p, with radius offset, intersect the lines of this element
+    // not completely correct, but close enough to be ok for this (corner cases might return true, when in fact there is a gap, cause of rounding at corners)
+    public boolean onLines(Point p, double offset) {
+
+        // does the centre point of the circle lie in such a way that it would touch
+
+        boolean inOutter =
+                rectangleContainment(p,
+                        new Point(topLeft().getX() - offset, topLeft().getY() - offset),
+                        new Point(bottomRight().getX() + offset, bottomRight().getY() + offset));
+
+        boolean inInner =
+                rectangleContainment(p,
+                        new Point(topLeft().getX() + getBorderWidth() + offset, topLeft().getY() + getBorderWidth() + offset),
+                        new Point((bottomRight().getX() - getBorderWidth()) - offset, (bottomRight().getY() - getBorderWidth()) - offset));
+
+
+        if(inOutter && !inInner) {
+            return true;
+        }
+
+        // could alter this to account for the rounded corner of the curve, but for now as is is fine.
+//        } else if (!inOutter) {
+//            return topLeftCentre().distance(p) > cornerRadius + offset &&
+//                    topRightCentre().distance(p) > cornerRadius + offset &&
+//                    bottomLeftCentre().distance(p) > cornerRadius + offset &&
+//                    bottomRightCentre().distance(p) > cornerRadius + offset;
+//            // test corners as well
+//        }
+        return false;
+    }
+
+
+
 }

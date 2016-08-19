@@ -14,9 +14,8 @@ import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveZoneEvent
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteBoundaryRectangle;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
-import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.DiagramSet;
 
-import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -24,46 +23,56 @@ public class AddBoundaryRectangleCommand extends Command  {
 
     private static String myType = "AddBoundaryRectangleCommand";
 
-    private Point topLeft, bottomRight;
+    //private Point topLeft, bottomRight;
     private ConcreteBoundaryRectangle boundaryRectangle;
-    private ConcreteDiagram newDiagram;
-    private DiagramSet diagrams;
+    //private ConcreteDiagram newDiagram;
+    //private DiagramSet diagrams;
 
     // just for serialization
     private AddBoundaryRectangleCommand() {
         super(myType);
     }
 
+
     public AddBoundaryRectangleCommand(Point topLeft, Point bottomRight, DiagramSet diagrams) {
         super(myType);
 
-        this.topLeft = topLeft;
-        this.bottomRight = bottomRight;
-        this.diagrams = diagrams;
+        //this.topLeft = topLeft;
+        //this.bottomRight = bottomRight;
+        //this.diagrams = diagrams;
 
         boundaryRectangle = new ConcreteBoundaryRectangle(topLeft, bottomRight);
-        newDiagram = new ConcreteDiagram(boundaryRectangle);
+        //newDiagram = new ConcreteDiagram(boundaryRectangle, diagrams);
+        new ConcreteDiagram(boundaryRectangle, diagrams);
     }
+
+
+    protected AddBoundaryRectangleCommand(ConcreteBoundaryRectangle boundaryRectangle) {
+        super(myType);
+        this.boundaryRectangle = boundaryRectangle;
+        //newDiagram = boundaryRectangle.getDiagram();
+        //diagrams = boundaryRectangle.getDiagramSet();
+    }
+
+    // this works also for delete / undelete because the only thing that could remain in the diagram is shading of the
+    // boundary rectangle, which is kept here.
 
     @Override
     public void execute() {
-
-        //boundaryRectangle = new ConcreteBoundaryRectangle(topLeft, bottomRight);
-        // put it somewhere
-
-        diagrams.addDiagram(newDiagram);
+        getBoundaryRectangle().getDiagramSet().addDiagram(getDiagram());
     }
 
     @Override
     public void unExecute() {
-        // can't just unexecute if there is anything in the boundary rectangle???
+        // the diagram will only delete it if there isn't anything in it ... should already have been checked by now
+        getBoundaryRectangle().getDiagramSet().removeDiagram(getDiagram());
     }
 
     @Override
     public Collection<Event> getEvents() {
         HashSet<Event> result = new HashSet<Event>();
-        result.add(new AddBoundaryRectangleEvent(boundaryRectangle));
-        result.add(new AddZoneEvent(boundaryRectangle.getMainZone()));
+        result.add(new AddBoundaryRectangleEvent(getBoundaryRectangle()));
+        result.add(new AddZoneEvent(getBoundaryRectangle().getMainZone()));
         return result;
     }
 
@@ -71,8 +80,8 @@ public class AddBoundaryRectangleCommand extends Command  {
     @Override
     public Collection<Event> getUnExecuteEvents() {
         HashSet<Event> result = new HashSet<Event>();
-        result.add(new RemoveBoundaryRectangleEvent(boundaryRectangle));
-        result.add(new RemoveZoneEvent(boundaryRectangle.getMainZone()));
+        result.add(new RemoveBoundaryRectangleEvent(getBoundaryRectangle()));
+        result.add(new RemoveZoneEvent(getBoundaryRectangle().getMainZone()));
         return result;
     }
 
@@ -82,12 +91,12 @@ public class AddBoundaryRectangleCommand extends Command  {
 
     @Override
     public ConcreteDiagram getDiagram() {
-        return boundaryRectangle.getDiagram();
+        return getBoundaryRectangle().getDiagram();
     }
 
     @Override
     public boolean leadsToValid() {
-        return boundaryRectangle.isValid();
+        return getBoundaryRectangle().isValid();
     }
 
 //    @Override

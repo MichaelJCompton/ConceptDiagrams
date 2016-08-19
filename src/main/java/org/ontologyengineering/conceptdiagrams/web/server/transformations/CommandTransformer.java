@@ -43,8 +43,8 @@ public class CommandTransformer {
             return transformChangeLabelCommand((ChangeLabelCommand) command, commands, myPlace);
         } else if (command instanceof ChangeZoneShadingCommand) {
             return transformChangeZoneShadingCommand((ChangeZoneShadingCommand) command, commands, myPlace);
-        } else if (command instanceof FlipObjectPropertyInverse) {
-            return transformFlipObjectPropertyInverse((FlipObjectPropertyInverse) command);
+        } else if (command instanceof FlipObjectPropertyInverseCommand) {
+            return transformFlipObjectPropertyInverse((FlipObjectPropertyInverseCommand) command);
         } else if (command instanceof MoveCommand) {
             return transformMoveCommand((MoveCommand) command);
         } else if (command instanceof RemoveCurveCommand) {
@@ -159,7 +159,7 @@ public class CommandTransformer {
         return null;
     }
 
-    private LabelledMultiDiagramTransformation transformFlipObjectPropertyInverse(FlipObjectPropertyInverse command) {
+    private LabelledMultiDiagramTransformation transformFlipObjectPropertyInverse(FlipObjectPropertyInverseCommand command) {
         return null;
     }
 

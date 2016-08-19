@@ -27,6 +27,19 @@
         <url-pattern>/conceptDiagrams/TestSerialization</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>ontologyDownloadService</servlet-name>
+        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.servlet.DownloadOWLServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>ontologyDownloadService</servlet-name>
+        <url-pattern>/conceptDiagrams/ontologyDownloadService</url-pattern>
+    </servlet-mapping>
+
+
+
+
     <!-- Default page to serve -->
     <welcome-file-list>
         <welcome-file>ConceptDiagrams.html</welcome-file>

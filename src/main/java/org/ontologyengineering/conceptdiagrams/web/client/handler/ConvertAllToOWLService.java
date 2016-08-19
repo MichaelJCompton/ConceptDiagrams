@@ -1,16 +1,15 @@
 package org.ontologyengineering.conceptdiagrams.web.client.handler;
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
+
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
-import com.google.gwt.core.client.GWT;
 import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.Command;
-import org.ontologyengineering.conceptdiagrams.web.shared.commands.CommandManager;
-import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.DiagramSet;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 
 /**
@@ -37,5 +36,5 @@ public interface ConvertAllToOWLService extends RemoteService {
     //
 
 //
-    void convertAllToOWL(ArrayList<Command> history, DiagramSet diagrams, ClientContext context);
+    String convertAllToOWL(HashSet<ArrayList<Command>> histories, HashMap<String, DiagramSet> diagrams, ClientContext context); //DiagramSet diagrams,
 }

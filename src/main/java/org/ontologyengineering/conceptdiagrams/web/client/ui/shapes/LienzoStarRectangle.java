@@ -40,8 +40,16 @@ public class LienzoStarRectangle extends LienzoBoundaryRectangle {
 
     public void draw(Layer layer) {
         super.draw(layer);
-        getCanvas().getCurveLayer().add(theStar);
-        getCanvas().getCurveLayer().batch();
+
+
+
+        // FIXME ... should be some sort of multi object in the representation
+        layer.add(theStar);
+        layer.batch();
+
+
+
+
     }
 
     public void redraw() {

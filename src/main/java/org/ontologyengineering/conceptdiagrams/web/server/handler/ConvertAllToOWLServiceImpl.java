@@ -9,10 +9,13 @@ import org.ontologyengineering.conceptdiagrams.web.server.serialization.JacksonC
 import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.StandardClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.Command;
-import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.DiagramSet;
 import org.semanticweb.owlapi.model.OWLOntology;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.UUID;
 
 
 /**
@@ -31,24 +34,38 @@ public class ConvertAllToOWLServiceImpl extends RemoteServiceServlet implements 
     }
 
 
-    // FIXME : probably should be that this is just the service interface and it calls another class to do the work??
-    public void convertAllToOWL(ArrayList<Command> history, DiagramSet diagrams, ClientContext context){
 
-        // FIXME: looks like it's not necessary to transport the diagramsSet
+    public String convertAllToOWL(HashSet<ArrayList<Command>> histories, HashMap<String, DiagramSet> diagrams, ClientContext context){ //DiagramSet diagrams,
+
+        // should be able to rebuild the diagram set exactly from the history
+
 
         // set up the testing
 //        GsonClassSerializer gsonSerialiser = new GsonClassSerializer();
 //        gsonSerialiser.serializeCommandHistory(history);
 
-        JacksonClassSerializer jacksonSerializer = new JacksonClassSerializer();
-        jacksonSerializer.serializeCommandHistory(history);
+//        JacksonClassSerializer jacksonSerializer = new JacksonClassSerializer();
+//        jacksonSerializer.serializeCommandHistory(history);
 
-//        OWLOntology ontology = OWLAPIutils.makeFreshOntology(((StandardClientContext) context).getIri());
-//
-//        ConvertDiagramsToOWL converter = new ConvertDiagramsToOWL();
-//        converter.convertToOWL(history, ontology);
-//
-//        OWLAPIutils.writeOntology(ontology, "/tmp/" + ((StandardClientContext) context).getFileName());
+        OWLOntology ontology = OWLAPIutils.makeFreshOntology(context.getIRI());
+
+        for(ArrayList<Command> history : histories) {
+            if(history.size() > 0) {
+                // FIXME : just property diagrams for now
+                if(history.get(0).getDiagram().getDiagramSet().isPropertyDiagramSet()) {
+                    ConvertDiagramsToOWL converter = new ConvertDiagramsToOWL();
+                    converter.convertToOWL(history, ontology);
+                }
+            }
+        }
+
+        UUID ontologyID = UUID.randomUUID();
+
+        String filename = "diagrams_2_OWL_output" + ontologyID;
+
+        OWLAPIutils.writeOntology(ontology, "/tmp/org.ontologyengineering.conceptdiagrams." + filename);
+
+        return filename;
     }
 
 

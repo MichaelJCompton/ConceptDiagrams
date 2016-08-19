@@ -9,7 +9,7 @@ import java.io.Serializable;
  * See license information in base directory.
  */
 
-public class ClientContext implements Serializable {
+public abstract class ClientContext implements Serializable {
 
     // is there any context common to both WebProtege and not ??
 
@@ -17,5 +17,12 @@ public class ClientContext implements Serializable {
 
     }
 
+    public abstract String getIRI();
+
+    public abstract void setIRI(String IRI);
+
+    public abstract OntologyFormat getOntologyFormat();
+
+    public abstract void setOntologyFormat(OntologyFormat format);
 
 }

@@ -138,10 +138,11 @@ public class ConcreteZone extends ConcreteRectangularElement {
             // happen behind the scences that might have ripple effects.
             if (curve != curveToKeep) {
                 curve.removeEnclosedZone(this);
-                removeEnclosingCurve(curve);
+                // removeEnclosingCurve(curve);  // no, need to keep the info of what this zone was in
             }
         }
     }
+
 
 
     public Set<ConcreteCurve> getCompletelyEnclosingCurves() {
@@ -181,50 +182,6 @@ public class ConcreteZone extends ConcreteRectangularElement {
         setValid(true);
     }
 
-
-//    @Override
-//    public void makeAbstractRepresentation() {
-//
-//    }
-
-
-//    @Override
-//    public void makeConcreteRepresentation() {
-//
-//        if(hasChangedOnScreen()) {
-//            final Rectangle concreteZone = new Rectangle(getWidth(), getHeight(), getCornerRadius());
-//            setConcreteRepresentation(concreteZone);
-//            setupConcreteRepresentation();
-//
-//            concreteZone.addNodeMouseEnterHandler(new NodeMouseEnterHandler() {
-//                @Override
-//                public void onNodeMouseEnter(NodeMouseEnterEvent event) {
-//                    paintSelectedColoursOnConcreteRepresentation();
-//                    setIsUnderMouse();
-//                    concreteZone.getLayer().draw();
-//                }
-//            });
-//            concreteZone.addNodeMouseExitHandler(new NodeMouseExitHandler() {
-//                @Override
-//                public void onNodeMouseExit(NodeMouseExitEvent event) {
-//                    paintColoursOnConcreteRepresentation();
-//                    concreteZone.getLayer().batch();
-//                }
-//            });
-//        }
-//    }
-
-//    @Override
-//    public void drawOnLayer(Layer layer) {
-//        layer.add(getConcreteRepresentation());
-//    }
-//
-
-    public void deleteMe() {
-//        getConcreteRepresentation().setListening(false);
-//        getBoundaryRectangle().getCurveLayer().remove(getConcreteRepresentation());
-//        getBoundaryRectangle().removeZone(getLevel(), this);
-    }
 
 
     // ---------------------------------------------------------------------------------------

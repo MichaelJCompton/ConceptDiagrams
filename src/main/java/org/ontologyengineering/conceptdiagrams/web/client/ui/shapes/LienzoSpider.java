@@ -21,6 +21,8 @@ import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 public class LienzoSpider extends LienzoDiagramShape<ConcreteSpider, Circle> {
 
+    private Circle spiderRubberBand;
+
     public LienzoSpider(ConcreteSpider elementToRepresent, LienzoDiagramCanvas canvas) {
         super(elementToRepresent, canvas);
 
@@ -44,8 +46,7 @@ public class LienzoSpider extends LienzoDiagramShape<ConcreteSpider, Circle> {
         double deltaX = getDiagramElement().getX() - newBoundingBox.getX();
         double deltaY = getDiagramElement().getY() - newBoundingBox.getY();
 
-        CommandManager.get().executeCommand(
-                new MoveCommand(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY())));
+        getCanvas().getPresenter().moveElement(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()));
 
         if(hasLabel()) {
             getLabel().getRepresentation().setX(getLabel().getRepresentation().getX() - deltaX);
@@ -60,22 +61,8 @@ public class LienzoSpider extends LienzoDiagramShape<ConcreteSpider, Circle> {
         representation.setStrokeColor(spiderColour);
         setNotDragable();
 
-        // FIXME - spiders should be dragable and have dragbounds equal to their boundary rectangle - minus a bit so they don't go into the sides
-
         stdMouseEnterHandler(representation);
         stdMouseExitHandler(representation);
-
-        representation.addNodeDragEndHandler(new NodeDragEndHandler() {
-            public void onNodeDragEnd(NodeDragEndEvent nodeDragEndEvent) {
-                // get the movement as canvas coords
-                Point2D dragSize = new Point2D();  // of the bounds as screen coords
-                getLayer().getViewport().getTransform().getInverse().transform(
-                        new Point2D(nodeDragEndEvent.getDragContext().getDx(), nodeDragEndEvent.getDragContext().getDy()), dragSize);
-
-                dragBoundsMoved(new BoundingBox(new Point2D(getDiagramElement().getX() + dragSize.getX(), getDiagramElement().getY() + dragSize.getY()),
-                        new Point2D(getDiagramElement().bottomRight().getX() + dragSize.getX(), getDiagramElement().bottomRight().getY() + dragSize.getY())));
-            }
-        });
     }
 
 
@@ -91,45 +78,55 @@ public class LienzoSpider extends LienzoDiagramShape<ConcreteSpider, Circle> {
     public void redraw() {
         getRepresentation().setX(getDiagramElement().centre().getX());
         getRepresentation().setY(getDiagramElement().centre().getY());
+        batch();
+    }
+
+    protected void makedragRubberBand() {
+        if(getDragRubberBand() == null) {
+            setDragRubberBand(new LienzoDragSpiderRubberBand(getCanvas(), this));
+        }
     }
 
 
-    public void drawRubberBand() {
-        makedragRubberBand();
-    }
-
-    public void drawDragRepresentation() {
-        setAsSelected();
-    }
+//    public void drawRubberBand() {
+//        makedragRubberBand();
+//        getLayer().getViewport().getDragLayer().add(spiderRubberBand);
+//        getLayer().getViewport().getDragLayer().batch();
+//    }
+//
+//    public void drawDragRepresentation() {
+//        makedragRubberBand();
+//        drawRubberBand();
+//    }
 
     @Override
     public void setAsSelected() {
-        setDragable();
+        //setDragable();
         if (getLayer() != null) {
             setLineColour(getSelectedLineColour());
             setFillColour(getSelectedLineColour());
             getRepresentation().setStrokeColor(getSelectedLineColour());
             getRepresentation().setFillColor(getSelectedLineColour());
-            getLayer().batch();
+            batch();
         }
     }
 
 
     public void unDrawDragRepresentation() {
-
+        getLayer().getViewport().getDragLayer().remove(spiderRubberBand);
+        getLayer().getViewport().getDragLayer().batch();
     }
 
     @Override
     public void setAsUnSelected() {
-        setNotDragable();
+        //setNotDragable();
         if(getRepresentation() != null && getLayer() != null) {
             setLineColour(spiderColour);
             setFillColour(spiderColour);
             getRepresentation().setStrokeColor(getLineColour());
             getRepresentation().setFillColor(getFillColour());
-            getLayer().batch();
+            batch();
         }
     }
-
 
 }

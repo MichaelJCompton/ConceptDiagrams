@@ -59,8 +59,20 @@ public class LienzoBoundaryRectangle extends LienzoDiagramShape<ConcreteBoundary
 
     @Override
     public void dragBoundsMoved(BoundingBox newBoundingBox) {
-        CommandManager.get().executeCommand(new ResizeCommand(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()),
-                new Point(newBoundingBox.getX() + newBoundingBox.getWidth(), newBoundingBox.getY() + newBoundingBox.getHeight())));
+
+
+
+    // FIXME !!!
+//        CommandManager.get().executeCommand(new ResizeCommand(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()),
+//                new Point(newBoundingBox.getX() + newBoundingBox.getWidth(), newBoundingBox.getY() + newBoundingBox.getHeight())));
+
+        getCanvas().getPresenter().resizeElement(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()),
+                new Point(newBoundingBox.getX() + newBoundingBox.getWidth(), newBoundingBox.getY() + newBoundingBox.getHeight()));
+
+
+
+
+
     }
 
     protected void makeRepresentation() {

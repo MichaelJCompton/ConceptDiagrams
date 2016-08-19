@@ -4,20 +4,19 @@ import com.ait.lienzo.client.core.event.*;
 import com.ait.lienzo.client.core.shape.Layer;
 import com.ait.lienzo.client.core.shape.Node;
 import com.ait.lienzo.client.core.shape.Rectangle;
-import com.ait.lienzo.client.core.shape.Shape;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
-import org.ontologyengineering.conceptdiagrams.web.client.ui.DiagramCanvas;
+import org.ontologyengineering.conceptdiagrams.web.shared.presenter.DiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.LienzoDiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
-import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteSpider;
-import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractSet;
 import java.util.HashSet;
 
 /**
- * Created by Michael on 29/09/2015.
+ * Author: Michael Compton<br>
+ * Date: September 2015<br>
+ * See license information in base directory.
  */
 public class LienzoDragBoundsGroup extends LienzoDiagramShape<ConcreteDiagramElement, Node> {
 
@@ -284,8 +283,13 @@ public class LienzoDragBoundsGroup extends LienzoDiagramShape<ConcreteDiagramEle
             Point2D shapeTL = new Point2D();
             getBoxLayer().getViewport().getTransform().getInverse().transform(s.getDragRubberBand().getRepresentation().getLocation(), shapeTL);
             Point2D shapeBR = new Point2D();
-            getBoxLayer().getViewport().getTransform().getInverse().transform(new Point2D(s.getDragRubberBand().getRepresentation().getX() + s.getDragRubberBand().getRepresentation().getWidth(),
-                    s.getDragRubberBand().getRepresentation().getY() + s.getDragRubberBand().getRepresentation().getHeight()), shapeBR);
+//            getBoxLayer().getViewport().getTransform().getInverse().transform(new Point2D(s.getDragRubberBand().getRepresentation().getX() + s.getDragRubberBand().getRepresentation().getWidth(),
+//                    s.getDragRubberBand().getRepresentation().getY() + s.getDragRubberBand().getRepresentation().getHeight()), shapeBR);
+
+            getBoxLayer().getViewport().getTransform().getInverse().transform(
+                    new Point2D(s.getDragRubberBand().getRepresentation().getX() + s.getDragRubberBand().getWidth(),
+                            s.getDragRubberBand().getRepresentation().getY() + s.getDragRubberBand().getHeight()), shapeBR);
+
 
             s.dragBoundsMoved(new BoundingBox(shapeTL, shapeBR));
         }
@@ -297,8 +301,17 @@ public class LienzoDragBoundsGroup extends LienzoDiagramShape<ConcreteDiagramEle
         for (int i = 0; i < 8; i++) {
             dragBoxes[i].addNodeMouseDownHandler(new NodeMouseDownHandler() {
                 public void onNodeMouseDown(NodeMouseDownEvent event) {
-                    getCanvas().removeRubberBandRectangle();
-                    getCanvas().setMode(DiagramCanvas.ModeTypes.SELECTION);
+
+
+
+                    // FIXME !!!!
+                    //getCanvas().removeRubberBandRectangle();
+
+
+
+
+                    //getCanvas().setMode(DiagramCanvas.ModeTypes.SELECTION);
+                    getCanvas().turnOffDragSelect();
                 }
             });
         }
@@ -313,6 +326,11 @@ public class LienzoDragBoundsGroup extends LienzoDiagramShape<ConcreteDiagramEle
                     getBoxLayer().getViewport().getTransform().getInverse().transform(newbotRight, bottomRightP);
                     notifyBoundedShapes(); //newTopLeft, newbotRight);
                     //boundedShape.dragBoundsMoved(new BoundingBox(newTopLeft, newbotRight));
+
+                    // not sure if this is necessary ... shouldn't be, but there might a race condition between the
+                    // mouse down message above and the one in diagram canvas, so just to make sure, I'm ensuring the
+                    // state I want at the end of the move too.
+                    getCanvas().turnOffDragSelect();
                 }
             });
         }

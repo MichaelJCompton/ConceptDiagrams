@@ -1,13 +1,14 @@
 package org.ontologyengineering.conceptdiagrams.web.client.handler;
 
+
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.Command;
-import org.ontologyengineering.conceptdiagrams.web.shared.commands.CommandManager;
-import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.DiagramSet;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 
 /**
@@ -20,5 +21,5 @@ import java.util.LinkedList;
 public interface ConvertAllToOWLServiceAsync {
 
     //
-    void convertAllToOWL(ArrayList<Command> history, DiagramSet diagrams, ClientContext context, AsyncCallback<Void> callback);
+    void convertAllToOWL(HashSet<ArrayList<Command>> histories, HashMap<String, DiagramSet> diagrams, ClientContext context, AsyncCallback<String> callback); //DiagramSet diagrams,
 }

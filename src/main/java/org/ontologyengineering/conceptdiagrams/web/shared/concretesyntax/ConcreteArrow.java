@@ -6,17 +6,6 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
-//import com.ait.lienzo.client.core.event.NodeMouseEnterEvent;
-//import com.ait.lienzo.client.core.event.NodeMouseEnterHandler;
-//import com.ait.lienzo.client.core.event.NodeMouseExitEvent;
-//import com.ait.lienzo.client.core.event.NodeMouseExitHandler;
-//import com.ait.lienzo.client.core.shape.Layer;
-//import com.ait.lienzo.client.core.shape.Rectangle;
-//import com.ait.lienzo.client.core.shape.Spline;
-//import com.ait.lienzo.client.core.types.Point2D;
-//import com.ait.lienzo.client.core.types.Point2DArray;
-//import com.ait.lienzo.shared.core.types.Color;
-
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 
@@ -26,7 +15,6 @@ public class ConcreteArrow extends ConcreteDiagramElement {
     private ConcreteDiagramElement source;
     private ConcreteDiagramElement target;
 
-    //private Point startPoint, endPoint;  // startpoint is in the super
 
     // start and end points are calculated from the ratios below
 
@@ -34,6 +22,7 @@ public class ConcreteArrow extends ConcreteDiagramElement {
     // So that on moves and resizes we can keep the arrow in the right spot
     private double xRatioSource, yRatioSource, xRatioTarget, yRatioTarget;
 
+    private boolean isDashed = false;
 
     private boolean isObjectProperty = true;
     private boolean isInverse = false;
@@ -55,12 +44,8 @@ public class ConcreteArrow extends ConcreteDiagramElement {
 
         setTopLeft(new Point(Math.min(startPoint.getX(), endPoint.getX()), Math.min(startPoint.getY(), endPoint.getY())));
 
-        setSource(source);
-        setStartPoint(startPoint);
-        setTarget(target);
-        setEndPoint(endPoint);
-
-        // FIXME : maybe this should set the boundary rectangle as the sourcce/target?
+        setNewSource(source, startPoint);
+        setNewTarget(target, endPoint);
     }
 
     // really set the ratio to the source top left
@@ -69,16 +54,21 @@ public class ConcreteArrow extends ConcreteDiagramElement {
         yRatioSource = (startPoint.getY() - source.topLeft().getY()) / source.getHeight();
     }
 
-    public void setSource(ConcreteDiagramElement newSource) {
+    // for linking back in on say undelete
+    // will be wrong if called on a new source - see setNewSource()
+    public void linkSource(ConcreteDiagramElement newSource) {
         if(source != null) {
             source.removeAsArrowSource(this);
         }
         source = newSource;
-        if(newSource != null) {
+        if(source != null) {
             source.setAsArrowSource(this);
         }
+    }
 
-        // FIXME also if the source is a data curve/rectangle setAsDataProperty
+    public void setNewSource(ConcreteDiagramElement newSource, Point newStartPoint) {
+        linkSource(newSource);
+        setStartPoint(newStartPoint);
     }
 
     public ConcreteDiagramElement getSource() {
@@ -90,18 +80,57 @@ public class ConcreteArrow extends ConcreteDiagramElement {
         yRatioTarget = (endPoint.getY() - target.topLeft().getY()) / target.getHeight();
     }
 
-    public void setTarget(ConcreteDiagramElement newTarget) {
+    public void linkTarget(ConcreteDiagramElement newTarget) {
         if(target != null) {
             target.removeAsArrowTarget(this);
         }
         target = newTarget;
-        if(newTarget != null) {
+        if(target != null) {
             target.setAsArrowTarget(this);
         }
     }
 
+    public void setNewTarget(ConcreteDiagramElement newTarget, Point newEndPoint) {
+        linkTarget(newTarget);
+        setEndPoint(newEndPoint);
+    }
+
+
+    protected void unlinkSource() {
+        getSource().removeAsArrowSource(this);
+    }
+
+    protected void unlinkTarget() {
+        getTarget().removeAsArrowTarget(this);
+    }
+
+    protected void unlinkSourceAndTarget() {
+        unlinkSource();
+        unlinkTarget();
+    }
+
     public ConcreteDiagramElement getTarget() {
         return target;
+    }
+
+    public boolean isDashed() {
+        return isDashed;
+    }
+
+    public void setAsDashed() {
+        isDashed = true;
+    }
+
+    public void setAsSolid() {
+        isDashed = false;
+    }
+
+    public void setDashed(boolean dash) {
+        isDashed = dash;
+    }
+
+    public void flipDashing() {
+        isDashed = !isDashed;
     }
 
     public boolean isInverse() {
@@ -114,6 +143,10 @@ public class ConcreteArrow extends ConcreteDiagramElement {
 
     public void setAsNotInverse() {
         isInverse = false;
+    }
+
+    public void setInverse(boolean inv) {
+        isInverse = inv;
     }
 
     public void swapInverse() {
@@ -157,10 +190,6 @@ public class ConcreteArrow extends ConcreteDiagramElement {
         //rect.addArrow(this);
     }
 
-//    @Override
-//    public void makeAbstractRepresentation() {
-//
-//    }
 
     public void setAsObjectProperty() {
         setAsObject();
@@ -207,14 +236,8 @@ public class ConcreteArrow extends ConcreteDiagramElement {
         }
 
         setValid(validity);
-
     }
 
-    public void deleteMe() {
-        // FIXME : in flux
-
-        getBoundaryRectangle().removeArrow(this);
-    }
 
 
     // ---------------------------------------------------------------------------------------

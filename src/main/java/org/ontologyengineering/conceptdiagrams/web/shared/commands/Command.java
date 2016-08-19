@@ -14,7 +14,6 @@ import com.google.web.bindery.event.shared.Event;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 
 import java.io.Serializable;
-import java.util.AbstractCollection;
 import java.util.Collection;
 
 /**
@@ -30,12 +29,21 @@ import java.util.Collection;
         @JsonSubTypes.Type(value = AddCurveCommand.class, name = "AddCurveCommand"),
         @JsonSubTypes.Type(value = AddSpiderCommand.class, name = "AddSpiderCommand"),
         @JsonSubTypes.Type(value = AddStarRectangleCommand.class, name = "AddStarRectangleCommand"),
+        @JsonSubTypes.Type(value = AddStarRectangleCommand.class, name = "ChangeArrowSourceTargetCommand"),
+        @JsonSubTypes.Type(value = AddStarRectangleCommand.class, name = "ChangeArrowConstraintsCommand"),
+        @JsonSubTypes.Type(value = AddStarRectangleCommand.class, name = "ChangeElementTypeCommand"),
         @JsonSubTypes.Type(value = ChangeLabelCommand.class, name = "ChangeLabelCommand"),
         @JsonSubTypes.Type(value = ChangeZoneShadingCommand.class, name = "ChangeZoneShadingCommand"),
-        @JsonSubTypes.Type(value = FlipObjectPropertyInverse.class, name = "FlipObjectPropertyInverse"),
+        @JsonSubTypes.Type(value = ChangeZoneShadingCommand.class, name = "FlipArrowDashedCommand"),
+        @JsonSubTypes.Type(value = FlipObjectPropertyInverseCommand.class, name = "FlipObjectPropertyInverseCommand"),
         @JsonSubTypes.Type(value = MoveCommand.class, name = "MoveCommand"),
+        @JsonSubTypes.Type(value = MoveCommand.class, name = "RemoveArrowCommand"),
+        @JsonSubTypes.Type(value = MoveCommand.class, name = "RemoveBoundaryRectangleCommand"),
         @JsonSubTypes.Type(value = RemoveCurveCommand.class, name = "RemoveCurveCommand"),
-        @JsonSubTypes.Type(value = ResizeCommand.class, name = "ResizeCommand")
+        @JsonSubTypes.Type(value = RemoveCurveCommand.class, name = "RemoveSpiderCommand"),
+        @JsonSubTypes.Type(value = ResizeCommand.class, name = "ResizeCommand"),
+        @JsonSubTypes.Type(value = ResizeCommand.class, name = "SetElementAsDataCommand"),
+        @JsonSubTypes.Type(value = ResizeCommand.class, name = "SetElementAsObjectCommand")
 })
 public abstract class Command implements Serializable {
 

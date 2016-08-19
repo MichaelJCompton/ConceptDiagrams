@@ -92,6 +92,14 @@ public class ConcreteCurve extends ConcreteRectangularElement {
         }
     }
 
+
+    public void reassocitateToAllIntersectingCurves() {
+        for (ConcreteCurve other : getIntersectingCurves()) {
+            other.addIntersectingCurve(this);
+        }
+    }
+
+
     public Set<ConcreteZone> getCompletelyContainedZones() {
         return completelyContainedZones;
     }
@@ -112,6 +120,26 @@ public class ConcreteCurve extends ConcreteRectangularElement {
         }
     }
 
+    protected void disassociateCompletelyContainedZone(ConcreteZone zone) {
+        zone.removeCompletelyEnclosingCurve(this);
+    }
+
+    // keeps my list of zones, just removes me from the contained zone
+    protected void disassociateCompletelyContainedZones() {
+        for(ConcreteZone z : getCompletelyContainedZones()) {
+            disassociateCompletelyContainedZone(z);
+        }
+    }
+
+    protected void reassociateCompletelyContainedZone(ConcreteZone zone) {
+        zone.addCompletelyEnclosingCurve(this);
+    }
+
+    protected void reassociateCompletelyContainedZones() {
+        for(ConcreteZone z : getCompletelyContainedZones()) {
+            reassociateCompletelyContainedZone(z);
+        }
+    }
 
 //    @Override
 //    public void makeAbstractRepresentation() {
@@ -189,26 +217,6 @@ public class ConcreteCurve extends ConcreteRectangularElement {
     }
 
 
-    public void deleteMe() {
-//        getConcreteRepresentation().setListening(false);
-//        getBoundaryRectangle().getCurveLayer().remove(getConcreteRepresentation());
-//        getBoundaryRectangle().removeCurve(this);
-//        mainZone.deleteMe();
-//        for(ConcreteZone z : intersectionZonesInCurve) {
-//            z.deleteMe();
-//        }
-//        for(ConcreteCurve c : getIntersectingCurves()) {
-//            c.getIntersectingCurves().remove(this);
-//        }
-
-    }
-
-//    public void drawZonesOnLayer(Layer layer) {
-//        mainZone.drawOnLayer(layer);
-//        for(ConcreteZone z : intersectionZonesInCurve) {
-//            z.drawOnLayer(layer);
-//        }
-//    }
 
     /**
      * @return sorted list of the intersection zones - i.e. doesn't include the main zone which is accessed separately
@@ -217,13 +225,13 @@ public class ConcreteCurve extends ConcreteRectangularElement {
         return intersectionZonesInCurve;
     }
 
-    public void addEnclosedZone(ConcreteIntersectionZone zone) {
+    protected void addEnclosedZone(ConcreteIntersectionZone zone) {
         getEnclosedZones().add(zone);
         zone.addEnclosingCurve(this);
         sortZones();
     }
 
-    public void removeEnclosedZone(ConcreteZone zone) {
+    protected void removeEnclosedZone(ConcreteZone zone) {
         getEnclosedZones().remove(zone);
     }
 
@@ -247,8 +255,12 @@ public class ConcreteCurve extends ConcreteRectangularElement {
     // ---------------------------------------------------------------------------------------
 
 
+    public static boolean validCurveSize(Point topLeft, Point botRight) {
+        return botRight.getX() - topLeft.getX() >= ConcreteDiagramElement.curveMinWidth &&
+                botRight.getY() - topLeft.getY() >= ConcreteDiagramElement.curveMinHeight;
+    }
+
     // Does this curve contain the given point - is it in the area enclosed by the curve, not on the line.
-    // The point is relative to the enclosing element of the curve (the boundary rectangle), not the whole canvas
     // accounts for line thickness and the rounded corners
     public boolean containsPoint(Point p) {
 

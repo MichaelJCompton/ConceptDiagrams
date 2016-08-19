@@ -35,8 +35,8 @@ public class ConcreteStarRectangle extends ConcreteBoundaryRectangle {
     public void removeZone(ConcreteZone zone) { }
     public void addSpider(ConcreteSpider spider) { }
     public void removeSpider(ConcreteSpider spider) { }
-    public void addArrow(ConcreteArrow arrow) { }       // I think these too as the arrows should be on the diagram
-    public void removeArrow(ConcreteArrow arrow) { }
+    //public void addArrow(ConcreteArrow arrow) { }       // I think these too as the arrows should be on the diagram
+    //public void removeArrow(ConcreteArrow arrow) { }
 
     public void resize(Point topLeft, Point botRight) {
         super.resize(topLeft, botRight);

@@ -12,12 +12,11 @@ import com.fasterxml.jackson.annotation.*;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- *
- */
+
 @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")  // Jackson serialization
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "jacksontype")
 @JsonSubTypes({
@@ -33,8 +32,8 @@ import java.util.Set;
 })
 public abstract class ConcreteDiagramElement implements Serializable {
 
-    protected static final double curveCornerRadius = 10;
-    protected static final double curveBorderWidth = 3;
+    public static final double curveCornerRadius = 10;
+    public static final double curveBorderWidth = 3;
     public static final double curveMinWidth = (curveCornerRadius * 4);  // no small curves constraint
     public static final double curveMinHeight = curveMinWidth;           // no small curves constraint
 
@@ -64,8 +63,6 @@ public abstract class ConcreteDiagramElement implements Serializable {
     }
     private ConcreteDiagramElement_TYPES myType;
 
-//    private Boolean abstractSyntaxUpToDate;
-//    private T abstractSyntaxRepresentation;
 
     protected ConcreteBoundaryRectangle myBoundaryRectangle; // everything should have only one except arrows, which pick source
     // can always get from an arrow any way with destination's boundary rectangle.
@@ -77,20 +74,20 @@ public abstract class ConcreteDiagramElement implements Serializable {
     private Point topLeft;
 
     private String label;
+    private Point labelPosition;
 
     private boolean isObject = true;
-    private boolean typeKnown = true;
+    private boolean typeKnown = false;
     private boolean isValid = true;
 
     // just for serialization
     public ConcreteDiagramElement() {
-        //this(new Point(0,0), ConcreteDiagramElement_TYPES.CONCRETEELEMENT);
+
     }
 
     public ConcreteDiagramElement(Point topLeft, ConcreteDiagramElement_TYPES type) {
         setTopLeft(topLeft);
         setType(type);
-        //setAbstractSyntaxNOTUpToDate();
 
         sourcedArrows = new HashSet<ConcreteArrow>();
         targettedArrows = new HashSet<ConcreteArrow>();
@@ -141,45 +138,36 @@ public abstract class ConcreteDiagramElement implements Serializable {
             case CONCRETEINTERSECTIONZONE:
                 type = "ConcreteIntersectionZone";
                 break;
+            default:
+                type = "ConcreteDiagramElement";
+                break;
         }
     }
 
 
-    public abstract void setBoundaryRectangle(ConcreteBoundaryRectangle rect);// {
-//        myBoundaryRectangle = rect;
-//        rect.addChild(this);
-//    }
+    public abstract void setBoundaryRectangle(ConcreteBoundaryRectangle rect);
+
 
     public ConcreteBoundaryRectangle getBoundaryRectangle() {
         return myBoundaryRectangle;
     }
 
 
-
-//    public Boolean isAbstractRepresentationSyntaxUpToDate() {
-//        return abstractSyntaxUpToDate;
-//    }
-//
-//    protected void setAbstractSyntaxUpToDate() {
-//        abstractSyntaxUpToDate = true;
-//    }
-//
-//    protected void setAbstractSyntaxNOTUpToDate() {
-//        abstractSyntaxUpToDate = false;
-//    }
-
-//    public void setAbstractSyntaxRepresentation(T representation) {
-//        abstractSyntaxRepresentation = representation;
-//        setAbstractSyntaxUpToDate();
-//    }
-
-//    public T getAbstractSyntaxRepresentation() {
-//        return abstractSyntaxRepresentation;
-//    }
-
+    public void setLabel(String newLabel, Point labelPosition) {
+        label = newLabel;
+        this.labelPosition = labelPosition;
+    }
 
     public void setLabel(String newLabel) {
-        label = newLabel;
+        setLabel(newLabel, getLabelPosition());
+    }
+
+    public void setLabelPosition(Point pos) {
+        labelPosition = pos;
+    }
+
+    public Point getLabelPosition() {
+        return labelPosition;
     }
 
     public String labelText() {
@@ -199,6 +187,10 @@ public abstract class ConcreteDiagramElement implements Serializable {
     public void setAsData() {
         isObject = false;
         setTypeKnown();
+    }
+
+    public void setTypeUnKnown() {
+        typeKnown = false;
     }
 
     public void setTypeKnown() {
@@ -260,6 +252,9 @@ public abstract class ConcreteDiagramElement implements Serializable {
         return getBoundaryRectangle().getParentDiagram();
     }
 
+    public DiagramSet getDiagramSet() {
+        return getDiagram().getDiagramSet();
+    }
 
     public void move(Point topLeft) {
         setTopLeft(topLeft);
@@ -282,6 +277,14 @@ public abstract class ConcreteDiagramElement implements Serializable {
         targettedArrows.remove(arrow);
     }
 
+    public Collection<ConcreteArrow> getTargetedArrows() {
+        return targettedArrows;
+    }
+
+    public Collection<ConcreteArrow> getSourcedArrows() {
+        return sourcedArrows;
+    }
+
     public Set<ConcreteArrow> getAllAttachedArrows() {
         Set<ConcreteArrow> result = new HashSet<ConcreteArrow>();
         result.addAll(sourcedArrows);
@@ -289,9 +292,5 @@ public abstract class ConcreteDiagramElement implements Serializable {
         return result;
     }
 
-    // FIXME to remove ... done now through the translations
-//    public abstract void makeAbstractRepresentation();
-
-    public abstract void deleteMe();
 
 }

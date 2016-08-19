@@ -34,8 +34,6 @@ public class LabelledMultiDiagramConstructionSequence {
     }
 
     public void translate(OWLOutputBuilder outputter) {
-
-        diagram.checkValidity();
         if(diagram.isConceptDiagram()) {
             constructedAbstractDiagram = new ConceptDiagram();
         } else {

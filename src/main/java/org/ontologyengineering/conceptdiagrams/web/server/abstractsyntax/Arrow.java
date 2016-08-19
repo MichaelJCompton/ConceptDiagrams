@@ -13,7 +13,6 @@ import java.util.HashSet;
 
 public abstract class Arrow extends DiagramElement<AbstractDiagram, ConcreteArrow> {
 
-    // TODO : need to add the lambda functions once this code is linked up with WebProt
 
     private DiagramArrowSourceOrTarget source;
     private DiagramArrowSourceOrTarget target;

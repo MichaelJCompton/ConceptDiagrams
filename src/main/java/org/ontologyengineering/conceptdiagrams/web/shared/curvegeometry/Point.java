@@ -44,6 +44,9 @@ public class Point implements Serializable {
 
     // only used client side???
     public double distance(Point other) {
+
+        //return Math.sqrt(Math.abs(getX() - other.getX()) + Math.abs(getY() - other.getY()));
+
         return asLienzoPoint2D().distance(other.asLienzoPoint2D());
     }
 
@@ -75,6 +78,15 @@ public class Point implements Serializable {
 
     public boolean equals(Point other) {
         return getX() == other.getX() && getY() == other.getY();
+    }
+
+    // top left of the rectangle defined by the two points
+    public static Point topLeft(Point p1, Point p2) {
+        return new Point(Math.min(p1.getX(), p2.getX()), Math.min(p1.getY(), p2.getY()));
+    }
+
+    public static Point botRight(Point p1, Point p2) {
+        return new Point(Math.max(p1.getX(), p2.getX()), Math.max(p1.getY(), p2.getY()));
     }
 
 }

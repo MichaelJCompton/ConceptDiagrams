@@ -10,6 +10,7 @@ import com.google.web.bindery.event.shared.Event;
 import org.ontologyengineering.conceptdiagrams.web.client.events.ChangeLabelEvent;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
+import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -22,29 +23,32 @@ public class ChangeLabelCommand extends Command {
 
             ConcreteDiagramElement element;
     String newLabel, oldLabel;
+    Point oldPosition, newPosition;
 
     // just for serialization
     public ChangeLabelCommand() {
         super(myType);
     }
 
-    public ChangeLabelCommand(ConcreteDiagramElement elementToLabel, String label) {
+    public ChangeLabelCommand(ConcreteDiagramElement elementToLabel, String label, Point position) {
         super(myType);
 
         element = elementToLabel;
         oldLabel = element.labelText();
         newLabel = label;
+        oldPosition = element.getLabelPosition();
+        newPosition = position;
     }
 
 
     @Override
     public void execute() {
-        element.setLabel(newLabel);
+        element.setLabel(newLabel, newPosition);
     }
 
     @Override
     public void unExecute() {
-        element.setLabel(oldLabel);
+        element.setLabel(oldLabel, oldPosition);
     }
 
     @Override

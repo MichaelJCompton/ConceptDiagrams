@@ -50,10 +50,16 @@ public class LienzoCurve extends LienzoDiagramShape<ConcreteCurve, OrthogonalPol
         //double changeRatioX = newBoundingBox.getWidth() / getDiagramElement().getWidth();
         //double changeRatioY = newBoundingBox.getHeight() / getDiagramElement().getHeight();
 
-        CommandManager.get().executeCommand(new ResizeCommand(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()),
-                new Point(newBoundingBox.getX() + newBoundingBox.getWidth(), newBoundingBox.getY() + newBoundingBox.getHeight())));
+        getCanvas().getPresenter().resizeElement(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()),
+                new Point(newBoundingBox.getX() + newBoundingBox.getWidth(), newBoundingBox.getY() + newBoundingBox.getHeight()));
 
-        // FIXME ... does this mean label locations should be in the concrete elements???
+
+//        CommandManager.get().executeCommand(new ResizeCommand(getDiagramElement(), new Point(newBoundingBox.getX(), newBoundingBox.getY()),
+//                new Point(newBoundingBox.getX() + newBoundingBox.getWidth(), newBoundingBox.getY() + newBoundingBox.getHeight())));
+
+
+
+
         if(hasLabel()) {
             getLabel().getRepresentation().setX(getLabel().getRepresentation().getX() + (deltaX));// * changeRatioX));
             getLabel().getRepresentation().setY(getLabel().getRepresentation().getY() + (deltaY));// * changeRatioY));

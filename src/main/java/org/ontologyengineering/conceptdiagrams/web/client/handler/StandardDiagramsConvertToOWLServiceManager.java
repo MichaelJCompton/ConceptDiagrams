@@ -1,12 +1,15 @@
 package org.ontologyengineering.conceptdiagrams.web.client.handler;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.Command;
-import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
+import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.DiagramSet;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
 
 /**
@@ -27,7 +30,7 @@ public class StandardDiagramsConvertToOWLServiceManager extends ConvertToOWLServ
         convertToOWL = GWT.create(ConvertAllToOWLService.class);
     }
 
-    public void convertAllToOWL(ArrayList<Command> history, DiagramSet diagrams) {
+    public void convertAllToOWL(HashSet<ArrayList<Command>> histories, HashMap<String, DiagramSet> diagrams) { //}, DiagramSet diagrams) {
 
 
 //        if (convertToOWL == null) {
@@ -35,14 +38,18 @@ public class StandardDiagramsConvertToOWLServiceManager extends ConvertToOWLServ
 //        }
 
 
-        AsyncCallback<Void> callback = new AsyncCallback<Void>() {
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
             public void onFailure(Throwable caught) {
                 // TODO: Do something with errors.
+                int i = 10;
+                i++;
             }
 
-            public void onSuccess(Void result) {
-                // nothing to do??  Maybe eventually I have to update something,
-                // or put up a waiting window, block out any input and then indicate success/failure
+            public void onSuccess(String result) {
+                // result is the name of the file returned ... so save it
+
+                String url = GWT.getModuleBaseURL() + "ontologyDownloadService?filename=" + result;
+                Window.open(url, "_blank", ""); //status=0,toolbar=0,menubar=0,location=0
             }
         };
 
@@ -51,6 +58,10 @@ public class StandardDiagramsConvertToOWLServiceManager extends ConvertToOWLServ
         //test.testSerialization(new Curve(), callback);
 
         //
-        convertToOWL.convertAllToOWL(history, diagrams, context, callback);
+        convertToOWL.convertAllToOWL(histories, diagrams, context, callback); // diagrams
+    }
+
+    public ClientContext getContext() {
+        return context;
     }
 }

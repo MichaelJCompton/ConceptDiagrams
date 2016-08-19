@@ -9,7 +9,7 @@ import com.ait.lienzo.client.core.shape.*;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.client.core.types.Point2DArray;
-import org.ontologyengineering.conceptdiagrams.web.client.ui.DiagramCanvas;
+import org.ontologyengineering.conceptdiagrams.web.shared.presenter.DiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.LienzoDiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteArrow;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
@@ -201,10 +201,18 @@ public class LienzoArrow extends LienzoDiagramShape<ConcreteArrow, Spline> {
         // no rubber band for select on the canvas ... probably bad way to handle this, the canvas should be in control
         drawnControlPoints[i].addNodeMouseDownHandler(new NodeMouseDownHandler() {
             public void onNodeMouseDown(NodeMouseDownEvent event) {
+
+
+
                 // FIXME ouch bad!!! changes the mode need a better way
-                getCanvas().removeRubberBandRectangle();
+                // getCanvas().removeRubberBandRectangle();
                 getCanvas().setMode(DiagramCanvas.ModeTypes.SELECTION);
                 getLayer().getViewport().getDragLayer().add(rubberBandSpline);
+
+
+
+
+
             }
         });
 
@@ -277,6 +285,12 @@ public class LienzoArrow extends LienzoDiagramShape<ConcreteArrow, Spline> {
 
     public void drawRubberBand() {
         makedragRubberBand();
+    }
+
+
+    public void undraw() {
+        super.undraw();
+        arrowHead.getLayer().remove(arrowHead);
     }
 
 }

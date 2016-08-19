@@ -25,7 +25,7 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.Concret
  * Also allows for all the decorations and labels etc to be drawn.
  */
 public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M extends Node> {
-// FIXME ... thought I could make good use of the generic typing here, not so sure now, look again
+
 
 
     protected static final Color visibleWhite = new Color(255, 255, 255, 1);     // 1 = visible
@@ -47,7 +47,7 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
 
     protected static final ColorName spiderColourName = ColorName.BLACK;
     protected static final Color spiderColour = spiderColourName.getColor();
-    protected static final ColorName spiderSelectedColorName = ColorName.RED;
+    protected static final ColorName spiderSelectedColorName = ColorName.BLUE;
     protected static final Color spiderSelectedColor = spiderSelectedColorName.getColor();
     protected static final ColorName spiderMouseOverColorName = ColorName.RED;
     protected static final Color spiderMouseOverColor = spiderMouseOverColorName.getColor();
@@ -147,7 +147,6 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
 
     public abstract BoundingBox getBoundingBox();
 
-    // FIXME : why doesn't this just rely on the internal drag bounds boxes and not pass this in?
     public abstract void dragBoundsMoved(BoundingBox newBoundingBox);
 
     public void addLabel() {
@@ -199,7 +198,7 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
      */
     public void draw(Layer layer) {
         layer.add(getRepresentation().asPrimitive());
-        layer.batch();
+        batch();
     }
 
 
@@ -259,6 +258,11 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
         }
     }
 
+    // so subclasses can implement their own makedrageRubberBand
+    protected void setDragRubberBand(LienzoDragRubberBand band) {
+        dragRubberBand = band;
+    }
+
     // subclasses with children will override
     public void drawAll(Layer layer) {
         draw(layer);
@@ -269,7 +273,7 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
         if (getLayer() != null) {
             Layer layer = getRepresentation().getLayer();
             getRepresentation().getLayer().remove(getRepresentation().asPrimitive());
-            batch();
+            batch(layer);
         }
     }
 
@@ -294,11 +298,14 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
     }
 
     protected void batch() {
-        if (getLayer() != null) {
-            getLayer().batch();
-        }
+        batch(getLayer());
     }
 
+    protected void batch(Layer layer) {
+        if (layer != null) {
+            layer.batch();
+        }
+    }
 
     // ---------------------------------------------------------------------------------------
     //                          Handlers
@@ -312,7 +319,7 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
                 getCanvas().setIsUnderMouse(getDiagramElement());
                 shape.setStrokeColor(getMouseOverLineColour());
                 shape.setFillColor(getMouseOverFillColour());
-                shape.getLayer().batch();
+                batch(shape.getLayer());
             }
         });
     }
@@ -323,7 +330,7 @@ public abstract class LienzoDiagramShape<T extends ConcreteDiagramElement, M ext
             public void onNodeMouseExit(NodeMouseExitEvent event) {
                 shape.setStrokeColor(getLineColour());
                 shape.setFillColor(getFillColour());
-                shape.getLayer().batch();
+                batch(shape.getLayer());
             }
         });
     }

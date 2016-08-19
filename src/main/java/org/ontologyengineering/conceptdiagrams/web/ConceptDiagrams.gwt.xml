@@ -10,9 +10,12 @@
     <!-- <servlet path="conceptDiagrams/ConvertAllToOWLService"
              class="org.ontologyengineering.conceptdiagrams.web.server.handler.ConvertAllToOWLServiceImpliceImpl"/> -->
 
-
     <inherits name='com.google.gwt.user.User'/>
 
+
+    <!-- Theme -->
+    <!-- <inherits name='com.google.gwt.user.theme.standard.Standard'/> -->
+    <inherits name="com.google.gwt.user.theme.chrome.Chrome"/>
 
     <!-- The graphics library -->
     <inherits name="com.ait.lienzo.Lienzo"/>

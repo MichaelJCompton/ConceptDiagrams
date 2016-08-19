@@ -13,9 +13,7 @@ import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.Concret
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
-import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
 
-import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -24,10 +22,9 @@ public class AddArrowCommand extends Command {
     private static String myType = "AddArrowCommand";
 
 
-    Point startPoint, endPoint;
-    ConcreteDiagramElement source, target;
+    private Point startPoint, endPoint;
+    private ConcreteDiagramElement source, target;
     private ConcreteArrow theArrow;
-    DiagramSet diagrams;    // should this be embedded in the diagrams??
 
 
     // just for serialization
@@ -35,44 +32,38 @@ public class AddArrowCommand extends Command {
         super(myType);
     }
 
-    public AddArrowCommand(Point startPoint, Point endPoint, ConcreteDiagramElement source, ConcreteDiagramElement target, DiagramSet diagrams) {
+    // expecting source and target to be in the same diagram set
+    public AddArrowCommand(Point startPoint, Point endPoint, ConcreteDiagramElement source, ConcreteDiagramElement target) {
         super(myType);
 
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.source = source;
         this.target = target;
-
-        this.diagrams = diagrams;
     }
+
+    // really for use as an inverse for remove arrow
+    protected AddArrowCommand(ConcreteArrow arrow) {
+        theArrow = arrow;
+    }
+
 
     @Override
     public void execute() {
-        // FIXME also need to change the diagram set here??
         if(theArrow == null) {
             theArrow = new ConcreteArrow(startPoint, endPoint, source, target);
+            theArrow.setBoundaryRectangle(source.getBoundaryRectangle());
         } else {
-            theArrow.setSource(source);
-            theArrow.setTarget(target);
+            theArrow.linkSource(theArrow.getSource());
+            theArrow.linkTarget(theArrow.getTarget());
         }
-
-        theArrow.setBoundaryRectangle(source.getBoundaryRectangle());
         theArrow.getBoundaryRectangle().addArrow(theArrow);
-
-        // if diagrams knew their DiagramSet then this would all happen internally in the addArrow
-        // for a boundary rectangle and just get bubbled up for ones that require a merge.
-        if(source.getDiagram() != target.getDiagram()) {
-            diagrams.addArrowBetween(theArrow);
-        }
     }
 
     @Override
     public void unExecute() {
-        // FIXME may need to break up diagrams because of arrows here!
-        if(theArrow != null) {
-            theArrow.setSource(null);
-            theArrow.setTarget(null);
-        }
+        // this does the unlinking of source and target
+        theArrow.getBoundaryRectangle().removeArrow(theArrow);
     }
 
     @Override
@@ -91,7 +82,7 @@ public class AddArrowCommand extends Command {
 
     @Override
     public ConcreteDiagram getDiagram() {
-        return source.getDiagram();
+        return theArrow.getDiagram();
     }
 
     @Override
@@ -99,22 +90,6 @@ public class AddArrowCommand extends Command {
         return getArrow().hasLabel();  // rest should have been handled at the whole diagram level
     }
 
-//    @Override
-//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-//        if(getArrow().isObjectProperty()) {
-//            if(getArrow().singleRectangle()) {
-//                return new TransformAClassAndObjectPropertyDiagram(new AddLabelledArrow(getArrow()));
-//            } else {
-//                return new AddAnObjectPropertyLabelledArrow(getArrow());
-//            }
-//        } else {
-//            if(getArrow().singleRectangle()) {
-//                return new TransformADatatypeDiagram(new AddLabelledArrow(getArrow()));
-//            } else {
-//                return new AddADataPropertyLabelledArrow(getArrow());
-//            }
-//        }
-//    }
 
     public ConcreteArrow getArrow () {
         return theArrow;

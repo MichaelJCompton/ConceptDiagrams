@@ -1,6 +1,7 @@
 package org.ontologyengineering.conceptdiagrams.web.shared.commands;
 
 import com.google.web.bindery.event.shared.Event;
+import org.ontologyengineering.conceptdiagrams.web.client.events.FlipObjectPropertyInverseEvent;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteArrow;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 
@@ -18,18 +19,18 @@ import java.util.HashSet;
 
 
 
-public class FlipObjectPropertyInverse extends Command {
+public class FlipObjectPropertyInverseCommand extends Command {
 
-    private static String myType = "FlipObjectPropertyInverse";
+    private static String myType = "FlipObjectPropertyInverseCommand";
 
     private ConcreteArrow arrow;
 
     // just for serialization
-    private FlipObjectPropertyInverse() {
+    private FlipObjectPropertyInverseCommand() {
         super(myType);
     }
 
-    public FlipObjectPropertyInverse(ConcreteArrow arrow) {
+    public FlipObjectPropertyInverseCommand(ConcreteArrow arrow) {
         super(myType);
         this.arrow = arrow;
     }
@@ -47,14 +48,13 @@ public class FlipObjectPropertyInverse extends Command {
     @Override
     public Collection<Event> getEvents() {
         HashSet<Event> result = new HashSet<Event>();
-        // I think for the moment there aren't any events to catch for this
+        result.add(new FlipObjectPropertyInverseEvent(arrow));
         return result;
     }
 
     @Override
     public Collection<Event> getUnExecuteEvents() {
-        HashSet<Event> result = new HashSet<Event>();
-        return result;
+        return getEvents();
     }
 
     @Override

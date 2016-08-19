@@ -105,7 +105,7 @@ public class GsonClassSerializer {
 //                .registerSubtype(AddStarRectangleCommand.class, "AddStarRectangleCommand")
 //                .registerSubtype(ChangeLabelCommand.class, "ChangeLabelCommand")
 //                .registerSubtype(ChangeZoneShadingCommand.class, "ChangeZoneShadingCommand")
-//                .registerSubtype(FlipObjectPropertyInverse.class, "FlipObjectPropertyInverse")
+//                .registerSubtype(FlipObjectPropertyInverseCommand.class, "FlipObjectPropertyInverseCommand")
 //                .registerSubtype(MoveCommand.class, "MoveCommand")
 //                .registerSubtype(RemoveCurveCommand.class, "RemoveCurveCommand")
 //                .registerSubtype(ResizeCommand.class, "ResizeCommand");
@@ -146,7 +146,7 @@ public class GsonClassSerializer {
 //                .addType(AddStarRectangleCommand.class)
 //                .addType(ChangeLabelCommand.class)
 //                .addType(ChangeZoneShadingCommand.class)
-//                .addType(FlipObjectPropertyInverse.class)
+//                .addType(FlipObjectPropertyInverseCommand.class)
 //                .addType(MoveCommand.class)
 //                .addType(RemoveCurveCommand.class)
 //                .addType(ResizeCommand.class)

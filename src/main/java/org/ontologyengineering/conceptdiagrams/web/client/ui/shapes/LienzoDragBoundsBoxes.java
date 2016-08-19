@@ -12,7 +12,7 @@ import com.ait.lienzo.client.core.shape.Node;
 import com.ait.lienzo.client.core.shape.Rectangle;
 import com.ait.lienzo.client.core.types.BoundingBox;
 import com.ait.lienzo.client.core.types.Point2D;
-import org.ontologyengineering.conceptdiagrams.web.client.ui.DiagramCanvas;
+import org.ontologyengineering.conceptdiagrams.web.shared.presenter.DiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.LienzoDiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
 
@@ -106,7 +106,7 @@ public class LienzoDragBoundsBoxes extends LienzoDiagramShape<ConcreteDiagramEle
     }
 
 
-    // FIXME ... can't ever get this to register????
+    // FIXME ... can't ever get this to register???? ... make sure it's registering events on other layers?
     private void addZoomPanHandlers() {
         if (getLayer() != null) {
             getLayer().getScene().getViewport().addViewportTransformChangedHandler(new ViewportTransformChangedHandler() {
@@ -194,8 +194,17 @@ public class LienzoDragBoundsBoxes extends LienzoDiagramShape<ConcreteDiagramEle
         for (int i = 0; i < 8; i++) {
             dragBoxes[i].addNodeMouseDownHandler(new NodeMouseDownHandler() {
                 public void onNodeMouseDown(NodeMouseDownEvent event) {
-                    getCanvas().removeRubberBandRectangle();
-                    getCanvas().setMode(DiagramCanvas.ModeTypes.SELECTION);
+
+
+                    // FIXME
+                    //getCanvas().removeRubberBandRectangle();
+                    //getCanvas().setMode(DiagramCanvas.ModeTypes.SELECTION);
+
+                    //getCanvas().turnOffDragSelect();
+
+
+
+
                 }
             });
         }

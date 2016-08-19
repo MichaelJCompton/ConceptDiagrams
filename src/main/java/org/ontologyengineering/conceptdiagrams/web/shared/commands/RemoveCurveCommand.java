@@ -7,6 +7,8 @@ package org.ontologyengineering.conceptdiagrams.web.shared.commands;
  */
 
 import com.google.web.bindery.event.shared.Event;
+import org.ontologyengineering.conceptdiagrams.web.client.events.AddCurveEvent;
+import org.ontologyengineering.conceptdiagrams.web.client.events.AddZoneEvent;
 import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveCurveEvent;
 import org.ontologyengineering.conceptdiagrams.web.client.events.RemoveZoneEvent;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteCurve;
@@ -23,7 +25,6 @@ public class RemoveCurveCommand extends Command {
     private static String myType = "RemoveCurveCommand";
 
     ConcreteCurve curve;
-    AddCurveCommand myUndo;
 
     private RemoveCurveCommand() {
         super(myType);
@@ -33,14 +34,16 @@ public class RemoveCurveCommand extends Command {
         super(myType);
 
         curve = curveToRemove;
-
-        myUndo = new AddCurveCommand(this);
     }
 
+    // Can do this way around as an opposite of add, but doesn't work the otherway around.
+    // Removing a curve means also removing its shaded zones and undoing the removal of a curve means reinstating
+    // those shaded zones, so just an add curve isn't enough as the undo of delete.
+    //
+    // Instead remove will keep the curve and all its zones, just disassociated from the rest of the diagram.
+    // If the remove happens to be undone, we can just put those zones back where they belong.
     public RemoveCurveCommand(AddCurveCommand opposite) {
         curve = opposite.getCurve();
-
-        myUndo = opposite;
     }
 
     @Override
@@ -50,8 +53,7 @@ public class RemoveCurveCommand extends Command {
 
     @Override
     public void unExecute() {
-        myUndo.execute();
-        //curve.getBoundaryRectangle().addCurve(curve);
+        curve.getBoundaryRectangle().unremoveCurve(curve);
     }
 
     @Override
@@ -70,10 +72,7 @@ public class RemoveCurveCommand extends Command {
 
     @Override
     public Collection<Event> getUnExecuteEvents() {
-        return myUndo.getEvents();
-//        HashSet<Event> result = new HashSet<Event>();
-//        result.add(new AddCurveEvent(curve));
-//        return result;
+        return AddCurveCommand.addCurveEvents(curve);
     }
 
     @Override

@@ -48,28 +48,13 @@ public class AddCurveCommand extends Command {
         myUndo = new RemoveCurveCommand(this);
     }
 
-    public AddCurveCommand(RemoveCurveCommand opposite) {
-        super(myType);
-
-        curve = opposite.getCurve();
-        topLeft = curve.topLeft();
-        bottomRight = curve.bottomRight();
-        boundaryRectangle = curve.getBoundaryRectangle();
-
-        myUndo = opposite;
-    }
-
     public ConcreteBoundaryRectangle getBoundaryRectangle() {
         return boundaryRectangle;
     }
 
     @Override
     public void execute() {
-        // curve.setTopLeft(topLeft);
-        // FIXME : set the top right also??
         curve.setBoundaryRectangle(boundaryRectangle);
-
-        //boundaryRectangle.addCurve(curve);
     }
 
     @Override
@@ -78,6 +63,10 @@ public class AddCurveCommand extends Command {
     }
 
     public Collection<Event> getEvents() {
+        return addCurveEvents(curve);
+    }
+
+    public static Collection<Event> addCurveEvents(ConcreteCurve curve) {
         HashSet<Event> result = new HashSet<Event>();
         result.add(new AddCurveEvent(curve));
 
@@ -93,9 +82,6 @@ public class AddCurveCommand extends Command {
     @Override
     public Collection<Event> getUnExecuteEvents() {
         return myUndo.getEvents();
-//        HashSet<Event> result = new HashSet<Event>();
-//        result.add(new RemoveCurveEvent(curve));
-//        return result;
     }
 
     @Override
@@ -108,14 +94,6 @@ public class AddCurveCommand extends Command {
         return true;  // not sure what could be invalid here?
     }
 
-//    @Override
-//    public LabelledMultiDiagramTransformation asMultiDiagramTransformation(AbstractList<Command> commands, int myPlace) {
-//        if(boundaryRectangle.isObject()) {  // types should have been inferred by now
-//            return new TransformAClassAndObjectPropertyDiagram(new AddUnlabelledCurve(getCurve()));
-//        } else {
-//            return new TransformADatatypeDiagram(new AddUnlabelledCurve(getCurve()));
-//        }
-//    }
 
     public ConcreteCurve getCurve () {
         return curve;

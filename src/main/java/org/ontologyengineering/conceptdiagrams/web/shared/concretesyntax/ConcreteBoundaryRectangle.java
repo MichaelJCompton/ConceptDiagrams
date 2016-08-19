@@ -8,7 +8,6 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  */
 
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 
 import java.util.*;
@@ -72,6 +71,11 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
         createIntersectionGrid(initialSquares);
 
         makeMainZone();
+    }
+
+    // tells us if this boundary rectangle is empty, but it's the diagrams job to know if there are arrows in or out
+    public boolean isEmpty() {
+        return myArrows.isEmpty() && myCurves.isEmpty() && mySpiders.isEmpty();
     }
 
     public boolean isStarRectangle() {
@@ -176,33 +180,71 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
     }
 
 
+    // removes the curve from this boundary rectangle and from any curves that it intersected
+    // but all the zones of the curve etc are left untoched, so the curve looks the same externally, but the
+    // rest of the diagram has 'forgotten' about it.
+    //
+    // Really curves should only be removed if they aren't the source or target of an arrow ... but this also works
+    // during resize, cause the curve remains and adds itself back, so the arrow is ok.
     public void removeCurve(ConcreteCurve curve) {
-        getCurves().remove(curve);
-        removeCurveFromIntersectionGrid(curve);
+            getCurves().remove(curve);
+            removeCurveFromIntersectionGrid(curve);
 
-        curve.removeAllCompletelyContainedZones();
-        // now remove those zones from intersecting curves
-        // main zone can only be in the one curve
-        //
-        // But can't just remove everything because we really want the curve to be an image of what it once was,
-        // just having been disassociated from all the rest, so this removes it but keeps this curve.
-        for(ConcreteIntersectionZone zone : curve.getEnclosedZones()) {
-            zone.disassociateFromCurves(curve);
-            if(zone.getCurves().size() == 1) {
-                removeZone(zone);   // FIXME : I think on removing a curve all it's zones go ... because they are the result of intersections between two curves.  A zone can be inside many curves
+            // remove this curve from the lists of zones it contains
+            curve.disassociateCompletelyContainedZones();
 
-                for(ConcreteCurve c : zone.getCompletelyEnclosingCurves()) {
-                    c.removeCompletelyContainedZone(zone);
+
+            // now remove zones from intersecting curves
+            //
+            // But can't just remove everything because we really want the curve to be an image of what it once was,
+            // just having been disassociated from all the rest, so this removes it but keeps this curve.
+            for (ConcreteIntersectionZone zone : curve.getEnclosedZones()) {
+                zone.disassociateFromCurves(curve);
+                //if (zone.getCurves().size() == 1) {
+                removeZone(zone);
+
+                for (ConcreteCurve c : zone.getCompletelyEnclosingCurves()) {
+                    c.removeEnclosedZone(zone);
                 }
-            }
-        }
-        removeZone(curve.getMainZone());
-        for(ConcreteCurve c : curve.getMainZone().getCompletelyEnclosingCurves()) {
-            c.removeCompletelyContainedZone(curve.getMainZone());
-        }
 
-        // now remove all intersections
-        curve.disassociateFromAllIntersectingCurves();
+            }
+            removeZone(curve.getMainZone());
+            for (ConcreteCurve c : curve.getMainZone().getCompletelyEnclosingCurves()) {
+                c.removeEnclosedZone(curve.getMainZone());
+            }
+
+            // now remove all intersections
+            curve.disassociateFromAllIntersectingCurves();
+    }
+
+
+    // readd a curve that was dissassociatied from this diagram ... should only be used in undo
+    public void unremoveCurve(ConcreteCurve curve) {
+        if(curve.getBoundaryRectangle() == this) {
+            getCurves().add(curve);
+
+            addCurveToIntersectionGrid(curve);
+
+            // now got to add back in all those zones and the intersecting curves
+            curve.reassociateCompletelyContainedZones();
+
+            for (ConcreteIntersectionZone zone : curve.getEnclosedZones()) {
+                zone.reassociateToCurves(curve);
+
+                addZone(zone);
+
+                for (ConcreteCurve c : zone.getCompletelyEnclosingCurves()) {
+                    c.addCompletelyContainedZone(zone);
+                }
+
+            }
+            addZone(curve.getMainZone());
+            for (ConcreteCurve c : curve.getMainZone().getCompletelyEnclosingCurves()) {
+                c.addCompletelyContainedZone(curve.getMainZone());
+            }
+
+            curve.reassocitateToAllIntersectingCurves();
+        }
     }
 
     public void addSpider(ConcreteSpider spider) {
@@ -225,7 +267,16 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
     }
 
     public void removeArrow(ConcreteArrow arrow) {
-        getArrows().remove(arrow);
+        if(arrow.getSource().getBoundaryRectangle() == this &&
+                arrow.getTarget().getBoundaryRectangle() == this) {
+            getArrows().remove(arrow);
+            arrow.unlinkSourceAndTarget();
+        } else if(arrow.getSource().getBoundaryRectangle() == this) {
+            getDiagram().removeArrow(arrow);
+        } else {
+
+        }
+
     }
 
 
@@ -278,68 +329,103 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
         inferType();
     }
 
-    public void inferType() {
-        boolean isObject = true;
-        boolean typeknown = false;
-        setValid(true);  /// start with this and see if it changes
-
-        // firstly try to infer the type of this rectangle ... basically see if anything is data
-        for (ConcreteCurve c : getCurves()) {
-            if (c.typeIsKnown()) {
-                if(typeknown && (isObject != c.isObject())) {
-                    setValid(false);
-                }
-                isObject = c.isObject();
-                typeknown = true;
-            }
-        }
-        for (ConcreteSpider s : getSpiders()) {
-            if (s.typeIsKnown()) {
-                if(typeknown && (isObject != s.isObject())) {
-                    setValid(false);
-                }
-                isObject = s.isObject();
-                typeknown = true;
-            }
-        }
-        for (ConcreteArrow a : getArrows()) {
-            if(a.isValid()) {
-                if (a.typeIsKnown()) {
-                    if (typeknown && (isObject != a.isObject())) {
-                        setValid(false);
-                    }
-                    isObject = a.isObject();
-                    typeknown = true;
-                }
-            } else {
+    private void checkElementType(ConcreteDiagramElement elmnt) {
+        if (elmnt.typeIsKnown()) {
+            if(typeIsKnown() && (isObject() != elmnt.isObject())) {
                 setValid(false);
             }
-        }
-
-        if(isValid()) {
-            if (isObject) {
-                setAsObject();
-            } else {
-                setAsData();
+            if(!typeIsKnown()) {
+                if(elmnt.isObject()) {
+                    setAsObject();
+                } else {
+                    setAsData();
+                }
+                setTypeKnown();
             }
+        }
+//            if(!c.typeIsKnown() && typeIsKnown()) {
+//                c.setTypeKnown();
+//                // ...
+//            }
+    }
+
+    public void inferType() {
+
+        if(!typeIsKnown()) {
+            setAsObject();
+        }
+        setValid(true);
+
+        // *** at the moment in the interface can just set the boundry rectangles
+        // will need something like this if we allow forexample arrow types
+
+//        boolean isObject = isObject();
+//        boolean typeknown = typeIsKnown();
+//        setValid(true);  /// start with this and see if it changes
+
+//        // firstly try to infer the type of this rectangle ... basically see if anything is data
+//        for (ConcreteCurve c : getCurves()) {
+//            if (c.typeIsKnown()) {
+//                if(typeknown && (isObject != c.isObject())) {
+//                    setValid(false);
+//                }
+//                if(!typeIsKnown()) {
+//                    isObject = c.isObject();
+//                    setTypeKnown();
+//                }
+//            }
+////            if(!c.typeIsKnown() && typeIsKnown()) {
+////                c.setTypeKnown();
+////                // ...
+////            }
+//        }
+//        for (ConcreteSpider s : getSpiders()) {
+//            if (s.typeIsKnown()) {
+//                if(typeknown && (isObject != s.isObject())) {
+//                    setValid(false);
+//                }
+//                isObject = s.isObject();
+//                typeknown = true;
+//            }
+//        }
+//        for (ConcreteArrow a : getArrows()) {
+//            if(a.isValid()) {
+//                if (a.typeIsKnown()) {
+//                    if (typeknown && (isObject != a.isObject())) {
+//                        setValid(false);
+//                    }
+//                    isObject = a.isObject();
+//                    typeknown = true;
+//                }
+//            } else {
+//                setValid(false);
+//            }
+//        }
+//
+        if(isValid()) {
+//            if (isObject) {
+//                setAsObject();
+//            } else {
+//                setAsData();
+//            }
 
             // no go through and set all those inferred types
             for (ConcreteCurve c : getCurves()) {
-                if (isObject) {
+                if (isObject()) {
                     c.setAsObject();
                 } else {
                     c.setAsData();
                 }
             }
             for (ConcreteSpider s : getSpiders()) {
-                if (isObject) {
+                if (isObject()) {
                     s.setAsObject();
                 } else {
                     s.setAsData();
                 }
             }
             for (ConcreteArrow a : getArrows()) {
-                if (isObject) {
+                if (isObject()) {
                     a.setAsObject();
                 } else {
                     a.setAsData();
@@ -385,10 +471,6 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
         return result;
     }
 
-
-    public void deleteMe() {
-        // not yet
-    }
 
 
     private void calculateRectangleType() {
@@ -440,6 +522,28 @@ public class ConcreteBoundaryRectangle extends ConcreteRectangularElement {
 
     private boolean curveIsInIntersectionGridSquare(ConcreteCurve curve, int across, int down) {
         return rectanglesIntersect(curve.topLeft(), bottomRight(), gridSquareTopLeft(across, down), gridSquareBottomRight(across, down));
+    }
+
+    private int intersectionGridAcross(Point p) {
+        return (int) Math.floor((p.getX() - getX()) / gridSquareSize);
+    }
+
+    private int intersectionGridDown(Point p) {
+        return (int) Math.floor((p.getY() - getY()) / gridSquareSize);
+    }
+
+    public Set<ConcreteCurve> curvesAtPoint(Point p) {
+        Set<ConcreteCurve> result = new HashSet<ConcreteCurve>();
+        int i = intersectionGridAcross(p);
+        int j = intersectionGridDown(p);
+        if(i > 0 && j > 0 && i < intersectionGrid.size() && j < intersectionGrid.get(i).size()) {
+            for(ConcreteCurve c : intersectionGrid.get(i).get(j)) {
+                if(c.containsPoint(p)) {
+                    result.add(c);
+                }
+            }
+        }
+        return result;
     }
 
     public boolean pointInGridSquare(Point p, int across, int down) {

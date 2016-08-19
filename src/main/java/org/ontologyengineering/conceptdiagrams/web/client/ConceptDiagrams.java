@@ -7,15 +7,16 @@ package org.ontologyengineering.conceptdiagrams.web.client;
  */
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.dom.client.Style;
+import com.google.gwt.user.client.ui.*;
 import org.ontologyengineering.conceptdiagrams.web.client.handler.ConvertToOWLServiceManager;
 import org.ontologyengineering.conceptdiagrams.web.client.handler.StandardDiagramsConvertToOWLServiceManager;
-import org.ontologyengineering.conceptdiagrams.web.client.ui.DiagramCanvas;
+import org.ontologyengineering.conceptdiagrams.web.client.ui.LienzoDiagramPainter;
+import org.ontologyengineering.conceptdiagrams.web.shared.presenter.DiagramCanvas;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.LienzoDiagramCanvas;
-import org.ontologyengineering.conceptdiagrams.web.shared.ClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.StandardClientContext;
+import org.ontologyengineering.conceptdiagrams.web.shared.presenter.DiagramPainter;
+import org.ontologyengineering.conceptdiagrams.web.shared.presenter.DiagramPresenter;
 
 /**
  *
@@ -71,26 +72,18 @@ public class ConceptDiagrams implements EntryPoint {
 
 
 
+    private LienzoDiagramCanvas diagramCanvas;
+    private DiagramPresenter presenter;
 
-
-    private Panel mainPanel;
-    private DiagramCanvas diagramCanvas;
 
     public void onModuleLoad() {
-        mainPanel = new AbsolutePanel();
-        RootPanel.get().add(mainPanel);
-
-        mainPanel.setSize("1200px", "550px");
-
-
         StandardClientContext context = new StandardClientContext();
-        context.setIri("http://this.is.a.test/");
-        context.setFileName("TEST.owl");
+        context.setIRI("http://test.change.me/");
 
         ConvertToOWLServiceManager converToOWLsrvc = new StandardDiagramsConvertToOWLServiceManager(context);
 
-        diagramCanvas = new LienzoDiagramCanvas(mainPanel.getOffsetWidth(), mainPanel.getOffsetHeight(), mainPanel, converToOWLsrvc);
-
-
+        diagramCanvas = new LienzoDiagramCanvas();
+        presenter = new DiagramPresenter(diagramCanvas, converToOWLsrvc);
+        RootLayoutPanel.get().add(diagramCanvas.asDockLayoutPanel());
     }
 }

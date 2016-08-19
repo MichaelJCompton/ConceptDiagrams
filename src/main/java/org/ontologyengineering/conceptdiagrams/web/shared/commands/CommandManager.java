@@ -14,44 +14,29 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
- * A singleton manager for Commands.
+ * A manager for Commands - one for each drawing canvas.
  *
  * Manages an undo and redo list of commands.
  */
 public class CommandManager {
 
-    private static CommandManager theInstance;
-
-    // hhmmm should be a bit more separated and not have gwt stuff buried in here.
-    // but need some sort of eventing infrastructure built in, or should the commands and the events be a bit more
-    // separated, extract out the event controller to the GWT level?
-    private EventBus eventBus;
-
-
     private LinkedList<Command> undoList;
     private LinkedList<Command> redoList;
 
+    private static final EventBus eventBus = new SimpleEventBus();
 
-    private CommandManager() {
+    public CommandManager() {
         undoList = new LinkedList<Command>();
         redoList = new LinkedList<Command>();
-
-        eventBus = new SimpleEventBus();
     }
 
-    public static CommandManager get() {
-        if(theInstance == null) {
-            theInstance = new CommandManager();
-        }
-        return theInstance;
-    }
 
     public void clearAll() {
         undoList.clear();
         redoList.clear();
     }
 
-    public EventBus getEventBus() {
+    public static EventBus getEventBus() {
         return eventBus;
     }
 
@@ -67,7 +52,7 @@ public class CommandManager {
 
         // fire off an events
         for(Event e : command.getEvents()) {
-            eventBus.fireEvent(e);
+            getEventBus().fireEvent(e);
         }
     }
 
@@ -78,7 +63,7 @@ public class CommandManager {
             undoMe.unExecute();
 
             for(Event e : undoMe.getUnExecuteEvents()) {
-                eventBus.fireEvent(e);
+                getEventBus().fireEvent(e);
             }
         }
     }
@@ -90,7 +75,7 @@ public class CommandManager {
             redoMe.execute();
 
             for(Event e : redoMe.getEvents()) {
-                eventBus.fireEvent(e);
+                getEventBus().fireEvent(e);
             }
         }
     }
@@ -100,7 +85,6 @@ public class CommandManager {
     }
 
 
-    // FIXME : this isn't good it's used in the transformation manager, but I shouldn't go passing this around ... only marginaly better now it's a copy
     public ArrayList<Command> getUndoList() {
         ArrayList<Command> result = new ArrayList<Command>();
         for(Command c : undoList) {

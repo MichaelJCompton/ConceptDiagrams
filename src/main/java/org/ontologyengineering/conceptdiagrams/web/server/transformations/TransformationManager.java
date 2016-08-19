@@ -10,12 +10,12 @@ import org.ontologyengineering.conceptdiagrams.web.server.owlOutput.OWLOutputBui
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.Command;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagram;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.ConcreteDiagramElement;
-import org.ontologyengineering.conceptdiagrams.web.shared.diagrams.DiagramSet;
 
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 
 public class TransformationManager {
@@ -32,11 +32,19 @@ public class TransformationManager {
         constructionSequences = new HashMap<ConcreteDiagram, LabelledMultiDiagramConstructionSequence>();
         isValidConstructionSequence = new HashMap<ConcreteDiagram, Boolean>();
 
+        HashSet<ConcreteDiagram> typeChecked = new HashSet<ConcreteDiagram>();
+
         CommandTransformer transformer = new CommandTransformer();
 
         for (int i = editHistory.size() - 1; i >= 0; i--) {
             Command c = editHistory.get(i);
             if (c.leadsToValid()) {
+
+                if(!typeChecked.contains(c.getDiagram())) {
+                    c.getDiagram().checkValidity();
+                    typeChecked.add(c.getDiagram());
+                }
+
                 LabelledMultiDiagramTransformation trans = transformer.makeTransformationFromCommand(c, editHistory, i);
                 ConcreteDiagramElement e = c.getDiagram();
                 if (constructionSequences.get(c.getDiagram()) == null) {
