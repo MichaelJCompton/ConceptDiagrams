@@ -14,7 +14,9 @@ Running
 To execute, from the base directory run commands:
 
 mvn compile
+
 mvn gwt:compile
+
 mvn gwt:run -DrunTarget=Application.jsp
 
 
