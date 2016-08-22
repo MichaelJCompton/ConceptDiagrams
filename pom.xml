@@ -171,7 +171,11 @@
                     <include>**/*.gwt.xml</include>
                 </includes>
             </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
         </resources>
+
 
         <plugins>
 
@@ -183,6 +187,7 @@
                 <executions>
                     <execution>
                         <goals>
+                            <goal>resources</goal>
                             <goal>compile</goal>
                             <goal>test</goal>
                             <!--<goal>i18n</goal>-->

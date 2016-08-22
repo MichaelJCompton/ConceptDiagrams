@@ -11,6 +11,7 @@ import com.google.gwt.resources.client.ImageResource;
 
 public interface MenuIcons extends ClientBundle {
 
+
     // -------------------------------
     // TOOL BAR
     // -------------------------------
