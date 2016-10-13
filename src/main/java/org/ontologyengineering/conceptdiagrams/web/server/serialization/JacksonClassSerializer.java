@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Author: Michael Compton<br>
@@ -53,6 +54,18 @@ public class JacksonClassSerializer {
     }
 
 
+    public void serializeCommandHistory(HashSet<ArrayList<Command>> histories, String file) {
+        File outfile = new File(file);
+        try {
+            mapper.writer().withDefaultPrettyPrinter().writeValue(outfile, histories);
+            //mapper.writerWithType(new TypeReference<ArrayList<Command>>() {}).writeValue(outfile, history);
+        } catch(IOException e) {
+            logger.error("Exception serializing history", e);
+        }
+    }
+
+
+
     public ArrayList<Command> readSerializedCommandHistory(String file) {
         ArrayList<Command> result = null;
 
@@ -66,5 +79,16 @@ public class JacksonClassSerializer {
         return result;
     }
 
+    public HashSet<ArrayList<Command>> readSerializedCommandHistoryToHashSet(String file) {
+        HashSet<ArrayList<Command>> result = null;
 
+        File outfile = new File(file);
+        try {
+            result = mapper.readValue(outfile, new TypeReference<HashSet<ArrayList<Command>>>() {});
+        } catch(IOException e) {
+            logger.info("Exception reading serialized", e);
+        }
+
+        return result;
+    }
 }

@@ -20,7 +20,7 @@ import java.util.HashSet;
 
 public class ChangeArrowConstraintsCommand extends Command {
 
-    private static String myType = "ChangeCardinalityCommand";
+    private static String myType = "ChangeArrowConstraintsCommand";
 
     private ConcreteArrow theArrow;
     private ConcreteArrow.CardinalityConstraint oldConstraint;

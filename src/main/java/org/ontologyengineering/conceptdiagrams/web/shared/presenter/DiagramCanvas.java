@@ -69,6 +69,9 @@ public abstract class DiagramCanvas {
         clearSelection();
     }
 
+    // make a new 'space' for drawing diagram with ID and name
+    abstract protected void addNewCanvas(String ID, String name);
+
     protected ModeTypes getMode() {
         return mode;
     }

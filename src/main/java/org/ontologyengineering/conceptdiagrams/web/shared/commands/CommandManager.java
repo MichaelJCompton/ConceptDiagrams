@@ -12,6 +12,7 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * A manager for Commands - one for each drawing canvas.
@@ -30,6 +31,12 @@ public class CommandManager {
         redoList = new LinkedList<Command>();
     }
 
+    // make the command manager from a given set of commands
+    public CommandManager(List<Command> commands) {
+        undoList = new LinkedList<Command>(commands);
+        redoList = new LinkedList<Command>();
+    }
+
 
     public void clearAll() {
         undoList.clear();
@@ -39,6 +46,9 @@ public class CommandManager {
     public static EventBus getEventBus() {
         return eventBus;
     }
+
+
+
 
     public void executeCommand(Command command) {
         // chop off any bits of the history that we can no longer redo after this
@@ -97,4 +107,16 @@ public class CommandManager {
         return redoList.size() > 0;
     }
 
+
+    // re-fire all the events for commands so far (in order)
+    public void reFireAll() {
+
+        for(Command command : undoList) {
+
+            for(Event e : command.getEvents()) {
+                getEventBus().fireEvent(e);
+            }
+
+        }
+    }
 }

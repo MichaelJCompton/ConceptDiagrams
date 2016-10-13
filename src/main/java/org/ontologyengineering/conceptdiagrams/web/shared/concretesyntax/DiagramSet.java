@@ -6,6 +6,9 @@ package org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax;
  * See license information in base directory.
  */
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Document;
 import org.ontologyengineering.conceptdiagrams.web.server.abstractsyntax.BoundaryRectangle;
@@ -27,6 +30,11 @@ import java.util.Set;
  * Practially it's just a set of diagrams that form some unit and might at some stage be joined if an arrow is drawn
  * between two diagrams.
  */
+
+
+@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class, property="@id")  // Jackson serialization
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "jacksontype")
+
 public class DiagramSet implements Serializable {
 
     private HashSet<ConcreteDiagram> theDiagrams;

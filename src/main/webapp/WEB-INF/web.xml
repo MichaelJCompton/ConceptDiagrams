@@ -17,6 +17,26 @@
         <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.TestSerializationImpl</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>ontologyDownloadService</servlet-name>
+        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.servlet.DownloadFileServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>uploadFileService</servlet-name>
+        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.servlet.UploadFileServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.ontologyengineering.conceptdiagrams.web.ConceptDiagrams SaveDiagramService</servlet-name>
+        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.SaveDiagramServiceImpl</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>org.ontologyengineering.conceptdiagrams.web.ConceptDiagrams LoadDiagramService</servlet-name>
+        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.LoadDiagramServiceImpl</servlet-class>
+    </servlet>
+
+
     <servlet-mapping>
         <servlet-name>ConvertAllToOWL</servlet-name>
         <url-pattern>/conceptDiagrams/ConvertAllToOWL</url-pattern>
@@ -27,17 +47,24 @@
         <url-pattern>/conceptDiagrams/TestSerialization</url-pattern>
     </servlet-mapping>
 
-    <servlet>
-        <servlet-name>ontologyDownloadService</servlet-name>
-        <servlet-class>org.ontologyengineering.conceptdiagrams.web.server.handler.servlet.DownloadOWLServlet</servlet-class>
-    </servlet>
-
     <servlet-mapping>
         <servlet-name>ontologyDownloadService</servlet-name>
         <url-pattern>/conceptDiagrams/ontologyDownloadService</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>uploadFileService</servlet-name>
+        <url-pattern>/conceptDiagrams/uploadFileService</url-pattern>
+    </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>org.ontologyengineering.conceptdiagrams.web.ConceptDiagrams SaveDiagramService</servlet-name>
+        <url-pattern>/conceptDiagrams/SaveDiagram</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>org.ontologyengineering.conceptdiagrams.web.ConceptDiagrams LoadDiagramService</servlet-name>
+        <url-pattern>/conceptDiagrams/LoadDiagram</url-pattern>
+    </servlet-mapping>
 
 
     <!-- Default page to serve -->

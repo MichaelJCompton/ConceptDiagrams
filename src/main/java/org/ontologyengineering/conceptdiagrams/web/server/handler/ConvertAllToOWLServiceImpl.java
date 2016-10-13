@@ -61,7 +61,7 @@ public class ConvertAllToOWLServiceImpl extends RemoteServiceServlet implements 
 
         UUID ontologyID = UUID.randomUUID();
 
-        String filename = "diagrams_2_OWL_output" + ontologyID;
+        String filename = "diagrams_2_OWL_output" + ontologyID + ".owl";
 
         OWLAPIutils.writeOntology(ontology, "/tmp/org.ontologyengineering.conceptdiagrams." + filename);
 

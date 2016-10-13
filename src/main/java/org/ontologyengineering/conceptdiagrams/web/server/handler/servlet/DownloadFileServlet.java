@@ -17,14 +17,14 @@ import java.io.InputStream;
  * Date: August 2016<br>
  * See license information in base directory.
  */
-public class DownloadOWLServlet extends HttpServlet {
+public class DownloadFileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp ) throws ServletException, IOException
     {
         String fileName = req.getParameter( "filename" );
         File downloadableFile = new File("/tmp/org.ontologyengineering.conceptdiagrams." + fileName);
 
         resp.setContentType( "application/octet-stream" );
-        resp.setHeader( "Content-Disposition:", "attachment;filename=" + "\"" + fileName + ".owl\"" );
+        resp.setHeader( "Content-Disposition:", "attachment;filename=" + "\"" + fileName + "\"" );
         ServletOutputStream os = resp.getOutputStream();
 
         resp.setContentLength( Long.valueOf( downloadableFile.length() ).intValue() );
@@ -38,6 +38,8 @@ public class DownloadOWLServlet extends HttpServlet {
             }
         } finally {
             os.close();
+
+            // and then delete the file...
         }
 
     }

@@ -23,6 +23,8 @@
     <!-- OWLAPI -->
     <inherits name="org.semanticweb.owlapi.gwt.owlapi"/>
 
+    <!-- XML parsing -->
+    <inherits name="com.google.gwt.xml.XML" />
 
     <entry-point class='org.ontologyengineering.conceptdiagrams.web.client.ConceptDiagrams'/>
 

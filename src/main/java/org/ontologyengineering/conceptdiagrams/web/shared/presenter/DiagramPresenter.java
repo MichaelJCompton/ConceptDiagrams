@@ -7,10 +7,13 @@ package org.ontologyengineering.conceptdiagrams.web.shared.presenter;
  */
 
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import org.ontologyengineering.conceptdiagrams.web.client.events.*;
-import org.ontologyengineering.conceptdiagrams.web.client.handler.ConvertToOWLServiceManager;
+import org.ontologyengineering.conceptdiagrams.web.client.handler.*;
 import org.ontologyengineering.conceptdiagrams.web.shared.OntologyFormat;
 import org.ontologyengineering.conceptdiagrams.web.shared.WebProtegeClientContext;
 import org.ontologyengineering.conceptdiagrams.web.shared.commands.*;
@@ -91,6 +94,95 @@ public class DiagramPresenter {
 
         converToOWLsrvc.convertAllToOWL(histories, diagrams);
     }
+
+
+    public void saveALL() {
+
+        SaveDiagramServiceAsync saveAllService;
+        saveAllService = GWT.create(SaveDiagramService.class);
+
+        HashSet<ArrayList<Command>> histories = new HashSet<ArrayList<Command>>();
+        for(CommandManager manager : managers.values()) {
+            histories.add(manager.getUndoList());
+        }
+
+
+        AsyncCallback<String> callback = new AsyncCallback<String>() {
+            public void onFailure(Throwable caught) {
+                // TODO: Do something with errors.
+            }
+
+            public void onSuccess(String result) {
+                // result is the name of the file returned ... so save it
+                String url = GWT.getModuleBaseURL() + "ontologyDownloadService?filename=" + result;
+                Window.open(url, "_blank", ""); //status=0,toolbar=0,menubar=0,location=0
+            }
+        };
+
+
+
+        saveAllService.saveCommandHistory(histories, diagrams, converToOWLsrvc.getContext(), callback);
+    }
+
+    public void loadFrom(String filename) {
+
+        LoadDiagramServiceAsync loadAllService;
+        loadAllService = GWT.create(LoadDiagramService.class);
+
+        AsyncCallback<HashSet<ArrayList<Command>>> callback = new AsyncCallback<HashSet<ArrayList<Command>>>() {
+            public void onFailure(Throwable caught) {
+                // TODO: Do something with errors.
+            }
+
+            public void onSuccess(HashSet<ArrayList<Command>> commandHistories) {
+                setAllAs(commandHistories);
+            }
+        };
+
+
+        loadAllService.loadCommandHistory(filename, callback);
+    }
+
+    public void setAllAs(HashSet<ArrayList<Command>> commandSet) {
+
+        // assume somethingelse has checked that this is ok
+        // ... just blank everything set the given commands as the right ones and redraw everything
+
+
+        // wipe everything
+        canvas.setAsFreshCanvas();
+
+
+        // set up the diagram sets and commands
+        diagrams = new HashMap<String, DiagramSet>();
+        managers = new HashMap<String, CommandManager>();
+
+        for(ArrayList<Command> commands : commandSet) {
+            if(commands.size() > 0) {
+                Command first = commands.get(0);
+
+                DiagramSet diagSet = first.getDiagram().getDiagramSet();
+
+                diagrams.put(diagSet.getUniqueID(), diagSet);
+                managers.put(diagSet.getUniqueID(), new CommandManager(commands));
+            }
+        }
+
+
+        // Draw everything on the canvas : setup new canvases, then for each reexecute the commands
+        // which should fire anything in the system that draws or is otherwise interested in those events
+        for(String diagramID : diagrams.keySet()) {
+            canvas.addNewCanvas(diagramID, diagrams.get(diagramID).getLabel());
+        }
+        for(String diagramID : diagrams.keySet()) {
+            canvas.setAsFocusDiagram(diagramID);
+            // some of this will be bogus (e.g. the moves, which will always move to the final position
+            // - what about delete?) ... but with any luck, it will be ok for drawing
+            managers.get(diagramID).reFireAll();
+        }
+    }
+
+
 
 
     public OntologyFormat getFormat() {
@@ -457,11 +549,18 @@ public class DiagramPresenter {
 
     public boolean canUndo(String ID) {
         CommandManager manager = getManagerByID(ID);
-        return manager.canUndo();
+        if(manager != null) {
+            return manager.canUndo();
+        }
+        return false;
     }
 
     public boolean canRedo(String ID) {
-        return getManagerByID(ID).canRedo();
+        CommandManager manager = getManagerByID(ID);
+        if(manager != null) {
+            return getManagerByID(ID).canRedo();
+        }
+        return false;
     }
 
     // redo the last undone edit for the given diagram set
@@ -554,45 +653,35 @@ public class DiagramPresenter {
         eventBus.addHandler(RemoveBoundaryRectangleEvent.TYPE,
                 new RemoveBoundaryRectangleEventHandler() {
                     public void onRemoveBoundaryRectangle(RemoveBoundaryRectangleEvent event) {
-                        canvas.getPainter().removeRectangle(event.getBoundaryRectangle());
+                        drawRemoveBoundaryRectangle(event.getBoundaryRectangle());
                     }
                 });
 
         eventBus.addHandler(ChangeZoneShadingEvent.TYPE,
                 new ChangeZoneShadingEventHandler() {
                     public void onChangeZoneShading(ChangeZoneShadingEvent event) {
-                        if (event.getZoneChanged().shaded()) {
-                            canvas.getPainter().shadeZone(event.getZoneChanged());
-                        } else {
-                            canvas.getPainter().unShadeZone(event.getZoneChanged());
-                        }
+                        drawChangeShading(event.getZoneChanged());
                     }
                 });
 
         eventBus.addHandler(AddArrowEvent.TYPE,
                 new AddArrowEventHandler() {
                     public void onAddArrow(AddArrowEvent event) {
-                        canvas.getPainter().drawArrow(event.getAddedArrow());
-                        canvas.setAsSelectedElement(event.getAddedArrow());
-                        canvas.drawSelectedRepresentation();
+                        drawAddArrow(event.getAddedArrow());
                     }
                 });
 
         eventBus.addHandler(RemoveArrowEvent.TYPE,
                 new RemoveArrowEventHandler() {
                     public void onRemoveArrow(RemoveArrowEvent event) {
-                        canvas.getPainter().removeArrow(event.getRemovedArrow());
+                        drawRemoveArrow(event.getRemovedArrow());
                     }
                 });
 
         eventBus.addHandler(ResizeElementEvent.TYPE,
                 new ResizeElementEventHandler() {
                     public void onResizeElement(ResizeElementEvent event) {
-                        canvas.getPainter().redraw(event.getResizedElement());
-
-                        for(ConcreteArrow arrow : event.getResizedElement().getAllAttachedArrows()) {
-                            canvas.getPainter().redraw(arrow);
-                        }
+                        drawResizeElement(event.getResizedElement());
                     }
                 });
 
@@ -600,12 +689,7 @@ public class DiagramPresenter {
         eventBus.addHandler(MoveElementEvent.TYPE,
                 new MoveElementEventHandler() {
                     public void onMoveElement(MoveElementEvent event) {
-                        canvas.getPainter().redraw(event.getMovedElement());
-
-                        // why does the compiler barf if I don't have the cast here????
-                        for(ConcreteArrow arrow : (Set<ConcreteArrow>) event.getMovedElement().getAllAttachedArrows()) {
-                            canvas.getPainter().redraw(arrow);
-                        }
+                        drawMoveElement(event.getMovedElement());
                     }
                 });
 
@@ -613,11 +697,53 @@ public class DiagramPresenter {
 
         eventBus.addHandler(ChangeLabelEvent.TYPE, new ChangeLabelEventHandler() {
             public void onChangeLabel(ChangeLabelEvent event) {
-                canvas.getPainter().changeLabel(event.changedElement());
+                drawChangeLabel(event.changedElement());
             }
         });
     }
 
 
+    private void drawRemoveBoundaryRectangle(ConcreteBoundaryRectangle rect) {
+        canvas.getPainter().removeRectangle(rect);
+    }
+
+    private void drawChangeShading(ConcreteZone zone) {
+        if (zone.shaded()) {
+            canvas.getPainter().shadeZone(zone);
+        } else {
+            canvas.getPainter().unShadeZone(zone);
+        }
+    }
+
+    private void drawAddArrow(ConcreteArrow arrow) {
+        canvas.getPainter().drawArrow(arrow);
+        canvas.setAsSelectedElement(arrow);
+        canvas.drawSelectedRepresentation();
+    }
+
+    private void drawRemoveArrow(ConcreteArrow arrow) {
+        canvas.getPainter().removeArrow(arrow);
+    }
+
+    private void drawResizeElement(ConcreteDiagramElement element) {
+        canvas.getPainter().redraw(element);
+
+        for(ConcreteArrow arrow : element.getAllAttachedArrows()) {
+            canvas.getPainter().redraw(arrow);
+        }
+    }
+
+
+    private void drawMoveElement(ConcreteDiagramElement element) {
+        canvas.getPainter().redraw(element);
+
+        for(ConcreteArrow arrow : element.getAllAttachedArrows()) {
+            canvas.getPainter().redraw(arrow);
+        }
+    }
+
+    private void drawChangeLabel(ConcreteDiagramElement element) {
+        canvas.getPainter().changeLabel(element);
+    }
 
 }

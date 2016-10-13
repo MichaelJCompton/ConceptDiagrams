@@ -14,6 +14,7 @@ import com.ait.lienzo.client.core.shape.*;
 import com.ait.lienzo.client.core.types.Point2D;
 import com.ait.lienzo.client.core.types.Transform;
 import com.ait.lienzo.client.widget.LienzoPanel;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
@@ -22,14 +23,20 @@ import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.xml.client.*;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.shapes.LienzoDiagramShape;
 import org.ontologyengineering.conceptdiagrams.web.client.ui.shapes.LienzoDragBoundsGroup;
 import org.ontologyengineering.conceptdiagrams.web.shared.OntologyFormat;
+import org.ontologyengineering.conceptdiagrams.web.shared.commands.Command;
 import org.ontologyengineering.conceptdiagrams.web.shared.concretesyntax.*;
 import org.ontologyengineering.conceptdiagrams.web.shared.curvegeometry.Point;
 import org.ontologyengineering.conceptdiagrams.web.shared.presenter.DiagramCanvas;
@@ -77,6 +84,10 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
     private Button loadFileButton;
     private Button saveButton;
     private Button compileToOWLButton;
+
+    // invisible file upload
+    private FileUpload upload;
+    private FormPanel fileForm;
 
 
     // button panel
@@ -252,6 +263,8 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         return asDockLayoutPanel().getOffsetHeight();
     }
 
+
+
     protected void addNewCanvas(String ID, String name) {
 
         LienzoPanel panel = new LienzoPanel();
@@ -377,12 +390,12 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
         super.setAsFreshCanvas();
 
-        for (String ID : canvases.keySet()) {
-            presenter.deleteDiagramSet(ID);
-        }
-
         while(drawingTabs.getWidgetCount() > 1) {
             drawingTabs.remove(0);
+        }
+
+        for (String ID : canvases.keySet()) {
+            presenter.deleteDiagramSet(ID);
         }
 
         canvases.clear();
@@ -391,6 +404,8 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         zoneLayers.clear();
 
         canvas2id.clear();
+
+        elementsMap.clear();
 
 
         String ID = presenter.newDiagramSet("Concept Diagrams");
@@ -1286,6 +1301,20 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         presenter.compileToOWL();
     }
 
+    public void saveALL() {
+        presenter.saveALL();
+    }
+
+    public void setAllAs(HashSet<ArrayList<Command>> commands) {
+        presenter.setAllAs(commands);
+    }
+
+
+    public void loadFrom(String filename) {
+        presenter.loadFrom(filename);
+    }
+
+
     // --------------------------------
     // Layout Setup
     // --------------------------------
@@ -1563,6 +1592,7 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         return result;
     }
 
+
     private FlowPanel buildFilePanel () {
         FlowPanel result = new FlowPanel();
 
@@ -1582,12 +1612,18 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
         loadFileButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-
-
+                // see invisible FileUpload below
+                jsClickUpload(upload.getElement());
             }
         });
 
+
         saveButton = imageAsButton(InterfaceGlobals.INSTANCE.getIconImages().save(), "Save File");
+        saveButton.addClickHandler(new ClickHandler() {
+            public void onClick(ClickEvent clickEvent) {
+                saveALL();
+            }
+        });
 
         compileToOWLButton = imageAsButton(InterfaceGlobals.INSTANCE.getIconImages().toOWL(), "Compile to OWL");
         compileToOWLButton.addClickHandler(new ClickHandler() {
@@ -1609,8 +1645,71 @@ public class LienzoDiagramCanvas extends DiagramCanvas {
 
         result.add(inputPanel);
 
+
+
+        // ---------------------------------------------------------------
+        // --- add an invisible form and file input
+        // ---------------------------------------------------------------
+
+        fileForm = new FormPanel();
+        fileForm.setAction(GWT.getModuleBaseURL() + "uploadFileService");
+        fileForm.setVisible(false);
+        fileForm.setEncoding(FormPanel.ENCODING_MULTIPART);
+        fileForm.setMethod(FormPanel.METHOD_POST);
+
+        upload = new FileUpload();
+        upload.setVisible(false);
+        upload.setName("uploadFileName");
+
+        fileForm.add(upload);
+        RootPanel.get().add(fileForm);
+
+        upload.addChangeHandler(new ChangeHandler() {
+
+            @Override
+            public void onChange(ChangeEvent event) {
+
+                // test code ... but this prints out an obsqured file name anyway
+                //Window.alert(upload.getFilename());
+
+                if (upload.getFilename().isEmpty()) {
+                    Window.alert("Can't Load.  No File Specified!");
+                } else {
+                    fileForm.submit();
+                }
+            }
+
+        });
+
+        fileForm.addSubmitCompleteHandler(new FormPanel.SubmitCompleteHandler() {
+            @Override
+            public void onSubmitComplete(FormPanel.SubmitCompleteEvent event) {
+
+                Document messageDom = XMLParser.parse(event.getResults());
+
+                String filename = messageDom.getElementsByTagName("pre").item(0).getFirstChild().getNodeValue();
+
+                //Window.alert(filename);
+
+                loadFrom(filename);
+            }
+        });
+
+        // ---------------------------------------------------------------
+        // --- end invisible form and file input
+        // ---------------------------------------------------------------
+
+
         return result;
     }
+
+
+    // only answer I could find to do this with a hidden file upload.  Need to do some more
+    // digging about the right way to do it in current version of GWT
+    native void jsClickUpload(Element pElement) /*-{
+        pElement.click();
+    }-*/;
+
 
     private void resetTabName(String ID) {
         if(tabText.containsKey(ID)) {
